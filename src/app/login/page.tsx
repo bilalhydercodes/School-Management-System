@@ -102,7 +102,7 @@ const LOGIN_PAGE_CONFIG = {
       title: 'Student & Parent Portal',
       subtitle: 'Academic Ledger, Fees & Report Cards',
       email: 'student@dps.edu.in',
-      path: '/',
+      path: '/student',
       icon: GraduationCap,
       accentColor: 'from-emerald-600 to-teal-700',
       badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -132,7 +132,7 @@ const LOGIN_PAGE_CONFIG = {
       email: 'student@dps.edu.in',
       password: 'Student@123',
       icon: GraduationCap,
-      path: '/',
+      path: '/student',
     },
     {
       role: 'Parent',
@@ -140,7 +140,7 @@ const LOGIN_PAGE_CONFIG = {
       email: 'parent@dps.edu.in',
       password: 'Parent@123',
       icon: Users,
-      path: '/',
+      path: '/student',
     },
     {
       role: 'Accountant',

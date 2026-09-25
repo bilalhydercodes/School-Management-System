@@ -79,44 +79,31 @@ export async function middleware(request: NextRequest) {
   }
 
   // 3. Route Authorization Guard
+  const isRootPage = pathname === '/';
   const isLoginPage = pathname === '/login';
   const isUnauthorizedPage = pathname === '/unauthorized';
   const isAuthApi = pathname.startsWith('/api/auth');
 
-  // -------------------------------------------------------------------------
-  // DEV BYPASS: In development (no DB / no auth configured), allow direct
-  // access to any portal route by injecting a mock session. This lets you
-  // preview the UI without a running database.
-  // Set DEV_BYPASS_AUTH=false in .env to disable this behavior.
-  // -------------------------------------------------------------------------
-  const isDevBypass =
-    process.env.NODE_ENV === 'development' &&
-    process.env.DEV_BYPASS_AUTH !== 'false';
-
-  if (isDevBypass && !session) {
-    // Derive mock role from the route being visited so each portal renders
-    // with the correct identity headers.
-    let mockRole = 'STUDENT';
-    if (pathname.startsWith('/teacher')) mockRole = 'TEACHER';
-    else if (pathname.startsWith('/admin')) mockRole = 'ADMIN';
-    else if (pathname.startsWith('/superadmin')) mockRole = 'SUPER_ADMIN';
-
-    requestHeaders.set('x-user-id', 'dev-mock-user-id');
-    requestHeaders.set('x-user-role', mockRole);
-    requestHeaders.set('x-user-email', `${mockRole.toLowerCase()}@dps.edu.in`);
-    requestHeaders.set('x-user-tenant-id', 'dev-mock-tenant-id');
-    requestHeaders.set('x-tenant-id', 'dev-mock-tenant-id');
-
-    return NextResponse.next({ request: { headers: requestHeaders } });
+  // Root Landing Logic: unauthenticated users ALWAYS land on /login
+  if (isRootPage) {
+    if (!session) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    let target = '/student';
+    if (session.role === 'ADMIN') target = '/admin';
+    else if (session.role === 'TEACHER') target = '/teacher';
+    else if (session.role === 'SUPER_ADMIN') target = '/superadmin';
+    else if (session.role === 'ACCOUNTANT') target = '/admin';
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   // If already logged in and visiting /login, redirect to their home portal
   if (isLoginPage && session) {
-    let target = '/';
+    let target = '/student';
     if (session.role === 'ADMIN') target = '/admin';
     else if (session.role === 'TEACHER') target = '/teacher';
     else if (session.role === 'SUPER_ADMIN') target = '/superadmin';
-    else if (session.role === 'ACCOUNTANT') target = '/admin/fees';
+    else if (session.role === 'ACCOUNTANT') target = '/admin';
     return NextResponse.redirect(new URL(target, request.url));
   }
 
@@ -124,9 +111,10 @@ export async function middleware(request: NextRequest) {
   const requiresAdmin = pathname.startsWith('/admin');
   const requiresTeacher = pathname.startsWith('/teacher');
   const requiresSuperAdmin = pathname.startsWith('/superadmin');
+  const requiresStudent = pathname.startsWith('/student');
   const requiresPortal = pathname.startsWith('/portal');
 
-  const isProtectedRoute = requiresAdmin || requiresTeacher || requiresSuperAdmin || requiresPortal;
+  const isProtectedRoute = requiresAdmin || requiresTeacher || requiresSuperAdmin || requiresStudent || requiresPortal;
 
   if (isProtectedRoute && !session) {
     const loginUrl = new URL('/login', request.url);
@@ -149,7 +137,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Unified student & parent portal
-    if (requiresPortal && !['STUDENT', 'PARENT', 'ADMIN', 'SUPER_ADMIN'].includes(session.role)) {
+    if ((requiresPortal || requiresStudent) && !['STUDENT', 'PARENT', 'ADMIN', 'SUPER_ADMIN', 'TEACHER'].includes(session.role)) {
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }
