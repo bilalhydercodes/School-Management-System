@@ -210,12 +210,18 @@ async function main() {
     }
 
     if (item.role === Role.STUDENT) {
-      const existingProfile = await prisma.studentProfile.findFirst({
-        where: { userId: user.id },
-      });
-      if (!existingProfile && item.tenantId) {
-        await prisma.studentProfile.create({
-          data: {
+      if (item.tenantId) {
+        await prisma.studentProfile.upsert({
+          where: {
+            tenantId_admissionNumber: {
+              tenantId: item.tenantId,
+              admissionNumber: 'DPS-2022-4891',
+            },
+          },
+          update: {
+            userId: user.id,
+          },
+          create: {
             tenantId: item.tenantId,
             userId: user.id,
             admissionNumber: 'DPS-2022-4891',
