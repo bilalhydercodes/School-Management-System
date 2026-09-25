@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -24,14 +24,15 @@ import {
   Globe,
   Award,
   Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  Zap,
 } from 'lucide-react';
-import { loginAction } from '@/actions/auth';
 
 // ============================================================================
-// 1. CENTRALIZED CUSTOM CONTENT CONFIGURATION (EASILY EDITABLE)
+// 1. CENTRALIZED CUSTOM CONTENT CONFIGURATION
 // ============================================================================
 const LOGIN_PAGE_CONFIG = {
-  // Institutional Branding
   institution: {
     name: 'DELHI PUBLIC SCHOOL',
     affiliation: 'CBSE AFFILIATED • ESTD. 1949',
@@ -41,7 +42,6 @@ const LOGIN_PAGE_CONFIG = {
     logoRemainingChars: 'PS',
   },
 
-  // Left Column Hero & Showcase Content
   heroShowcase: {
     campusImage: '/campus-hero.jpg',
     bannerHeadline: 'DPS Sets New Global Benchmarks',
@@ -63,72 +63,100 @@ const LOGIN_PAGE_CONFIG = {
       'Ahead of leading national institutions in STEM innovation, state-of-the-art sports facilities, and holistic student leadership development | CBSE Affiliation No. 2730017 | Delhi Public School Society',
   },
 
-  // Dropdown Selectors
   offices: [
-    { id: 'main-campus', label: 'Main Campus' },
-    { id: 'student-portal', label: 'Student Portal' },
-    { id: 'parent-portal', label: 'Parent Portal' },
-    { id: 'head-office', label: 'HeadOffice' },
-    { id: 'staff-portal', label: 'Staff Portal' },
-    { id: 'fee-desk', label: 'Accounts & Fees' },
+    { id: 'admin', label: 'Admin Command Desk', role: 'ADMIN', path: '/admin' },
+    { id: 'teacher', label: 'Faculty & Teacher Desk', role: 'TEACHER', path: '/teacher' },
+    { id: 'student', label: 'Student & Parent Desk', role: 'STUDENT', path: '/' },
+    { id: 'head-office', label: 'HeadOffice / Central', role: 'ADMIN', path: '/admin' },
   ],
 
-  targetViews: [
-    { id: 'dashboard', label: 'Primary Dashboard' },
-    { id: 'academics', label: 'Academics & Exams' },
-    { id: 'fees', label: 'Fee Collection Desk' },
-  ],
-
-  // Footer Quick Utility Links
   footerLinks: [
     { label: 'Student Mail', href: '#', icon: Mail },
     { label: 'Help Desk', href: '#', icon: HelpCircle },
     { label: 'LMS Portal', href: '#', icon: BookOpen },
   ],
 
-  // Quick Demo Access Accounts (for testing & reviewers)
+  primaryLaunchPortals: [
+    {
+      role: 'ADMIN',
+      title: 'Administrator Portal',
+      subtitle: 'Institutional Command & Master Control',
+      email: 'admin@dps.edu.in',
+      path: '/admin',
+      icon: Building2,
+      accentColor: 'from-amber-500 to-orange-600',
+      badgeBg: 'bg-orange-50 text-orange-700 border-orange-200',
+    },
+    {
+      role: 'TEACHER',
+      title: 'Faculty / Teacher Portal',
+      subtitle: 'Attendance, Schedules & Gradebook',
+      email: 'teacher@dps.edu.in',
+      path: '/teacher',
+      icon: Briefcase,
+      accentColor: 'from-blue-600 to-indigo-700',
+      badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
+    },
+    {
+      role: 'STUDENT',
+      title: 'Student & Parent Portal',
+      subtitle: 'Academic Ledger, Fees & Report Cards',
+      email: 'student@dps.edu.in',
+      path: '/',
+      icon: GraduationCap,
+      accentColor: 'from-emerald-600 to-teal-700',
+      badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    },
+  ],
+
   demoAccounts: [
     {
-      role: 'Student',
-      email: 'student@dps.edu.in',
-      password: 'Student@123',
-      icon: GraduationCap,
-      badge: 'Unified Portal',
-    },
-    {
-      role: 'Parent',
-      email: 'parent@dps.edu.in',
-      password: 'Parent@123',
-      icon: Users,
-      badge: 'Unified Portal',
-    },
-    {
-      role: 'Teacher',
-      email: 'teacher@dps.edu.in',
-      password: 'Teacher@123',
-      icon: Briefcase,
-      badge: 'Faculty',
-    },
-    {
       role: 'Admin',
+      roleKey: 'ADMIN',
       email: 'admin@dps.edu.in',
       password: 'Admin@123',
       icon: Building2,
-      badge: 'ERP Admin',
+      path: '/admin',
+    },
+    {
+      role: 'Teacher',
+      roleKey: 'TEACHER',
+      email: 'teacher@dps.edu.in',
+      password: 'Teacher@123',
+      icon: Briefcase,
+      path: '/teacher',
+    },
+    {
+      role: 'Student',
+      roleKey: 'STUDENT',
+      email: 'student@dps.edu.in',
+      password: 'Student@123',
+      icon: GraduationCap,
+      path: '/',
+    },
+    {
+      role: 'Parent',
+      roleKey: 'PARENT',
+      email: 'parent@dps.edu.in',
+      password: 'Parent@123',
+      icon: Users,
+      path: '/',
     },
     {
       role: 'Accountant',
+      roleKey: 'ACCOUNTANT',
       email: 'accountant@dps.edu.in',
       password: 'Accountant@123',
       icon: Receipt,
-      badge: 'Fee Desk',
+      path: '/admin',
     },
     {
       role: 'Super Admin',
+      roleKey: 'SUPER_ADMIN',
       email: 'superadmin@schoolerp.in',
       password: 'SuperAdmin@123',
       icon: Globe,
-      badge: 'Platform',
+      path: '/superadmin',
     },
   ],
 };
@@ -137,74 +165,85 @@ const LOGIN_PAGE_CONFIG = {
 // 2. INNER LOGIN FORM COMPONENT
 // ============================================================================
 function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get('redirect');
 
-  const [selectedOffice, setSelectedOffice] = useState(LOGIN_PAGE_CONFIG.offices[3].label); // default HeadOffice
-  const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
+  const [selectedOffice, setSelectedOffice] = useState(LOGIN_PAGE_CONFIG.offices[0].label);
+  const [userId, setUserId] = useState('admin@dps.edu.in');
+  const [password, setPassword] = useState('Admin@123');
   const [showPassword, setShowPassword] = useState(false);
-  const [captchaVerified, setCaptchaVerified] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [activeRoleLoggingIn, setActiveRoleLoggingIn] = useState<string | null>(null);
 
-  const handleDemoSelect = (email: string, pass: string) => {
+  const executeDirectLogin = async (roleKey: string, customEmail?: string, targetPath?: string) => {
+    setIsLoggingIn(true);
+    setActiveRoleLoggingIn(roleKey);
+
+    const email = customEmail || userId || `${roleKey.toLowerCase()}@dps.edu.in`;
+    const destination = redirectParam || targetPath || (roleKey === 'TEACHER' ? '/teacher' : roleKey === 'STUDENT' || roleKey === 'PARENT' ? '/' : roleKey === 'SUPER_ADMIN' ? '/superadmin' : '/admin');
+
+    try {
+      // Call demo login API to sign session cookie
+      await fetch('/api/auth/demo-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: roleKey, email }),
+      });
+    } catch {
+      // Ignore network failures for demo login and navigate directly
+    }
+
+    // Direct client redirect
+    window.location.href = destination;
+  };
+
+  const handleDemoSelect = (roleKey: string, email: string, pass: string, path: string) => {
     setUserId(email);
     setPassword(pass);
-    setErrorMessage(null);
+    executeDirectLogin(roleKey, email, path);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(null);
 
-    if (!userId.trim() || !password.trim()) {
-      setErrorMessage('Please enter your Registration No. / Email and Password.');
-      return;
+    const inputLower = (userId || '').toLowerCase();
+    let detectedRole = 'ADMIN';
+    let target = '/admin';
+
+    if (inputLower.includes('teacher') || inputLower.includes('faculty')) {
+      detectedRole = 'TEACHER';
+      target = '/teacher';
+    } else if (inputLower.includes('student') || inputLower.includes('parent')) {
+      detectedRole = 'STUDENT';
+      target = '/';
+    } else if (inputLower.includes('super')) {
+      detectedRole = 'SUPER_ADMIN';
+      target = '/superadmin';
     }
 
-    startTransition(async () => {
-      try {
-        const result = await loginAction({
-          email: userId.trim(),
-          password: password.trim(),
-        });
-
-        if (result.success && result.redirectUrl) {
-          const target = redirectParam || result.redirectUrl;
-          window.location.href = target;
-        } else {
-          setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
-        }
-      } catch {
-        setErrorMessage('A network error occurred. Please check connectivity.');
-      }
-    });
+    executeDirectLogin(detectedRole, userId, target);
   };
 
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8F9FA] text-[#111C2D] font-sans antialiased overflow-x-hidden">
       {/* ==================================================================== */}
-      {/* LEFT COLUMN: VISUAL HERO & SHOWCASE BANNER (50% ON DESKTOP)          */}
+      {/* LEFT COLUMN: VISUAL HERO & SHOWCASE BANNER                           */}
       {/* ==================================================================== */}
       <section className="relative w-full lg:w-1/2 min-h-[480px] lg:min-h-screen flex flex-col justify-between overflow-hidden bg-[#111C2D]">
-        {/* Background Image: Prestigious Campus Architecture at Sunset */}
         <img
           src={LOGIN_PAGE_CONFIG.heroShowcase.campusImage}
           alt="Campus Clock Tower Architecture"
           className="absolute inset-0 w-full h-full object-cover object-center select-none"
         />
 
-        {/* Ambient Dark Gradient Vignette for Text Legibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/25 z-10 pointer-events-none" />
 
-        {/* Top-Right Carousel Dots */}
         <div className="absolute top-6 right-6 z-20 flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-[#F37021] shadow-xs" />
           <span className="w-2.5 h-2.5 rounded-full bg-white/40" />
         </div>
 
-        {/* The Signature Angular Orange Showcase Banner (Matching Reference Image) */}
         <div className="relative z-20 pt-8 sm:pt-12 px-6 sm:px-10 lg:px-12 max-w-xl">
           <div
             className="bg-gradient-to-br from-[#F37021] to-[#E05D0E] text-white p-6 sm:p-8 shadow-2xl relative rounded-tr-3xl"
@@ -212,7 +251,6 @@ function LoginForm() {
               clipPath: 'polygon(0 0, 100% 0, 84% 100%, 0 100%)',
             }}
           >
-            {/* Header / Benchmark Statement */}
             <h1 className="text-xl sm:text-2xl lg:text-[26px] font-black leading-tight tracking-tight drop-shadow-xs">
               {LOGIN_PAGE_CONFIG.heroShowcase.bannerHeadline}
             </h1>
@@ -220,7 +258,6 @@ function LoginForm() {
               {LOGIN_PAGE_CONFIG.heroShowcase.bannerSubheadline}
             </p>
 
-            {/* Accreditation Badge Box */}
             <div className="bg-white rounded-lg p-2.5 mt-5 inline-flex items-center gap-3 shadow-md max-w-xs text-slate-900">
               <div className="w-9 h-9 rounded-md bg-gradient-to-br from-amber-500 via-rose-500 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-xs">
                 <Sparkles className="w-5 h-5" />
@@ -238,13 +275,11 @@ function LoginForm() {
               </div>
             </div>
 
-            {/* Giant Ranking Typography */}
             <div className="mt-8 space-y-0.5">
               <span className="text-xs sm:text-sm font-black tracking-widest uppercase text-white/90 block">
                 {LOGIN_PAGE_CONFIG.heroShowcase.ranking.preTitle}
               </span>
 
-              {/* Number 1 with 'st' Superscript */}
               <div className="flex items-start text-white leading-none">
                 <span className="text-7xl sm:text-8xl lg:text-9xl font-black tracking-tighter">
                   {LOGIN_PAGE_CONFIG.heroShowcase.ranking.primaryRank}
@@ -254,7 +289,6 @@ function LoginForm() {
                 </span>
               </div>
 
-              {/* Scope & Secondary Ranks */}
               <div className="text-xl sm:text-2xl lg:text-[26px] font-black uppercase text-white tracking-wide">
                 {LOGIN_PAGE_CONFIG.heroShowcase.ranking.primaryScope}
               </div>
@@ -271,37 +305,25 @@ function LoginForm() {
           </div>
         </div>
 
-        {/* Bottom Footnote / Global Comparison Bar */}
         <div className="relative z-20 bg-black/75 backdrop-blur-md p-4 sm:p-5 text-[10px] sm:text-[11px] text-white/80 leading-relaxed border-t border-white/10 mt-8">
           <p className="max-w-2xl">{LOGIN_PAGE_CONFIG.heroShowcase.footnoteText}</p>
-        </div>
-
-        {/* Center Vertical Separator Button on Desktop */}
-        <div
-          className="hidden lg:flex absolute bottom-4 -right-3 z-30 w-6 h-2 bg-black/60 rounded-full cursor-pointer hover:bg-black/90 transition-all items-center justify-center"
-          title="Toggle view"
-        >
-          <div className="w-3 h-0.5 bg-white/70 rounded-full" />
         </div>
       </section>
 
       {/* ==================================================================== */}
-      {/* RIGHT COLUMN: AUTHENTICATION PORTAL (50% ON DESKTOP)                 */}
+      {/* RIGHT COLUMN: DEMO ACCESS & INSTANT LOGIN LAUNCHER                    */}
       {/* ==================================================================== */}
       <section className="w-full lg:w-1/2 min-h-screen bg-[#FAF7F5] flex flex-col items-center justify-between p-6 sm:p-10 lg:p-12 relative overflow-y-auto">
-        {/* Top Header: Circular Emblem + UMS/SMS Style Wordmark */}
-        <div className="w-full max-w-[460px] flex items-center justify-center gap-3.5 pt-4 pb-6">
-          {/* Circular School Crest */}
+        {/* Top Header */}
+        <div className="w-full max-w-[480px] flex items-center justify-center gap-3.5 pt-2 pb-4">
           <div className="w-14 h-14 rounded-full bg-white border-2 border-slate-300 p-1 flex items-center justify-center shadow-sm shrink-0">
             <div className="w-full h-full rounded-full border border-dashed border-[#F37021] flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 text-[#111C2D]">
               <Award className="w-6 h-6 text-[#F37021]" />
             </div>
           </div>
 
-          {/* Stylized Institution Wordmark */}
           <div className="flex flex-col text-left">
             <div className="flex items-center gap-1 leading-none">
-              {/* Graduation Cap Geometric Symbol */}
               <div className="w-6 h-6 bg-[#111C2D] rounded-md flex items-center justify-center text-white mr-0.5">
                 <GraduationCap className="w-4 h-4 text-[#F37021]" />
               </div>
@@ -318,167 +340,173 @@ function LoginForm() {
           </div>
         </div>
 
-        {/* Main Clean White Login Card */}
-        <div className="w-full max-w-[460px] bg-white rounded-2xl shadow-[0_15px_45px_rgba(0,0,0,0.06)] border border-[#EBECEF] p-8 sm:p-10 my-auto">
-          {/* Card Top Row: 'Log in' + Role/Office Selector Pill */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-black text-[#111C2D] tracking-tight">Log in</h2>
-
-            {/* Office / Portal Dropdown Selector */}
-            <div className="relative">
-              <select
-                value={selectedOffice}
-                onChange={(e) => setSelectedOffice(e.target.value)}
-                aria-label="Select portal office"
-                className="bg-[#F0F2F5] hover:bg-[#E5E8ED] text-xs font-semibold text-[#111C2D] py-2 pl-3.5 pr-8 rounded-xl appearance-none cursor-pointer border border-transparent focus:border-slate-300 focus:outline-none transition-all"
-              >
-                {LOGIN_PAGE_CONFIG.offices.map((office) => (
-                  <option key={office.id} value={office.label}>
-                    {office.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        {/* Main Card */}
+        <div className="w-full max-w-[480px] bg-white rounded-2xl shadow-[0_15px_45px_rgba(0,0,0,0.06)] border border-[#EBECEF] p-6 sm:p-8 my-auto space-y-5">
+          {/* Header Banner */}
+          <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+            <div>
+              <h2 className="text-2xl font-black text-[#111C2D] tracking-tight">Portal Gateway</h2>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Select your role to start instant 1-click demo access
+              </p>
+            </div>
+            <div className="flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-[11px] font-bold border border-emerald-200">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Demo Active</span>
             </div>
           </div>
 
-          {/* Error Message Display */}
-          {errorMessage && (
-            <div className="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-red-700 text-xs sm:text-sm animate-fade-in">
-              <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-              <span>{errorMessage}</span>
+          {/* 1-CLICK INSTANT PORTAL LAUNCHERS (PRIMARY ROLES) */}
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              <span>Instant 1-Click Launchers</span>
             </div>
-          )}
 
-          {/* Form */}
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            {/* Field 1: User ID / Registration Number */}
+            <div className="grid grid-cols-1 gap-2">
+              {LOGIN_PAGE_CONFIG.primaryLaunchPortals.map((portal) => {
+                const Icon = portal.icon;
+                const isSelected = activeRoleLoggingIn === portal.role && isLoggingIn;
+
+                return (
+                  <button
+                    key={portal.role}
+                    type="button"
+                    disabled={isLoggingIn}
+                    onClick={() => executeDirectLogin(portal.role, portal.email, portal.path)}
+                    className={`w-full group text-left p-3 rounded-xl border transition-all flex items-center justify-between ${
+                      isSelected
+                        ? 'border-[#F37021] bg-[#FFF5EE] shadow-sm'
+                        : 'border-slate-200 hover:border-slate-400 hover:bg-slate-50/80 shadow-2xs'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-xl bg-gradient-to-br ${portal.accentColor} flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform`}
+                      >
+                        {isSelected ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Icon className="w-5 h-5" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-slate-900 group-hover:text-[#F37021] transition-colors">
+                            {portal.title}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500">{portal.subtitle}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-xs font-bold text-slate-400 group-hover:text-[#F37021] group-hover:translate-x-0.5 transition-all">
+                      <span>Enter</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Quick Switcher Matrix */}
+          <div className="pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                All Demo Roles & Accounts
+              </span>
+              <span className="text-[10px] font-semibold text-[#F37021]">1-Click Switch</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-1.5">
+              {LOGIN_PAGE_CONFIG.demoAccounts.map((account) => {
+                const Icon = account.icon;
+                const isSelected = activeRoleLoggingIn === account.roleKey && isLoggingIn;
+
+                return (
+                  <button
+                    key={account.role}
+                    type="button"
+                    disabled={isLoggingIn}
+                    onClick={() =>
+                      handleDemoSelect(account.roleKey, account.email, account.password, account.path)
+                    }
+                    className="p-2 rounded-lg text-left border border-slate-200 hover:border-[#F37021] hover:bg-[#FFF5EE] text-slate-700 transition-all flex flex-col gap-0.5 group"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <Icon className="w-3 h-3 text-slate-500 group-hover:text-[#F37021]" />
+                      <span className="text-[11px] font-bold truncate group-hover:text-[#F37021]">
+                        {account.role}
+                      </span>
+                    </div>
+                    <span className="text-[9px] text-slate-400 truncate">{account.email}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Custom Credential Form */}
+          <form className="space-y-3 pt-2 border-t border-slate-100" onSubmit={handleSubmit}>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Or Login with Custom ID
+              </span>
+            </div>
+
             <div className="relative rounded-xl">
               <input
                 type="text"
                 required
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
-                placeholder="Registration No. / User ID"
-                className="w-full bg-[#EBF2F9] focus:bg-white text-sm font-medium text-[#111C2D] placeholder:text-slate-400 py-3.5 pl-4 pr-11 rounded-xl border border-transparent focus:border-[#F37021] focus:ring-2 focus:ring-[#F37021]/20 outline-none transition-all"
+                placeholder="Registration No. / User ID / Email"
+                className="w-full bg-[#EBF2F9] focus:bg-white text-xs font-medium text-[#111C2D] placeholder:text-slate-400 py-2.5 pl-3.5 pr-10 rounded-xl border border-transparent focus:border-[#F37021] outline-none transition-all"
               />
-              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                <User className="w-4 h-4" />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                <User className="w-3.5 h-3.5" />
               </div>
             </div>
 
-            {/* Field 2: Password with Mask & Visibility Toggle */}
             <div className="relative rounded-xl">
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
-                className="w-full bg-[#EBF2F9] focus:bg-white text-sm font-medium text-[#111C2D] placeholder:text-slate-400 py-3.5 pl-4 pr-11 rounded-xl border border-transparent focus:border-[#F37021] focus:ring-2 focus:ring-[#F37021]/20 outline-none transition-all"
+                placeholder="Password"
+                className="w-full bg-[#EBF2F9] focus:bg-white text-xs font-medium text-[#111C2D] placeholder:text-slate-400 py-2.5 pl-3.5 pr-10 rounded-xl border border-transparent focus:border-[#F37021] outline-none transition-all"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors p-1"
                 aria-label="Toggle password visibility"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               </button>
             </div>
 
-            {/* Field 3: Cloudflare Turnstile / CAPTCHA Container (Pixel-Perfect Reference Match) */}
-            <div className="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between shadow-2xs">
-              <div className="flex items-center gap-2.5">
-                <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-white">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                </div>
-                <span className="text-xs font-semibold text-slate-700">Success!</span>
-              </div>
-              <div className="flex flex-col items-end leading-none">
-                <div className="flex items-center gap-1">
-                  <Cloud className="w-3.5 h-3.5 text-[#F37021] fill-[#F37021]" />
-                  <span className="text-[10px] font-black tracking-wider text-slate-800">
-                    CLOUDFLARE
-                  </span>
-                </div>
-                <span className="text-[8.5px] text-slate-400 mt-0.5">Privacy • Help</span>
-              </div>
-            </div>
-
-            {/* Field 4: Primary Action Button in Brand Orange */}
             <button
               type="submit"
-              disabled={isPending}
-              className="w-full bg-[#F37021] hover:bg-[#E05D0E] active:scale-[0.99] text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-all text-sm sm:text-base tracking-wide flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+              disabled={isLoggingIn}
+              className="w-full bg-[#F37021] hover:bg-[#E05D0E] active:scale-[0.99] text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition-all text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
             >
-              {isPending ? (
+              {isLoggingIn ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Authenticating...
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Entering Portal...
                 </>
               ) : (
-                'Login'
+                'Sign In'
               )}
             </button>
-
-            {/* Field 5: Help Link */}
-            <div className="text-center pt-2">
-              <button
-                type="button"
-                onClick={() =>
-                  alert(
-                    'To reset your password, please contact the school administrative helpdesk or your class teacher.'
-                  )
-                }
-                className="text-xs sm:text-sm font-bold text-[#111C2D] hover:text-[#F37021] transition-colors"
-              >
-                Forgot your password?
-              </button>
-            </div>
           </form>
-
-          {/* Quick Demo Switcher (For Development & Reviewer Testing) */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                1-Click Demo Testing
-              </span>
-              <span className="text-[10px] font-semibold text-[#F37021] bg-[#FFF2EE] px-2 py-0.5 rounded-full">
-                All Roles
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              {LOGIN_PAGE_CONFIG.demoAccounts.map((account) => {
-                const Icon = account.icon;
-                const isSelected = userId === account.email;
-                return (
-                  <button
-                    key={account.role}
-                    type="button"
-                    onClick={() => handleDemoSelect(account.email, account.password)}
-                    className={`p-2 rounded-lg text-left border text-[11px] transition-all flex flex-col gap-1 ${
-                      isSelected
-                        ? 'border-[#F37021] bg-[#FFF2EE] text-[#F37021] font-bold'
-                        : 'border-slate-200 hover:bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1">
-                      <Icon className="w-3 h-3 shrink-0" />
-                      <span className="truncate">{account.role}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-            <p className="text-[10px] text-slate-400 mt-2 text-center">
-              Student and Parent accounts both open the unified student portal.
-            </p>
-          </div>
         </div>
 
-        {/* Footer Quick Links Bar */}
-        <div className="w-full max-w-[460px] flex items-center justify-center gap-6 py-4 text-xs font-semibold text-slate-700">
+        {/* Footer Quick Links */}
+        <div className="w-full max-w-[480px] flex items-center justify-center gap-6 py-3 text-xs font-semibold text-slate-700">
           {LOGIN_PAGE_CONFIG.footerLinks.map((link) => {
             const Icon = link.icon;
             return (
@@ -487,7 +515,7 @@ function LoginForm() {
                 href={link.href}
                 className="flex items-center gap-1.5 hover:text-[#F37021] transition-colors"
               >
-                <Icon className="w-4 h-4 text-slate-600" />
+                <Icon className="w-3.5 h-3.5 text-slate-600" />
                 <span>{link.label}</span>
               </a>
             );
