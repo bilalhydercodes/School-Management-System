@@ -60,7 +60,6 @@ export class AuthService {
       : await prisma.user.findFirst({
           where: {
             email,
-            role: Role.SUPER_ADMIN,
             deletedAt: null,
           },
         });
