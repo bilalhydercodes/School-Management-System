@@ -2,10 +2,7 @@ import React from 'react';
 import { getSessionFromCookies } from '@/lib/session';
 import { Role } from '@/types';
 import { redirect } from 'next/navigation';
-import { TeacherSidebar } from '@/components/teacher/TeacherSidebar';
-import { TeacherHeader } from '@/components/teacher/TeacherHeader';
 import { prisma } from '@/lib/db';
-
 import TeacherLayoutClient from '@/components/teacher/TeacherLayoutClient';
 
 export const metadata = {
