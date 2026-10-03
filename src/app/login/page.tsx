@@ -178,13 +178,17 @@ function LoginForm() {
           style={{
             width: '588px',
             minHeight: '632px',
-            backgroundImage: "url('/left-panel-raw.png')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
           }}
           aria-label="Alpha Edu Hub Overview"
         >
+          <Image
+            src="/Empowering%20Brighter%20Tomorrows.png"
+            alt="Empowering Brighter Tomorrows - Alpha Edu Hub"
+            fill
+            priority
+            sizes="588px"
+            className="object-cover object-center"
+          />
           <div className="sr-only">
             <h1>Alpha Edu Hub</h1>
             <p>Next-Gen School ERP · Manage · Grow · Excel</p>
