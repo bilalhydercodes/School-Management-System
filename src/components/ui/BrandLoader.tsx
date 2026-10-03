@@ -16,7 +16,7 @@ export interface BrandLoaderProps {
   sublabel?: string;
   /**
    * Whether the loader should fill the entire viewport or fit its container.
-   * @default true
+   * @default false
    */
   fullScreen?: boolean;
   /**
@@ -57,7 +57,7 @@ const sizeConfig = {
 export default function BrandLoader({
   message = 'Preparing your workspace',
   sublabel = 'Alpha Edu Hub',
-  fullScreen = true,
+  fullScreen = false,
   className = '',
   size = 'md',
 }: BrandLoaderProps) {
