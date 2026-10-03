@@ -75,6 +75,7 @@ export default async function AdminDashboardPage() {
         dueDate: { lt: todayStart },
       },
       _sum: { balanceAmount: true },
+      _count: { _all: true },
     }),
     prisma.teacherSubstitution.count({
       where: { tenantId, status: 'ASSIGNED', date: { gte: todayStart, lte: todayEnd } },
@@ -222,7 +223,7 @@ export default async function AdminDashboardPage() {
         totalFeePending,
         totalFeeInvoiced,
         totalOverdueAmount,
-        overdueCount: overdueInvoices.length,
+        overdueCount: overdueFeeAggregates._count._all || 0,
         collectionPercentage,
         totalNotices: notices.length,
         activeSubstitutions,
