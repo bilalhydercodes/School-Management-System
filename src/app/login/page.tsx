@@ -182,7 +182,7 @@ function LoginForm() {
           aria-label="Alpha Edu Hub Overview"
         >
           <Image
-            src="/Empowering%20Brighter%20Tomorrows.png"
+            src="/login_left_panel_image.png"
             alt="Empowering Brighter Tomorrows - Alpha Edu Hub"
             fill
             priority
