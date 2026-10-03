@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
  * Used by container orchestrators (Kubernetes / ECS / Docker) to determine if the container is running.
  */
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   return NextResponse.json(
