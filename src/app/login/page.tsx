@@ -348,16 +348,6 @@ function LoginForm() {
                     )}
                   </button>
 
-                  {/* Clerk SSO Option */}
-                  <div className="mt-3 text-center">
-                    <Link
-                      href="/sign-in"
-                      className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 font-medium transition-colors"
-                    >
-                      <span>Or continue with Clerk SSO</span>
-                      <span>→</span>
-                    </Link>
-                  </div>
 
                   {/* Quick Demo Logins Pill Selector */}
                   <div className="mt-4 pt-3 border-t border-slate-100">
