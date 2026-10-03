@@ -44,11 +44,12 @@ export async function POST(request: Request) {
 
     return response;
   } catch (err: unknown) {
-    console.error('[LOGIN API ERROR]', err);
+    const errMsg = (err as any)?.message || String(err) || 'An unexpected authentication error occurred.';
+    console.error('[LOGIN API ERROR]', errMsg, err);
     return NextResponse.json(
       {
         success: false,
-        error: err instanceof Error ? err.message : 'An unexpected authentication error occurred.',
+        error: errMsg,
       },
       { status: 500 }
     );
