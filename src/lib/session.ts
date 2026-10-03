@@ -11,7 +11,7 @@ import { isSessionRevoked } from '@/lib/session-revocation';
 export { createSessionToken, verifySessionToken, getJwtSecretKey };
 
 export const SESSION_COOKIE_NAME = 'session_token';
-export const SESSION_MAX_AGE = 365 * 24 * 60 * 60; // 1 year default for students
+export const SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 7 days (604800s) default
 
 /**
  * Returns role-specific session TTL and JWT expiration:

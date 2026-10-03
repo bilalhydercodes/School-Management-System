@@ -8,6 +8,11 @@ const baseDomain = cleanAppDomain.split(':')[0];
 const defaultAllowedOrigins = [
   'localhost:3000',
   '127.0.0.1:3000',
+  'alphaeduhub.in',
+  '*.alphaeduhub.in',
+  'schoolerp.in',
+  '*.schoolerp.in',
+  '*.vercel.app',
   cleanAppDomain,
 ];
 
