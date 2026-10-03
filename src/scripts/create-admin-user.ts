@@ -15,12 +15,32 @@ async function createAdminUser() {
 
     if (!tenant) {
       console.log('Creating default Alpha School tenant...');
+      let plan = await prisma.subscriptionPlan.findFirst({ where: { isActive: true } });
+      if (!plan) {
+        plan = await prisma.subscriptionPlan.create({
+          data: {
+            name: 'Enterprise Plan',
+            maxStudents: 5000,
+            maxStaff: 500,
+            priceMonthly: 0,
+            priceAnnual: 0,
+            features: {},
+            isActive: true,
+          },
+        });
+      }
       tenant = await prisma.tenant.create({
         data: {
           name: 'Alpha Edu Hub Demo School',
           slug: 'alpha-school',
           email: 'admin@alphaschool.edu',
+          phone: '9999999999',
+          address: 'Main Campus',
+          city: 'Delhi',
+          state: 'Delhi',
+          pincode: '110001',
           board: 'CBSE',
+          subscriptionPlanId: plan.id,
           isActive: true,
           subscriptionStatus: 'ACTIVE',
         },

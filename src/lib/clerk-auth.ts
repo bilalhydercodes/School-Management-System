@@ -59,7 +59,26 @@ export function isSessionExpired(
  * and rigorously validates account status, tenant membership, and role-specific session TTL.
  */
 export async function getAuthoritativeUserFromClerk(): Promise<AuthoritativeClerkSession | null> {
-  const { userId: clerkUserId, sessionClaims } = auth();
+  const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const isClerkConfigured = Boolean(
+    clerkKey && clerkKey.startsWith('pk_') && !clerkKey.includes('placeholder')
+  );
+
+  if (!isClerkConfigured) {
+    return null;
+  }
+
+  let clerkUserId: string | null = null;
+  let sessionClaims: any = null;
+
+  try {
+    const clerkAuth = auth();
+    clerkUserId = clerkAuth.userId;
+    sessionClaims = clerkAuth.sessionClaims;
+  } catch (_err) {
+    // Clerk middleware not attached or Clerk context unavailable
+    return null;
+  }
 
   if (!clerkUserId) {
     return null;
@@ -134,12 +153,32 @@ export async function getAuthoritativeUserFromClerk(): Promise<AuthoritativeCler
         // Auto-provision initial Admin / Super Admin for owner email
         let defaultTenant = await prisma.tenant.findFirst({ where: { isActive: true } });
         if (!defaultTenant) {
+          let plan = await prisma.subscriptionPlan.findFirst({ where: { isActive: true } });
+          if (!plan) {
+            plan = await prisma.subscriptionPlan.create({
+              data: {
+                name: 'Enterprise Plan',
+                maxStudents: 5000,
+                maxStaff: 500,
+                priceMonthly: 0,
+                priceAnnual: 0,
+                features: {},
+                isActive: true,
+              },
+            });
+          }
           defaultTenant = await prisma.tenant.create({
             data: {
               name: 'Alpha Edu Hub Demo School',
               slug: 'alpha-school',
               email: primaryEmail,
+              phone: '9999999999',
+              address: 'Main Campus',
+              city: 'Delhi',
+              state: 'Delhi',
+              pincode: '110001',
               board: 'CBSE',
+              subscriptionPlanId: plan.id,
               isActive: true,
               subscriptionStatus: 'ACTIVE',
             },
@@ -150,6 +189,7 @@ export async function getAuthoritativeUserFromClerk(): Promise<AuthoritativeCler
           data: {
             clerkUserId,
             email: primaryEmail.toLowerCase().trim(),
+            passwordHash: '',
             firstName: clerkUser?.firstName || 'Bilal',
             lastName: clerkUser?.lastName || 'Hyder',
             role: Role.ADMIN,
@@ -172,36 +212,40 @@ export async function getAuthoritativeUserFromClerk(): Promise<AuthoritativeCler
       }
     }
   }
-} catch (dbErr) {
+  } catch (dbErr) {
     console.warn('[CLERK-AUTH] DB query error (offline or initializing):', dbErr);
     // Development fallback for bilalhyder889@gmail.com
-    const clerkUser = await currentUser();
-    const primaryEmail = clerkUser?.emailAddresses?.find(
-      (e) => e.id === clerkUser.primaryEmailAddressId
-    )?.emailAddress;
+    try {
+      const clerkUser = await currentUser();
+      const primaryEmail = clerkUser?.emailAddresses?.find(
+        (e) => e.id === clerkUser.primaryEmailAddressId
+      )?.emailAddress;
 
-    if (primaryEmail && primaryEmail.toLowerCase().trim() === 'bilalhyder889@gmail.com') {
-      const appUser: UserSession = {
-        userId: clerkUserId,
-        tenantId: null,
-        role: Role.ADMIN,
-        email: primaryEmail,
-        firstName: clerkUser?.firstName || 'Bilal',
-        lastName: clerkUser?.lastName || 'Hyder',
-        avatarUrl: clerkUser?.imageUrl || null,
-        mustChangePassword: false,
-      };
+      if (primaryEmail && primaryEmail.toLowerCase().trim() === 'bilalhyder889@gmail.com') {
+        const appUser: UserSession = {
+          userId: clerkUserId,
+          tenantId: null,
+          role: Role.ADMIN,
+          email: primaryEmail,
+          firstName: clerkUser?.firstName || 'Bilal',
+          lastName: clerkUser?.lastName || 'Hyder',
+          avatarUrl: clerkUser?.imageUrl || null,
+          mustChangePassword: false,
+        };
 
-      return {
-        clerkUserId,
-        appUser,
-        tenantId: null,
-        role: Role.ADMIN,
-        authTimestamp: Date.now(),
-        sessionExpiresAt: Date.now() + ADMIN_MAX_SESSION_MS,
-        isSessionExpired: false,
-        mustReauthenticate: false,
-      };
+        return {
+          clerkUserId,
+          appUser,
+          tenantId: null,
+          role: Role.ADMIN,
+          authTimestamp: Date.now(),
+          sessionExpiresAt: Date.now() + ADMIN_MAX_SESSION_MS,
+          isSessionExpired: false,
+          mustReauthenticate: false,
+        };
+      }
+    } catch (_fallbackErr) {
+      return null;
     }
   }
 

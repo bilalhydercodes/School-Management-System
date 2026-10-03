@@ -313,7 +313,8 @@ export async function toggleTenantStatusAction(rawInput: z.infer<typeof ToggleTe
     });
 
     // Immediately invalidate all active sessions for school users if deactivated or suspended
-    if (!isActive || status === 'SUSPENDED' || status === 'CANCELLED' || status === 'EXPIRED') {
+    const isSuspendedOrCancelled = status === 'INACTIVE' || !isActive;
+    if (isSuspendedOrCancelled) {
       const tenantUsers = await prisma.user.findMany({
         where: { tenantId: updatedTenant.id },
         select: { id: true },
