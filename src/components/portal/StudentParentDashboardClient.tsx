@@ -5,17 +5,16 @@ import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 
-// Always-loaded shell (tiny, critical path)
+// Always-loaded shell & primary landing screen (instant 0ms first render)
 import PortalSidebar from './PortalSidebar';
 import PortalHeader from './PortalHeader';
 import ScreenSkeleton from './ScreenSkeleton';
+import DashboardScreen from './screens/DashboardScreen';
 
-// ─── Lazy-loaded screen chunks ────────────────────────────────────────────────
-// Each screen is code-split into its own JS chunk, loaded on first navigation.
-// The `loading` prop shows the skeleton instantly while the chunk fetches.
+// ─── Lazy-loaded secondary screen chunks ──────────────────────────────────────
+// Secondary tabs are code-split and fetched on demand when clicked.
 const skeleton = () => <ScreenSkeleton />;
 
-const DashboardScreen        = dynamic(() => import('./screens/DashboardScreen'),        { loading: skeleton });
 const StudentIdCardScreen    = dynamic(() => import('./screens/StudentIdCardScreen'),    { loading: skeleton });
 const ProfileSettingsScreen  = dynamic(() => import('./screens/ProfileSettingsScreen'),  { loading: skeleton });
 const TodayTimetableScreen   = dynamic(() => import('./screens/TodayTimetableScreen'),   { loading: skeleton });
