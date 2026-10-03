@@ -5,15 +5,14 @@ import { Role, type RoleType, type UserSession } from '@/types';
 // ============================================================================
 // ROLE-SPECIFIC SESSION POLICY CONSTANTS
 // ============================================================================
-// Students: 24 hours max session duration (routine logins without mandatory OTP)
-export const STUDENT_MAX_SESSION_MS = 24 * 60 * 60 * 1000;
+// Students / Parents: Lifetime persistent session until explicit logout (1 year TTL)
+export const STUDENT_MAX_SESSION_MS = 365 * 24 * 60 * 60 * 1000;
 
-// Teachers: 24 hours max session duration (requires OTP/MFA at least once per 24h)
-export const TEACHER_MAX_SESSION_MS = 24 * 60 * 60 * 1000;
+// Teachers: Extended session until logout (30 days TTL)
+export const TEACHER_MAX_SESSION_MS = 30 * 24 * 60 * 60 * 1000;
 
-// School Admins & Super Admins: STRICT 15-MINUTE MAXIMUM AUTHENTICATED SESSION
-// Hard stop after 15 minutes, requiring fresh OTP/MFA verification. No silent renewals.
-export const ADMIN_MAX_SESSION_MS = 15 * 60 * 1000;
+// School Admins & Super Admins: Active session until logout or session close (7 days TTL)
+export const ADMIN_MAX_SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface AuthoritativeClerkSession {
   clerkUserId: string;
@@ -31,15 +30,15 @@ export interface AuthoritativeClerkSession {
  */
 export function getRoleSessionLifetimeMs(role: RoleType | string): number {
   switch (role) {
-    case Role.SUPER_ADMIN:
-    case Role.ADMIN:
-      return ADMIN_MAX_SESSION_MS; // 15 minutes hard cutoff
-    case Role.TEACHER:
-      return TEACHER_MAX_SESSION_MS; // 24 hours cycle
     case Role.STUDENT:
     case Role.PARENT:
+      return STUDENT_MAX_SESSION_MS; // Lifetime persistent until logout (1 year)
+    case Role.TEACHER:
+      return TEACHER_MAX_SESSION_MS; // Active until logout
+    case Role.SUPER_ADMIN:
+    case Role.ADMIN:
     default:
-      return STUDENT_MAX_SESSION_MS; // 24 hours target max
+      return ADMIN_MAX_SESSION_MS; // Active session until logout or exit
   }
 }
 

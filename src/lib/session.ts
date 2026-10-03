@@ -11,23 +11,23 @@ import { isSessionRevoked } from '@/lib/session-revocation';
 export { createSessionToken, verifySessionToken, getJwtSecretKey };
 
 export const SESSION_COOKIE_NAME = 'session_token';
-export const SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
+export const SESSION_MAX_AGE = 365 * 24 * 60 * 60; // 1 year default for students
 
 /**
  * Returns role-specific session TTL and JWT expiration:
- * - Student / Parent: 7 days (routine logins, zero friction)
- * - Teacher: 24 hours (secure workday session, no OTP on page reload)
- * - School Admin / Super Admin: 4 hours (high security, shorter idle timeout)
+ * - Student / Parent: 365 days (Lifetime session until explicit logout)
+ * - Teacher: 30 days (Active persistent session until logout)
+ * - School Admin / Super Admin: 7 days (Active session until logout / browser exit)
  */
 export function getSessionMaxAgeForRole(role?: RoleType | string): { maxAgeSeconds: number; jwtExpiry: string } {
   switch (role) {
-    case Role.SUPER_ADMIN:
-    case Role.ADMIN:
-      return { maxAgeSeconds: 4 * 60 * 60, jwtExpiry: '4h' }; // 4 hours
-    case Role.TEACHER:
-      return { maxAgeSeconds: 24 * 60 * 60, jwtExpiry: '24h' }; // 24 hours
     case Role.STUDENT:
     case Role.PARENT:
+      return { maxAgeSeconds: 365 * 24 * 60 * 60, jwtExpiry: '365d' }; // 1 year lifetime
+    case Role.TEACHER:
+      return { maxAgeSeconds: 30 * 24 * 60 * 60, jwtExpiry: '30d' }; // 30 days
+    case Role.SUPER_ADMIN:
+    case Role.ADMIN:
     default:
       return { maxAgeSeconds: 7 * 24 * 60 * 60, jwtExpiry: '7d' }; // 7 days
   }
