@@ -347,6 +347,70 @@ function LoginForm() {
                       </>
                     )}
                   </button>
+
+                  {/* Clerk SSO Option */}
+                  <div className="mt-3 text-center">
+                    <Link
+                      href="/sign-in"
+                      className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 font-medium transition-colors"
+                    >
+                      <span>Or continue with Clerk SSO</span>
+                      <span>→</span>
+                    </Link>
+                  </div>
+
+                  {/* Quick Demo Logins Pill Selector */}
+                  <div className="mt-4 pt-3 border-t border-slate-100">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                      Demo Accounts Quick-Fill:
+                    </p>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserId('admin@dps.edu.in');
+                          setPassword('Admin@123');
+                          setErrorMessage(null);
+                        }}
+                        className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                      >
+                        Admin
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserId('teacher@dps.edu.in');
+                          setPassword('Teacher@123');
+                          setErrorMessage(null);
+                        }}
+                        className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                      >
+                        Teacher
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserId('student@dps.edu.in');
+                          setPassword('Student@123');
+                          setErrorMessage(null);
+                        }}
+                        className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                      >
+                        Student
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserId('superadmin@schoolerp.in');
+                          setPassword('SuperAdmin@123');
+                          setErrorMessage(null);
+                        }}
+                        className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                      >
+                        Super
+                      </button>
+                    </div>
+                  </div>
                 </form>
               </>
             ) : (
