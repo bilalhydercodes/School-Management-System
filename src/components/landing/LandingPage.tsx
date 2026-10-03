@@ -5,6 +5,7 @@ import FeaturesGrid from './FeaturesGrid';
 import RoleSection from './RoleSection';
 import BenefitsSection from './BenefitsSection';
 import CommunitySection from './CommunitySection';
+import PricingSection from './PricingSection';
 import TestimonialsSection from './TestimonialsSection';
 import FaqSection from './FaqSection';
 import FinalCtaSection from './FinalCtaSection';
@@ -31,13 +32,16 @@ export default function LandingPage() {
         {/* 6. Building Stronger School Communities (Statistics & Illustration) */}
         <CommunitySection />
 
-        {/* 7. Testimonials Section */}
+        {/* 7. Transparent Pricing Section */}
+        <PricingSection />
+
+        {/* 8. Testimonials Section */}
         <TestimonialsSection />
 
-        {/* 8. FAQ Section */}
+        {/* 9. FAQ Section */}
         <FaqSection />
 
-        {/* 9. Final Call to Action */}
+        {/* 10. Final Call to Action */}
         <FinalCtaSection />
       </main>
     </div>
