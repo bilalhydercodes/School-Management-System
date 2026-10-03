@@ -215,75 +215,7 @@ export class AuthService {
       },
     });
 
-    const is2FaRequired =
-      user.role === 'TEACHER' || user.role === 'ADMIN' || user.role === 'SUPER_ADMIN';
-
-    // 8. Handle 2FA OTP Step for Teachers, School Admins, and Super Admins
-    if (is2FaRequired) {
-      const challengeId = crypto.randomUUID();
-      const otp = crypto.randomInt(100000, 1000000).toString();
-      const otpHash = await bcrypt.hash(otp, 10);
-      const challengeKey = `login_challenge:${challengeId}`;
-
-      let tenantName = 'School Management System';
-      if (user.tenantId) {
-        const tenant = await prisma.tenant.findUnique({
-          where: { id: user.tenantId },
-          select: { name: true },
-        });
-        if (tenant?.name) tenantName = tenant.name;
-      }
-
-      // Store challenge in Redis or memory store (10 minute validity)
-      const challengePayload = {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        tenantId: user.tenantId,
-        hash: otpHash,
-        expiresAt: Date.now() + OTP_TTL_SECONDS * 1000,
-        attempts: 0,
-      };
-
-      if (redis) {
-        try {
-          await redis.set(challengeKey, JSON.stringify(challengePayload), 'EX', OTP_TTL_SECONDS);
-        } catch (rErr) {
-          console.warn('[REDIS-WARN] Login challenge fallback to memory:', rErr instanceof Error ? rErr.message : String(rErr));
-          memoryOtpStore.set(challengeKey, challengePayload);
-        }
-      } else {
-        memoryOtpStore.set(challengeKey, challengePayload);
-      }
-
-      // Dispatch 2FA OTP via Email and SMS
-      await sendPasswordResetOtpEmail({
-        to: user.email,
-        otp,
-        tenantName,
-        recipientName: `${user.firstName} ${user.lastName}`.trim() || 'Staff Member',
-      });
-
-      if (user.phone) {
-        await sendSmsOtp({
-          phone: user.phone,
-          otp,
-          tenantName,
-        });
-      }
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[DEV-ONLY-AUTH] 2FA Login OTP for ${user.email} (${user.role}): ${otp} | ChallengeId: ${challengeId}`);
-      }
-
-      return {
-        success: true,
-        requiresOtp: true,
-        challengeId,
-        emailHint: maskEmailAddress(user.email),
-        role: user.role as RoleType,
-      };
-    }
+    // Direct login for all roles without mandatory OTP
 
     // 9. Direct Routine Login for Students & Parents (7-day session)
     await prisma.user.update({
