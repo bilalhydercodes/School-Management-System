@@ -39,10 +39,26 @@ export interface TeacherPeriodScheduleItem {
   substitutionReason?: string;
 }
 
+// In-memory idempotency cache for network retries and offline queue sync (TTL: 10 minutes)
+const idempotencyCache = new Map<
+  string,
+  { result: { success: boolean; count: number; date: string; sectionId: string }; expiresAt: number }
+>();
+
+function cleanupIdempotencyCache() {
+  const now = Date.now();
+  idempotencyCache.forEach((val, key) => {
+    if (val.expiresAt < now) {
+      idempotencyCache.delete(key);
+    }
+  });
+}
+
 export class AttendanceService {
   /**
    * Atomically records daily attendance for a class section inside a database transaction.
    * If attendance already exists for that date, existing records are replaced safely without duplicates.
+   * Supports clientMutationId idempotency for safe offline queue sync.
    */
   static async markDailyAttendance(
     input: MarkDailyAttendanceInput,
@@ -51,6 +67,16 @@ export class AttendanceService {
   ): Promise<{ success: boolean; count: number; date: string; sectionId: string }> {
     if (!tenantId) {
       throw new Error('Tenant isolation security violation: tenantId is required');
+    }
+
+    // Check idempotency cache if clientMutationId is provided
+    if (input.clientMutationId) {
+      cleanupIdempotencyCache();
+      const cacheKey = `${tenantId}:${input.clientMutationId}`;
+      const cached = idempotencyCache.get(cacheKey);
+      if (cached && cached.expiresAt > Date.now()) {
+        return cached.result;
+      }
     }
 
     const targetDate = new Date(`${input.date}T00:00:00.000Z`);
@@ -125,12 +151,21 @@ export class AttendanceService {
       }
     });
 
-    return {
+    const result = {
       success: true,
       count: input.records.length,
       date: input.date,
       sectionId: input.sectionId,
     };
+
+    if (input.clientMutationId) {
+      idempotencyCache.set(`${tenantId}:${input.clientMutationId}`, {
+        result,
+        expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes TTL
+      });
+    }
+
+    return result;
   }
 
   /**

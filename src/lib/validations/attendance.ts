@@ -14,7 +14,10 @@ export const MarkDailyAttendanceSchema = z
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format must be YYYY-MM-DD'),
     records: z.array(DailyAttendanceRecordSchema).min(1, 'At least one student record is required'),
     overrideHoliday: z.boolean().optional(),
+    clientMutationId: z.string().max(128).optional(),
+    lastUpdatedTimestamp: z.string().optional(),
   })
   .strict();
 
 export type MarkDailyAttendanceInput = z.infer<typeof MarkDailyAttendanceSchema>;
+

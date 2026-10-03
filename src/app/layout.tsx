@@ -118,7 +118,7 @@ const jsonLd = {
       '@id': 'https://alphaeduhub.in/#organization',
       name: 'Alpha Edu Hub',
       url: 'https://alphaeduhub.in',
-      logo: 'https://alphaeduhub.in/logo.png',
+      logo: 'https://alphaeduhub.in/images/dashboard/logo_transparent_bg.png',
       description: 'Enterprise Multi-Tenant School ERP & Operating System for K-12 Institutions in India',
       sameAs: [],
     },
@@ -156,6 +156,8 @@ const hasClerkKey = Boolean(
   clerkKey && clerkKey.startsWith('pk_') && !clerkKey.includes('placeholder')
 );
 
+import OfflineProvider from '@/components/offline/OfflineProvider';
+
 export default function RootLayout({
   children,
 }: {
@@ -171,7 +173,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`${plusJakartaSans.variable} font-sans min-h-screen bg-brand-subtle text-brand-dark antialiased`}>
-        {children}
+        <OfflineProvider>
+          {children}
+        </OfflineProvider>
       </body>
     </html>
   );

@@ -9,6 +9,7 @@ import PricingSection from './PricingSection';
 import TestimonialsSection from './TestimonialsSection';
 import FaqSection from './FaqSection';
 import FinalCtaSection from './FinalCtaSection';
+import Footer from './Footer';
 
 export interface LandingPageProps {
   stats?: CommunityStatsProps;
@@ -48,6 +49,9 @@ export default function LandingPage({ stats }: LandingPageProps) {
         {/* 10. Final Call to Action */}
         <FinalCtaSection />
       </main>
+
+      {/* 11. Production-Ready Footer */}
+      <Footer />
     </div>
   );
 }
