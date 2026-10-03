@@ -209,7 +209,7 @@ function LoginForm() {
     });
   };
 
-  if (isNavigating || !isImageReady) {
+  if (isNavigating) {
     return <BrandLoader message="Preparing your workspace..." sublabel="Alpha Edu Hub" />;
   }
 
@@ -223,6 +223,12 @@ function LoginForm() {
         backgroundRepeat: 'no-repeat',
       }}
     >
+      {/* Loading overlay until left panel image is loaded (prevents hydration mismatch) */}
+      {!isImageReady && (
+        <div className="fixed inset-0 z-50 bg-[#CBE9FE] flex items-center justify-center animate-in fade-in duration-150">
+          <BrandLoader message="Preparing your workspace..." sublabel="Alpha Edu Hub" fullScreen />
+        </div>
+      )}
       {/* Top-Left Corner: Go Back to Main Public Landing Page */}
       <Link
         href="/"
