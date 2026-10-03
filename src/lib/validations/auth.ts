@@ -5,7 +5,6 @@ export const LoginSchema = z
     email: z.string().min(1, 'Please enter your Roll Number, Admission ID, or Email'),
     password: z.string().min(1, 'Password is required'),
     tenantId: z.string().uuid().optional(),
-    turnstileToken: z.string().optional(),
   })
   .strict();
 
@@ -15,7 +14,6 @@ export const VerifyLoginOtpSchema = z
   .object({
     challengeId: z.string().min(1, 'Challenge identifier is required'),
     otp: z.string().length(6, 'OTP must be exactly 6 digits'),
-    turnstileToken: z.string().optional(),
   })
   .strict();
 

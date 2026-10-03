@@ -90,7 +90,6 @@ function LoginForm() {
         const result = await loginAction({
           email: userId.trim(),
           password: password.trim(),
-          turnstileToken: 'skip-in-dev',
         });
 
         if (result.requiresOtp && result.challengeId) {
@@ -131,7 +130,6 @@ function LoginForm() {
         const result = await verifyLoginOtpAction({
           challengeId,
           otp: otpCode.trim(),
-          turnstileToken: 'skip-in-dev',
         });
 
         if (result.success && result.redirectUrl) {

@@ -17,6 +17,7 @@
     "worker": "tsx src/workers/notification.worker.ts"
   },
   "dependencies": {
+    "@clerk/nextjs": "^5.7.6",
     "@prisma/client": "^5.18.0",
     "@t3-oss/env-nextjs": "^0.10.1",
     "bcryptjs": "^2.4.3",

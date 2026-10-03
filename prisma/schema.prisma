@@ -111,6 +111,7 @@ model TenantBranding {
 
 model User {
   id                    String                @id @default(uuid()) @db.Uuid
+  clerkUserId           String?               @unique
   tenantId              String?               @db.Uuid
   email                 String
   phone                 String?

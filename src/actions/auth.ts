@@ -24,7 +24,6 @@ import {
 } from '@/lib/validations/auth';
 import { revokeAllUserSessions } from '@/lib/session-revocation';
 import { resolveTenantByHostname } from '@/lib/tenant';
-import { verifyTurnstileToken } from '@/lib/turnstile';
 import type { AuthResult } from '@/types';
 
 /**
@@ -51,15 +50,6 @@ export async function loginAction(input: LoginInput): Promise<AuthResult> {
   const isSuperAdminDomain = headerList.get('x-is-superadmin-domain') === 'true';
   const ipAddress = headerList.get('x-forwarded-for')?.split(',')[0].trim() || headerList.get('x-real-ip') || undefined;
   const userAgent = headerList.get('user-agent') || undefined;
-
-  // 3. Cloudflare Turnstile Bot Defense Verification
-  const turnstileCheck = await verifyTurnstileToken(credentials.turnstileToken, ipAddress);
-  if (!turnstileCheck.success) {
-    return {
-      success: false,
-      error: turnstileCheck.error || 'Security verification failed. Please try again.',
-    };
-  }
 
   const rawHost = headerList.get('host') || '';
   let resolvedTenantId = credentials.tenantId || headerTenantId || null;
@@ -130,14 +120,6 @@ export async function verifyLoginOtpAction(input: VerifyLoginOtpInput): Promise<
   const ipAddress = headerList.get('x-forwarded-for')?.split(',')[0].trim() || headerList.get('x-real-ip') || undefined;
   const userAgent = headerList.get('user-agent') || undefined;
 
-  // Turnstile verification
-  const turnstileCheck = await verifyTurnstileToken(validation.data.turnstileToken, ipAddress);
-  if (!turnstileCheck.success) {
-    return {
-      success: false,
-      error: turnstileCheck.error || 'Security verification failed. Please try again.',
-    };
-  }
 
   const result = await AuthService.verifyLogin2FA(
     validation.data.challengeId,

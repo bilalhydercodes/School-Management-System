@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
+import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'School ERP & Management System',
-  description: 'Enterprise-grade multi-tenant school operating system for Indian K-12 schools',
+  title: 'Alpha Edu Hub — School ERP & Management System',
+  description: 'Enterprise-grade multi-tenant school operating system for K-12 schools',
 };
 
 export default function RootLayout({
@@ -12,10 +13,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-brand-subtle text-brand-dark antialiased">
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className="min-h-screen bg-brand-subtle text-brand-dark antialiased">
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
