@@ -46,7 +46,10 @@ export async function POST(request: Request) {
   } catch (err: unknown) {
     console.error('[LOGIN API ERROR]', err);
     return NextResponse.json(
-      { success: false, error: 'An unexpected authentication error occurred.' },
+      {
+        success: false,
+        error: err instanceof Error ? err.message : 'An unexpected authentication error occurred.',
+      },
       { status: 500 }
     );
   }
