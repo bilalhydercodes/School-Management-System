@@ -3,7 +3,7 @@
 import React, { useState, useTransition, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { loginAction, verifyLoginOtpAction } from '@/actions/auth';
 import BrandLoader from '@/components/ui/BrandLoader';
 
@@ -55,6 +55,7 @@ function ShieldCheckIcon({ className = 'w-4 h-4' }: { className?: string }) {
 }
 
 function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get('redirect');
 
@@ -104,7 +105,13 @@ function LoginForm() {
         if (result.success && result.redirectUrl) {
           setIsNavigating(true);
           const target = redirectParam || result.redirectUrl;
-          window.location.href = target;
+          router.push(target);
+          router.refresh();
+          setTimeout(() => {
+            if (typeof window !== 'undefined' && window.location.pathname !== target) {
+              window.location.href = target;
+            }
+          }, 800);
         } else {
           setIsNavigating(false);
           setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
@@ -120,7 +127,13 @@ function LoginForm() {
           if (result.success && result.redirectUrl) {
             setIsNavigating(true);
             const target = redirectParam || result.redirectUrl;
-            window.location.href = target;
+            router.push(target);
+            router.refresh();
+            setTimeout(() => {
+              if (typeof window !== 'undefined' && window.location.pathname !== target) {
+                window.location.href = target;
+              }
+            }, 800);
           } else {
             setIsNavigating(false);
             setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
@@ -158,7 +171,13 @@ function LoginForm() {
         if (result.success && result.redirectUrl) {
           setIsNavigating(true);
           const target = redirectParam || result.redirectUrl;
-          window.location.href = target;
+          router.push(target);
+          router.refresh();
+          setTimeout(() => {
+            if (typeof window !== 'undefined' && window.location.pathname !== target) {
+              window.location.href = target;
+            }
+          }, 800);
         } else {
           setIsNavigating(false);
           setErrorMessage(result.error || 'Invalid or expired OTP code.');

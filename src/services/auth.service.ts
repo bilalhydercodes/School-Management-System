@@ -205,25 +205,19 @@ export class AuthService {
       };
     }
 
-    // 7. Successful password verification - reset failed attempts
+    // 7. Successful password verification - reset failed attempts and update lastLoginAt in a SINGLE query
     await prisma.user.update({
       where: { id: user.id },
       data: {
         failedLoginAttempts: 0,
         lockedUntil: null,
+        lastLoginAt: new Date(),
       },
     });
 
-    // Direct login for all roles without mandatory OTP
-
-    // 9. Direct Routine Login for Students & Parents (7-day session)
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    });
-
-    try {
-      await prisma.auditLog.create({
+    // 8. Record audit log asynchronously without blocking user response
+    prisma.auditLog
+      .create({
         data: {
           tenantId: user.tenantId,
           userId: user.id,
@@ -233,10 +227,10 @@ export class AuthService {
           ipAddress: metadata?.ipAddress,
           userAgent: metadata?.userAgent,
         },
+      })
+      .catch((logErr) => {
+        console.error('[AUDIT-LOG-WARN] Failed to record login success audit log:', logErr instanceof Error ? logErr.message : String(logErr));
       });
-    } catch (logErr) {
-      console.error('[AUDIT-LOG-WARN] Failed to record login success audit log:', logErr instanceof Error ? logErr.message : String(logErr));
-    }
 
     const sessionUser: UserSession = {
       userId: user.id,

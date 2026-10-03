@@ -6,12 +6,18 @@ const globalForRedis = globalThis as unknown as {
 
 function createRedisClient(): Redis | null {
   try {
-    const url = process.env.REDIS_URL || 'redis://localhost:6379';
-    const client = new Redis(url, {
+    const rawUrl = process.env.REDIS_URL;
+    // If no REDIS_URL configured in production or serverless, return null to use instant in-memory store
+    if (!rawUrl || rawUrl.trim() === '' || rawUrl.includes('placeholder')) {
+      return null;
+    }
+
+    const client = new Redis(rawUrl, {
       maxRetriesPerRequest: 1,
+      connectTimeout: 500, // 500ms max timeout to prevent stalling auth requests
       retryStrategy(times) {
-        if (times > 3) return null; // stop retrying after 3 attempts
-        return Math.min(times * 200, 1000);
+        if (times > 2) return null; // stop retrying after 2 attempts
+        return 100;
       },
       lazyConnect: true,
       enableOfflineQueue: false,
