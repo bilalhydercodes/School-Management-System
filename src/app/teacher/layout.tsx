@@ -6,6 +6,8 @@ import { TeacherSidebar } from '@/components/teacher/TeacherSidebar';
 import { TeacherHeader } from '@/components/teacher/TeacherHeader';
 import { prisma } from '@/lib/db';
 
+import TeacherLayoutClient from '@/components/teacher/TeacherLayoutClient';
+
 export const metadata = {
   title: 'Teacher Portal | Alpha Edu Hub',
   description: 'Faculty workspace and management system',
@@ -76,23 +78,9 @@ export default async function TeacherPortalLayout({
       : 'Sanjay Yadav';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#4bc8fa] via-[#9fe4fc] to-[#eff8fd] p-3.5 lg:p-4 text-[#0F172A] font-sans antialiased">
-      <div className="max-w-[1536px] mx-auto flex gap-4 min-h-[calc(100vh-32px)]">
-        {/* Persistent Floating Left Sidebar */}
-        <TeacherSidebar
-          schoolName="Alpha Edu Hub"
-          tagline="Learn · Grow · Excel"
-        />
-
-        {/* Right Content Area */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <TeacherHeader
-            teacherName={teacherName}
-            roleTitle="(Teacher)"
-          />
-          <main className="flex-1 min-w-0">{children}</main>
-        </div>
-      </div>
-    </div>
+    <TeacherLayoutClient teacherName={teacherName}>
+      {children}
+    </TeacherLayoutClient>
   );
 }
+

@@ -1,40 +1,49 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 
-// Navigation & Layout Shell
+// Always-loaded shell (tiny, critical path)
 import PortalSidebar from './PortalSidebar';
 import PortalHeader from './PortalHeader';
-import LeaveRequestModal from './LeaveRequestModal';
-import AppointmentBookingModal from './AppointmentBookingModal';
+import ScreenSkeleton from './ScreenSkeleton';
 
-// Screens
-import DashboardScreen from './screens/DashboardScreen';
-import StudentIdCardScreen from './screens/StudentIdCardScreen';
-import ProfileSettingsScreen from './screens/ProfileSettingsScreen';
-import TodayTimetableScreen from './screens/TodayTimetableScreen';
-import WeeklyTimetableScreen from './screens/WeeklyTimetableScreen';
-import SyllabusCurriculumScreen from './screens/SyllabusCurriculumScreen';
-import MyAttendanceScreen from './screens/MyAttendanceScreen';
-import AttendanceCalendarScreen from './screens/AttendanceCalendarScreen';
-import ExamDateSheetScreen from './screens/ExamDateSheetScreen';
-import ResultsMarksScreen from './screens/ResultsMarksScreen';
-import ReportCardScreen from './screens/ReportCardScreen';
-import ExamGuidelinesScreen from './screens/ExamGuidelinesScreen';
-import FeeSummaryScreen from './screens/FeeSummaryScreen';
-import FeeInvoicesScreen from './screens/FeeInvoicesScreen';
-import PaymentHistoryScreen from './screens/PaymentHistoryScreen';
-import OnlinePaymentScreen from './screens/OnlinePaymentScreen';
-import NotificationsScreen from './screens/NotificationsScreen';
-import CircularsNoticesScreen from './screens/CircularsNoticesScreen';
-import SchoolEventsScreen from './screens/SchoolEventsScreen';
-import HolidayCalendarScreen from './screens/HolidayCalendarScreen';
-import KnowAuthoritiesScreen from './screens/KnowAuthoritiesScreen';
-import EmergencyContactsScreen from './screens/EmergencyContactsScreen';
-import GrievanceFeedbackScreen from './screens/GrievanceFeedbackScreen';
-import HelpSupportScreen from './screens/HelpSupportScreen';
+// ─── Lazy-loaded screen chunks ────────────────────────────────────────────────
+// Each screen is code-split into its own JS chunk, loaded on first navigation.
+// The `loading` prop shows the skeleton instantly while the chunk fetches.
+const skeleton = () => <ScreenSkeleton />;
+
+const DashboardScreen        = dynamic(() => import('./screens/DashboardScreen'),        { loading: skeleton });
+const StudentIdCardScreen    = dynamic(() => import('./screens/StudentIdCardScreen'),    { loading: skeleton });
+const ProfileSettingsScreen  = dynamic(() => import('./screens/ProfileSettingsScreen'),  { loading: skeleton });
+const TodayTimetableScreen   = dynamic(() => import('./screens/TodayTimetableScreen'),   { loading: skeleton });
+const WeeklyTimetableScreen  = dynamic(() => import('./screens/WeeklyTimetableScreen'),  { loading: skeleton });
+const SyllabusCurriculumScreen = dynamic(() => import('./screens/SyllabusCurriculumScreen'), { loading: skeleton });
+const MyAttendanceScreen     = dynamic(() => import('./screens/MyAttendanceScreen'),     { loading: skeleton });
+const AttendanceCalendarScreen = dynamic(() => import('./screens/AttendanceCalendarScreen'), { loading: skeleton });
+const ExamDateSheetScreen    = dynamic(() => import('./screens/ExamDateSheetScreen'),    { loading: skeleton });
+const ResultsMarksScreen     = dynamic(() => import('./screens/ResultsMarksScreen'),     { loading: skeleton });
+const ReportCardScreen       = dynamic(() => import('./screens/ReportCardScreen'),       { loading: skeleton });
+const ExamGuidelinesScreen   = dynamic(() => import('./screens/ExamGuidelinesScreen'),   { loading: skeleton });
+const FeeSummaryScreen       = dynamic(() => import('./screens/FeeSummaryScreen'),       { loading: skeleton });
+const FeeInvoicesScreen      = dynamic(() => import('./screens/FeeInvoicesScreen'),      { loading: skeleton });
+const PaymentHistoryScreen   = dynamic(() => import('./screens/PaymentHistoryScreen'),   { loading: skeleton });
+const OnlinePaymentScreen    = dynamic(() => import('./screens/OnlinePaymentScreen'),    { loading: skeleton });
+const NotificationsScreen    = dynamic(() => import('./screens/NotificationsScreen'),    { loading: skeleton });
+const CircularsNoticesScreen = dynamic(() => import('./screens/CircularsNoticesScreen'), { loading: skeleton });
+const SchoolEventsScreen     = dynamic(() => import('./screens/SchoolEventsScreen'),     { loading: skeleton });
+const HolidayCalendarScreen  = dynamic(() => import('./screens/HolidayCalendarScreen'),  { loading: skeleton });
+const KnowAuthoritiesScreen  = dynamic(() => import('./screens/KnowAuthoritiesScreen'),  { loading: skeleton });
+const EmergencyContactsScreen = dynamic(() => import('./screens/EmergencyContactsScreen'), { loading: skeleton });
+const GrievanceFeedbackScreen = dynamic(() => import('./screens/GrievanceFeedbackScreen'), { loading: skeleton });
+const HelpSupportScreen      = dynamic(() => import('./screens/HelpSupportScreen'),      { loading: skeleton });
+
+// Modals are also lazy — they're rarely needed on first load
+const LeaveRequestModal      = dynamic(() => import('./LeaveRequestModal'),      { ssr: false });
+const AppointmentBookingModal = dynamic(() => import('./AppointmentBookingModal'), { ssr: false });
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface ChildOption {
   id: string;
@@ -165,43 +174,28 @@ export default function StudentParentDashboardClient({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Active navigation view state
   const viewFromQuery = searchParams?.get('view') || initialView;
   const [activeNav, setActiveNav] = useState<string>(viewFromQuery || 'dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
-  // Dynamic fee status & payment selection state
+  // Fee state — updated optimistically after payment
   const [feeStatusState, setFeeStatusState] = useState(stats.feeStatus);
   const [selectedPaymentInvoiceId, setSelectedPaymentInvoiceId] = useState<string | null>(null);
   const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<number | null>(null);
 
-  const handlePaymentSuccess = (paidAmount: number, _receiptNo: string) => {
-    setFeeStatusState((prev) => {
-      const newPending = Math.max(0, prev.pendingAmount - paidAmount);
-      return {
-        ...prev,
-        pendingAmount: newPending,
-        totalPaid: prev.totalPaid + paidAmount,
-        statusText: newPending === 0 ? 'Fully Paid' : 'Payment Due',
-      };
-    });
-  };
-
-  // Modals state
+  // Modals
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [selectedAuthority, setSelectedAuthority] = useState<(typeof faculty)[0] | null>(null);
 
-  // Sync state if query changes
+  // Sync nav with URL query param
   useEffect(() => {
     const qView = searchParams?.get('view');
-    if (qView && qView !== activeNav) {
-      setActiveNav(qView);
-    }
-  }, [searchParams, activeNav]);
+    if (qView && qView !== activeNav) setActiveNav(qView);
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSelectNav = (navId: string) => {
+  const handleSelectNav = useCallback((navId: string) => {
     setActiveNav(navId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const url = new URL(window.location.href);
@@ -211,25 +205,38 @@ export default function StudentParentDashboardClient({
       url.searchParams.set('view', navId);
     }
     window.history.pushState({}, '', url.toString());
-  };
+  }, []);
 
-  const handleSignOut = async () => {
+  const handlePaymentSuccess = useCallback((paidAmount: number, _receiptNo: string) => {
+    setFeeStatusState((prev) => {
+      const newPending = Math.max(0, prev.pendingAmount - paidAmount);
+      return {
+        ...prev,
+        pendingAmount: newPending,
+        totalPaid: prev.totalPaid + paidAmount,
+        statusText: newPending === 0 ? 'Fully Paid' : 'Payment Due',
+      };
+    });
+  }, []);
+
+  const handleSignOut = useCallback(async () => {
     setIsSigningOut(true);
     await logoutAction();
-  };
+  }, []);
 
-  const handleOpenAppointment = (person: (typeof faculty)[0]) => {
+  const handleOpenAppointment = useCallback((person: (typeof faculty)[0]) => {
     setSelectedAuthority(person);
     setAppointmentModalOpen(true);
-  };
+  }, []);
 
-  const handleSelectChild = (childId: string) => {
+  const handleSelectChild = useCallback((childId: string) => {
     router.push(`/portal?child=${childId}`);
-  };
+  }, [router]);
+
+  const backToDashboard = useCallback(() => handleSelectNav('dashboard'), [handleSelectNav]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#22B8FD] via-[#D3EEFD]/60 to-[#EBF6FD] text-slate-900 font-sans antialiased relative">
-      {/* Global Shell Wrapper */}
       <div className="flex min-h-screen p-3 sm:p-4 gap-4 sm:gap-5">
         {/* Left Sidebar */}
         <PortalSidebar
@@ -240,9 +247,8 @@ export default function StudentParentDashboardClient({
           unreadCount={stats.counts.messages}
         />
 
-        {/* Main Content Area (offset by sidebar on desktop) */}
+        {/* Main Content */}
         <div className="flex-1 lg:pl-64 flex flex-col min-w-0 space-y-4 sm:space-y-5">
-          {/* Top Header */}
           <PortalHeader
             studentName={student.name}
             className={student.className}
@@ -258,219 +264,183 @@ export default function StudentParentDashboardClient({
             selectedChildId={student.id}
           />
 
-          {/* Dynamic Screen View */}
+          {/* Screen renderer — Suspense boundary catches any async within screens */}
           <main className="flex-1 min-w-0">
-            {activeNav === 'dashboard' && (
-              <DashboardScreen
-                student={student}
-                onSelectNav={handleSelectNav}
-                onRequestLeave={() => setLeaveModalOpen(true)}
-              />
-            )}
+            <Suspense fallback={<ScreenSkeleton />}>
+              {activeNav === 'dashboard' && (
+                <DashboardScreen
+                  student={student}
+                  onSelectNav={handleSelectNav}
+                  onRequestLeave={() => setLeaveModalOpen(true)}
+                />
+              )}
 
-            {activeNav === 'student-id-card' && (
-              <StudentIdCardScreen
-                student={student}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-              />
-            )}
+              {activeNav === 'student-id-card' && (
+                <StudentIdCardScreen student={student} onBackToDashboard={backToDashboard} />
+              )}
 
-            {activeNav === 'profile-settings' && (
-              <ProfileSettingsScreen
-                student={student}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-              />
-            )}
+              {activeNav === 'profile-settings' && (
+                <ProfileSettingsScreen student={student} onBackToDashboard={backToDashboard} />
+              )}
 
-            {activeNav === 'today-timetable' && (
-              <TodayTimetableScreen
-                todaySchedule={todaySchedule}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'today-timetable' && (
+                <TodayTimetableScreen
+                  todaySchedule={todaySchedule}
+                  onBackToDashboard={backToDashboard}
+                  onSelectNav={handleSelectNav}
+                />
+              )}
 
-            {activeNav === 'weekly-timetable' && (
-              <WeeklyTimetableScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'weekly-timetable' && (
+                <WeeklyTimetableScreen onBackToDashboard={backToDashboard} onSelectNav={handleSelectNav} />
+              )}
 
-            {activeNav === 'syllabus-curriculum' && (
-              <SyllabusCurriculumScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-              />
-            )}
+              {activeNav === 'syllabus-curriculum' && (
+                <SyllabusCurriculumScreen onBackToDashboard={backToDashboard} />
+              )}
 
-            {activeNav === 'my-attendance' && (
-              <MyAttendanceScreen
-                stats={stats}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-                onRequestLeave={() => setLeaveModalOpen(true)}
-              />
-            )}
+              {activeNav === 'my-attendance' && (
+                <MyAttendanceScreen
+                  stats={stats}
+                  onBackToDashboard={backToDashboard}
+                  onSelectNav={handleSelectNav}
+                  onRequestLeave={() => setLeaveModalOpen(true)}
+                />
+              )}
 
-            {activeNav === 'attendance-calendar' && (
-              <AttendanceCalendarScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'attendance-calendar' && (
+                <AttendanceCalendarScreen onBackToDashboard={backToDashboard} onSelectNav={handleSelectNav} />
+              )}
 
-            {activeNav === 'exam-datesheet' && (
-              <ExamDateSheetScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'exam-datesheet' && (
+                <ExamDateSheetScreen onBackToDashboard={backToDashboard} onSelectNav={handleSelectNav} />
+              )}
 
-            {activeNav === 'results-marks' && (
-              <ResultsMarksScreen
-                subjects={subjects}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'results-marks' && (
+                <ResultsMarksScreen
+                  subjects={subjects}
+                  onBackToDashboard={backToDashboard}
+                  onSelectNav={handleSelectNav}
+                />
+              )}
 
-            {activeNav === 'report-card' && (
-              <ReportCardScreen
-                student={student}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-              />
-            )}
+              {activeNav === 'report-card' && (
+                <ReportCardScreen student={student} onBackToDashboard={backToDashboard} />
+              )}
 
-            {activeNav === 'exam-guidelines' && (
-              <ExamGuidelinesScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'exam-guidelines' && (
+                <ExamGuidelinesScreen onBackToDashboard={backToDashboard} onSelectNav={handleSelectNav} />
+              )}
 
-            {activeNav === 'fee-summary' && (
-              <FeeSummaryScreen
-                feeStatus={feeStatusState}
-                onPayInvoice={(invoiceId, amount) => {
-                  setSelectedPaymentInvoiceId(invoiceId || null);
-                  setSelectedPaymentAmount(amount || null);
-                  handleSelectNav('online-payment');
-                }}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'fee-summary' && (
+                <FeeSummaryScreen
+                  feeStatus={feeStatusState}
+                  onPayInvoice={(invoiceId, amount) => {
+                    setSelectedPaymentInvoiceId(invoiceId || null);
+                    setSelectedPaymentAmount(amount || null);
+                    handleSelectNav('online-payment');
+                  }}
+                  onBackToDashboard={backToDashboard}
+                  onSelectNav={handleSelectNav}
+                />
+              )}
 
-            {activeNav === 'fee-invoices' && (
-              <FeeInvoicesScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'fee-invoices' && (
+                <FeeInvoicesScreen
+                  invoices={invoices}
+                  onBackToDashboard={backToDashboard}
+                  onSelectNav={handleSelectNav}
+                />
+              )}
 
-            {activeNav === 'payment-history' && (
-              <PaymentHistoryScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'payment-history' && (
+                <PaymentHistoryScreen onBackToDashboard={backToDashboard} onSelectNav={handleSelectNav} />
+              )}
 
-            {activeNav === 'online-payment' && (
-              <OnlinePaymentScreen
-                student={{
-                  id: student.id,
-                  name: student.name,
-                  admissionNumber: student.admissionNumber,
-                  rollNumber: student.rollNumber,
-                  sectionName: student.sectionName,
-                  className: student.className,
-                  board: student.board,
-                  avatarUrl: student.avatarUrl,
-                }}
-                feeStatus={feeStatusState}
-                invoices={invoices}
-                initialInvoiceId={selectedPaymentInvoiceId}
-                initialAmount={selectedPaymentAmount}
-                onPaymentSuccess={handlePaymentSuccess}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'online-payment' && (
+                <OnlinePaymentScreen
+                  student={{
+                    id: student.id,
+                    name: student.name,
+                    admissionNumber: student.admissionNumber,
+                    rollNumber: student.rollNumber,
+                    sectionName: student.sectionName,
+                    className: student.className,
+                    board: student.board,
+                    avatarUrl: student.avatarUrl,
+                  }}
+                  parentContext={parentContext}
+                  feeStatus={feeStatusState}
+                  invoices={invoices}
+                  initialInvoiceId={selectedPaymentInvoiceId}
+                  initialAmount={selectedPaymentAmount}
+                  onPaymentSuccess={handlePaymentSuccess}
+                  onBackToDashboard={backToDashboard}
+                  onSelectNav={handleSelectNav}
+                />
+              )}
 
-            {activeNav === 'notifications' && (
-              <NotificationsScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onSelectNav={handleSelectNav}
-              />
-            )}
+              {activeNav === 'notifications' && (
+                <NotificationsScreen onBackToDashboard={backToDashboard} onSelectNav={handleSelectNav} />
+              )}
 
-            {activeNav === 'circulars-notices' && (
-              <CircularsNoticesScreen
-                notices={notices}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-              />
-            )}
+              {activeNav === 'circulars-notices' && (
+                <CircularsNoticesScreen notices={notices} onBackToDashboard={backToDashboard} />
+              )}
 
-            {activeNav === 'school-events' && (
-              <SchoolEventsScreen
-                events={events}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-              />
-            )}
+              {activeNav === 'school-events' && (
+                <SchoolEventsScreen events={events} onBackToDashboard={backToDashboard} />
+              )}
 
-            {activeNav === 'holiday-calendar' && (
-              <HolidayCalendarScreen
-                holidays={holidays}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-              />
-            )}
+              {activeNav === 'holiday-calendar' && (
+                <HolidayCalendarScreen holidays={holidays} onBackToDashboard={backToDashboard} />
+              )}
 
-            {activeNav === 'know-authorities' && (
-              <KnowAuthoritiesScreen
-                faculty={faculty}
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-                onBookAppointment={handleOpenAppointment}
-              />
-            )}
+              {activeNav === 'know-authorities' && (
+                <KnowAuthoritiesScreen
+                  faculty={faculty}
+                  onBackToDashboard={backToDashboard}
+                  onBookAppointment={handleOpenAppointment}
+                />
+              )}
 
-            {activeNav === 'emergency-contacts' && (
-              <EmergencyContactsScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-              />
-            )}
+              {activeNav === 'emergency-contacts' && (
+                <EmergencyContactsScreen onBackToDashboard={backToDashboard} />
+              )}
 
-            {activeNav === 'grievance-feedback' && (
-              <GrievanceFeedbackScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-              />
-            )}
+              {activeNav === 'grievance-feedback' && (
+                <GrievanceFeedbackScreen onBackToDashboard={backToDashboard} />
+              )}
 
-            {activeNav === 'help-support' && (
-              <HelpSupportScreen
-                onBackToDashboard={() => handleSelectNav('dashboard')}
-              />
-            )}
+              {activeNav === 'help-support' && (
+                <HelpSupportScreen onBackToDashboard={backToDashboard} />
+              )}
+            </Suspense>
           </main>
         </div>
       </div>
 
-      {/* Modals */}
-      <LeaveRequestModal
-        isOpen={leaveModalOpen}
-        onClose={() => setLeaveModalOpen(false)}
-        studentName={student.name}
-        className={student.className}
-        sectionName={student.sectionName}
-      />
+      {/* Lazy modals — only mounted when first opened */}
+      {leaveModalOpen && (
+        <LeaveRequestModal
+          isOpen={leaveModalOpen}
+          onClose={() => setLeaveModalOpen(false)}
+          studentName={student.name}
+          className={student.className}
+          sectionName={student.sectionName}
+        />
+      )}
 
-      <AppointmentBookingModal
-        isOpen={appointmentModalOpen}
-        onClose={() => {
-          setAppointmentModalOpen(false);
-          setSelectedAuthority(null);
-        }}
-        selectedAuthority={selectedAuthority}
-      />
+      {appointmentModalOpen && (
+        <AppointmentBookingModal
+          isOpen={appointmentModalOpen}
+          onClose={() => {
+            setAppointmentModalOpen(false);
+            setSelectedAuthority(null);
+          }}
+          selectedAuthority={selectedAuthority}
+        />
+      )}
     </div>
   );
 }

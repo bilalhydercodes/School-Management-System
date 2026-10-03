@@ -5,20 +5,48 @@ import { Download, FileText, ArrowRight, Eye, CheckCircle2, Clock } from 'lucide
 import PortalPageHeader from '../PortalPageHeader';
 
 interface FeeInvoicesScreenProps {
+  invoices?: Array<{
+    id: string;
+    invoiceNumber: string;
+    title: string;
+    totalAmount: number;
+    paidAmount: number;
+    balanceAmount: number;
+    dueDate: string;
+    status: 'Paid' | 'Pending' | 'Partial' | 'Overdue';
+    items?: Array<{
+      category: string;
+      amount: number;
+      paid: number;
+      status: 'Paid' | 'Pending';
+    }>;
+  }>;
   onBackToDashboard: () => void;
   onSelectNav: (id: string) => void;
 }
 
-const INVOICES = [
+const DEFAULT_INVOICES = [
   { id: 'INV-2026-Q3-0428', quarter: 'Quarter 3 (Oct - Dec 2026)', date: '01 Oct 2026', dueDate: '15 Oct 2026', totalAmount: 4500, balanceAmount: 4500, status: 'Pending' },
   { id: 'INV-2026-Q2-0428', quarter: 'Quarter 2 (Jul - Sep 2026)', date: '01 Jul 2026', dueDate: '15 Jul 2026', totalAmount: 16000, balanceAmount: 0, status: 'Paid', receiptNo: 'RCP-2026-8812' },
   { id: 'INV-2026-Q1-0428', quarter: 'Quarter 1 (Apr - Jun 2026)', date: '01 Apr 2026', dueDate: '15 Apr 2026', totalAmount: 16000, balanceAmount: 0, status: 'Paid', receiptNo: 'RCP-2026-4401' },
 ];
 
 export default function FeeInvoicesScreen({
+  invoices = [],
   onBackToDashboard,
   onSelectNav,
 }: FeeInvoicesScreenProps) {
+  const displayInvoices = invoices.length > 0
+    ? invoices.map(i => ({
+        id: i.invoiceNumber,
+        quarter: i.title,
+        date: '01 Oct 2026',
+        dueDate: i.dueDate,
+        totalAmount: i.totalAmount,
+        balanceAmount: i.balanceAmount,
+        status: i.status,
+      }))
+    : DEFAULT_INVOICES;
   return (
     <div className="space-y-6">
       <PortalPageHeader
@@ -57,7 +85,7 @@ export default function FeeInvoicesScreen({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {INVOICES.map((inv) => (
+              {displayInvoices.map((inv) => (
                 <tr key={inv.id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="py-4 px-4 font-mono font-bold text-blue-600">{inv.id}</td>
                   <td className="py-4 px-4 font-bold text-slate-900">{inv.quarter}</td>

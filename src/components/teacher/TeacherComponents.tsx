@@ -33,20 +33,20 @@ export function StatCard({
   const style = variantStyles[variant];
 
   return (
-    <div className="bg-white rounded-[22px] p-5 shadow-[0_2px_14px_rgba(30,100,200,0.03)] border border-white/80 flex items-center justify-between">
-      <div>
-        <p className="text-[11.5px] font-bold text-[#64748B] tracking-wider uppercase">
+    <div className="bg-white rounded-[22px] p-4 sm:p-5 shadow-[0_2px_14px_rgba(30,100,200,0.03)] border border-white/80 flex items-center justify-between">
+      <div className="min-w-0 pr-2">
+        <p className="text-[11px] sm:text-[11.5px] font-bold text-[#64748B] tracking-wider uppercase truncate">
           {label}
         </p>
-        <p className="text-2xl font-bold text-[#102A56] mt-1 tracking-tight">
+        <p className="text-xl sm:text-2xl font-bold text-[#102A56] mt-1 tracking-tight truncate">
           {value}
         </p>
         {subtext && (
-          <p className="text-[11.5px] font-medium text-[#64748B] mt-0.5">{subtext}</p>
+          <p className="text-[11px] sm:text-[11.5px] font-medium text-[#64748B] mt-0.5 truncate">{subtext}</p>
         )}
       </div>
       <div
-        className={`w-12 h-12 rounded-full ${style.bg} ${style.text} flex items-center justify-center shrink-0 shadow-xs`}
+        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full ${style.bg} ${style.text} flex items-center justify-center shrink-0 shadow-xs`}
       >
         <Icon className="w-5 h-5 stroke-[2]" />
       </div>
@@ -114,11 +114,11 @@ export function EmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <div className="bg-white rounded-[24px] p-12 text-center shadow-[0_2px_14px_rgba(30,100,200,0.03)] border border-white/80 max-w-lg mx-auto">
-      <div className="w-14 h-14 rounded-full bg-sky-50 text-[#0284C7] flex items-center justify-center mx-auto mb-4 border border-sky-100">
-        <Icon className="w-6 h-6 stroke-[1.8]" />
+    <div className="bg-white rounded-[24px] p-6 sm:p-12 text-center shadow-[0_2px_14px_rgba(30,100,200,0.03)] border border-white/80 max-w-lg mx-auto">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-sky-50 text-[#0284C7] flex items-center justify-center mx-auto mb-4 border border-sky-100">
+        <Icon className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
       </div>
-      <h3 className="text-base font-bold text-[#102A56]">{title}</h3>
+      <h3 className="text-sm sm:text-base font-bold text-[#102A56]">{title}</h3>
       <p className="text-xs text-[#64748B] mt-1.5 max-w-sm mx-auto leading-relaxed">
         {description}
       </p>
@@ -139,7 +139,7 @@ export function TeacherCard({
 }) {
   return (
     <div
-      className={`bg-white rounded-[24px] p-6 shadow-[0_2px_16px_rgba(30,100,200,0.03)] border border-white/80 ${className}`}
+      className={`bg-white rounded-[22px] sm:rounded-[24px] p-4 sm:p-6 shadow-[0_2px_16px_rgba(30,100,200,0.03)] border border-white/80 ${className}`}
     >
       {children}
     </div>

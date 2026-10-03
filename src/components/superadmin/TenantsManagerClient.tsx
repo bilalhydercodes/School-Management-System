@@ -689,31 +689,32 @@ export default function TenantsManagerClient({
 
       {/* 60-Second School Provisioning Wizard Modal */}
       {isWizardOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex justify-center p-3 sm:p-6 sm:py-8">
           <div
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 transition-opacity"
             onClick={() => !isPending && setIsWizardOpen(false)}
           />
 
-          <div className="relative bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border border-slate-100 space-y-6 my-8 z-10 animate-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div className="relative bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 flex flex-col max-h-[90vh] my-auto overflow-hidden z-10 animate-in zoom-in-95 duration-200">
+            {/* Pinned Header */}
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white z-10">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/30">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/30">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-900">
+                  <h2 className="text-base font-extrabold text-slate-900">
                     60-Second School Provisioning Wizard
                   </h2>
                   <p className="text-xs text-slate-400">
-                    Creates isolated tenant, branding, DNS subdomain, academic year, and admin user atomically.
+                    Creates isolated tenant, branding, DNS subdomain & administrator account.
                   </p>
                 </div>
               </div>
 
               {!isPending && (
                 <button
+                  type="button"
                   onClick={() => setIsWizardOpen(false)}
                   className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
                 >
@@ -724,7 +725,7 @@ export default function TenantsManagerClient({
 
             {/* Success View */}
             {provisionSuccess ? (
-              <div className="space-y-6 py-4">
+              <div className="overflow-y-auto p-6 space-y-6 flex-1">
                 <div className="text-center space-y-2">
                   <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-6 h-6" />
@@ -786,13 +787,13 @@ export default function TenantsManagerClient({
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3">
+                <div className="flex justify-end pt-2">
                   <button
                     onClick={() => {
                       setProvisionSuccess(null);
                       setIsWizardOpen(false);
                     }}
-                    className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-md transition-all"
+                    className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
                   >
                     Done & Return to Directory
                   </button>
@@ -800,242 +801,267 @@ export default function TenantsManagerClient({
               </div>
             ) : (
               /* Provision Form */
-              <form onSubmit={handleProvisionSubmit} className="space-y-4">
-                {formError && (
-                  <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 shrink-0" />
-                    <span>{formError}</span>
-                  </div>
-                )}
+              <form onSubmit={handleProvisionSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                <div className="overflow-y-auto px-6 py-5 flex-1 space-y-5">
+                  {formError && (
+                    <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
+                      <span>{formError}</span>
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  {/* School Name */}
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Institution Name *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Heritage Public School"
-                      value={formData.name}
-                      onChange={handleNameChange}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    />
-                  </div>
-
-                  {/* Slug */}
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">
-                      Tenant Slug (Subdomain) *
-                    </label>
-                    <div className="flex items-center">
-                      <input
-                        type="text"
-                        required
-                        placeholder="heritage"
-                        value={formData.slug}
-                        onChange={(e) =>
-                          setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })
-                        }
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 font-mono"
-                      />
-                      <span className="bg-slate-100 border border-l-0 border-slate-200 px-2.5 py-2 text-slate-400 font-mono rounded-r-xl">
-                        .schoolerp.in
+                  {/* Section 1: Institution Details */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                      <Building2 className="w-4 h-4 text-purple-600" />
+                      <span className="font-bold text-slate-900 text-xs uppercase tracking-wider">
+                        Institution Profile & Identity
                       </span>
                     </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      {/* School Name */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Institution Name *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Heritage Public School"
+                          value={formData.name}
+                          onChange={handleNameChange}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
+
+                      {/* Slug */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">
+                          Tenant Slug (Subdomain) *
+                        </label>
+                        <div className="flex items-center">
+                          <input
+                            type="text"
+                            required
+                            placeholder="heritage"
+                            value={formData.slug}
+                            onChange={(e) =>
+                              setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })
+                            }
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 font-mono"
+                          />
+                          <span className="bg-slate-100 border border-l-0 border-slate-200 px-2.5 py-2 text-slate-500 font-mono rounded-r-xl text-xs">
+                            .schoolerp.in
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Education Board */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Education Board *</label>
+                        <select
+                          value={formData.board}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              board: e.target.value as any,
+                            })
+                          }
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 font-semibold"
+                        >
+                          <option value="CBSE">CBSE (Central Board)</option>
+                          <option value="ICSE">ICSE / CISCE</option>
+                          <option value="STATE_BOARD">State Board</option>
+                          <option value="CAMBRIDGE">Cambridge (IGCSE)</option>
+                          <option value="IB">International Baccalaureate (IB)</option>
+                        </select>
+                      </div>
+
+                      {/* Subscription Plan */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Subscription Tier *</label>
+                        <select
+                          value={formData.subscriptionPlanId}
+                          onChange={(e) =>
+                            setFormData({ ...formData, subscriptionPlanId: e.target.value })
+                          }
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 font-semibold"
+                        >
+                          {plans.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} - ₹{p.priceMonthly.toLocaleString('en-IN')}/mo (Max {p.maxStudents} Students)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Education Board */}
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Education Board *</label>
-                    <select
-                      value={formData.board}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          board: e.target.value as any,
-                        })
-                      }
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 font-semibold"
-                    >
-                      <option value="CBSE">CBSE (Central Board)</option>
-                      <option value="ICSE">ICSE / CISCE</option>
-                      <option value="STATE_BOARD">State Board</option>
-                      <option value="CAMBRIDGE">Cambridge (IGCSE)</option>
-                      <option value="IB">International Baccalaureate (IB)</option>
-                    </select>
+                  {/* Section 2: Campus Contact & Address */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                      <Mail className="w-4 h-4 text-purple-600" />
+                      <span className="font-bold text-slate-900 text-xs uppercase tracking-wider">
+                        Campus Contact & Location
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      {/* Official Email */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Official School Email *</label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="principal@school.edu.in"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
+
+                      {/* Official Phone */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Official Phone *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="+91 98765 43210"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
+
+                      {/* City */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">City *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. New Delhi"
+                          value={formData.city}
+                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
+
+                      {/* State */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">State *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Delhi"
+                          value={formData.state}
+                          onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
+
+                      {/* Address */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Address *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Campus Road, Sector 5"
+                          value={formData.address}
+                          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
+
+                      {/* Pincode */}
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Pincode *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="110001"
+                          value={formData.pincode}
+                          onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Subscription Plan */}
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Subscription Tier *</label>
-                    <select
-                      value={formData.subscriptionPlanId}
-                      onChange={(e) =>
-                        setFormData({ ...formData, subscriptionPlanId: e.target.value })
-                      }
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 font-semibold"
-                    >
-                      {plans.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} - ₹{p.priceMonthly.toLocaleString('en-IN')}/mo (Max {p.maxStudents} Students)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Section 3: Administrator Initial Login Credentials */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                      <Lock className="w-4 h-4 text-purple-600" />
+                      <span className="font-bold text-slate-900 text-xs uppercase tracking-wider">
+                        School Principal / Admin Account
+                      </span>
+                    </div>
 
-                  {/* Official Email */}
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Official School Email *</label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="principal@school.edu.in"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    />
-                  </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Admin First Name *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ramesh"
+                          value={formData.adminFirstName}
+                          onChange={(e) =>
+                            setFormData({ ...formData, adminFirstName: e.target.value })
+                          }
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
 
-                  {/* Official Phone */}
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Official Phone *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="+91 98765 43210"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    />
-                  </div>
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Admin Last Name *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Sharma"
+                          value={formData.adminLastName}
+                          onChange={(e) =>
+                            setFormData({ ...formData, adminLastName: e.target.value })
+                          }
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
 
-                  {/* City & State */}
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">City *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. New Delhi"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    />
-                  </div>
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Admin Email Login *</label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="admin@heritage.edu.in"
+                          value={formData.adminEmail}
+                          onChange={(e) =>
+                            setFormData({ ...formData, adminEmail: e.target.value })
+                          }
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
 
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">State *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Delhi"
-                      value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    />
-                  </div>
-
-                  {/* Address */}
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Address *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Campus Road, Sector 5"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    />
-                  </div>
-
-                  {/* Pincode */}
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Pincode *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="110001"
-                      value={formData.pincode}
-                      onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    />
+                      <div className="space-y-1">
+                        <label className="font-bold text-slate-700">Admin Initial Password *</label>
+                        <input
+                          type="password"
+                          required
+                          placeholder="Min 8 characters"
+                          value={formData.adminPassword}
+                          onChange={(e) =>
+                            setFormData({ ...formData, adminPassword: e.target.value })
+                          }
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Administrator Initial Login Credentials */}
-                <div className="pt-2 border-t border-slate-100">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Lock className="w-4 h-4 text-purple-600" />
-                    <span className="font-bold text-slate-900 text-xs">
-                      School Principal / Admin Account
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <div className="space-y-1">
-                      <label className="font-bold text-slate-700">Admin First Name *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Ramesh"
-                        value={formData.adminFirstName}
-                        onChange={(e) =>
-                          setFormData({ ...formData, adminFirstName: e.target.value })
-                        }
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="font-bold text-slate-700">Admin Last Name *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Sharma"
-                        value={formData.adminLastName}
-                        onChange={(e) =>
-                          setFormData({ ...formData, adminLastName: e.target.value })
-                        }
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="font-bold text-slate-700">Admin Email Login *</label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="admin@heritage.edu.in"
-                        value={formData.adminEmail}
-                        onChange={(e) =>
-                          setFormData({ ...formData, adminEmail: e.target.value })
-                        }
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="font-bold text-slate-700">Admin Initial Password *</label>
-                      <input
-                        type="password"
-                        required
-                        placeholder="Min 8 characters"
-                        value={formData.adminPassword}
-                        onChange={(e) =>
-                          setFormData({ ...formData, adminPassword: e.target.value })
-                        }
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Submit Buttons */}
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                {/* Sticky Pinned Footer */}
+                <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/90 flex items-center justify-end gap-3 shrink-0">
                   <button
                     type="button"
                     disabled={isPending}
                     onClick={() => setIsWizardOpen(false)}
-                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                    className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1043,7 +1069,7 @@ export default function TenantsManagerClient({
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-md shadow-purple-600/30 transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-purple-600/30 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {isPending ? (
                       <>

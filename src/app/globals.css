@@ -49,3 +49,44 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ─── Screen transition: nav items fade in smoothly ─────────────────────── */
+@keyframes screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main > * {
+  animation: screen-enter 0.18s ease-out both;
+}
+
+/* ─── Skeleton shimmer override (enhances Tailwind animate-pulse) ────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.animate-pulse > * {
+  background-image: linear-gradient(
+    90deg,
+    #f1f5f9 25%,
+    #e8edf5 50%,
+    #f1f5f9 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  background-color: transparent !important;
+}
+
+/* ─── Performance hints ──────────────────────────────────────────────────── */
+/* Sidebar is always visible — tell browser to composite it independently */
+aside {
+  will-change: transform;
+}
+

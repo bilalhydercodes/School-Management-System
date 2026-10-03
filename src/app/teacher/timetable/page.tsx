@@ -91,9 +91,9 @@ export default function WeeklyTimetablePage() {
       />
 
       <TeacherCard>
-        <div className="flex items-center justify-between pb-4 border-b border-[#EEF2F6]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#EEF2F6]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold text-xs">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold text-xs shrink-0">
               <Calendar className="w-4 h-4" />
             </div>
             <div>

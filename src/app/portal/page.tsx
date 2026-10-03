@@ -120,15 +120,110 @@ export default async function PortalPage({ searchParams }: PageProps) {
     );
   }
 
-  // 4. Query live Attendance
-  const attendanceRecords = await prisma.studentAttendance.findMany({
-    where: {
-      tenantId: targetStudent.tenantId,
-      studentId: targetStudent.id,
-    },
-    orderBy: { date: 'desc' },
-  });
+  // 4-10. Run ALL independent data queries in parallel for maximum speed
+  const tenantId = targetStudent.tenantId;
+  const studentId = targetStudent.id;
 
+  const [
+    attendanceRecords,
+    feeInvoices,
+    examResults,
+    allSubjects,
+    timetableEntries,
+    dbNotices,
+    dbContactsRaw,
+    eventsHolidaysNotif,
+  ] = await Promise.all([
+    // Attendance
+    prisma.studentAttendance.findMany({
+      where: { tenantId, studentId },
+      orderBy: { date: 'desc' },
+    }),
+
+    // Fee Invoices
+    prisma.feeInvoice.findMany({
+      where: { tenantId, studentId },
+      include: { items: { include: { feeCategory: true } }, payments: true },
+      orderBy: { dueDate: 'asc' },
+    }),
+
+    // Exam Results
+    prisma.examResult.findMany({
+      where: { tenantId, studentId },
+      include: { examSchedule: { include: { subject: true } } },
+    }),
+
+    // All Subjects
+    prisma.subject.findMany({
+      where: { tenantId },
+      orderBy: { code: 'asc' },
+    }),
+
+    // Timetable (only if sectionId exists)
+    targetStudent.sectionId
+      ? (() => {
+          const today = new Date();
+          const dayOfWeekList = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'] as const;
+          const currentDay = dayOfWeekList[today.getDay()];
+          const todayDateOnly = new Date(`${today.toISOString().split('T')[0]}T00:00:00.000Z`);
+          return prisma.timetableEntry.findMany({
+            where: { tenantId, sectionId: targetStudent.sectionId, dayOfWeek: currentDay },
+            include: {
+              subject: true,
+              periodTimeSlot: true,
+              teacher: { include: { user: true } },
+              substitutions: {
+                where: { date: todayDateOnly },
+                include: { substituteTeacher: { include: { user: true } } },
+              },
+            },
+            orderBy: { periodTimeSlot: { order: 'asc' } },
+          });
+        })()
+      : Promise.resolve([]),
+
+    // Notices
+    prisma.notice.findMany({
+      where: { tenantId },
+      orderBy: { publishedAt: 'desc' },
+      take: 12,
+    }),
+
+    // Emergency Contacts (may not exist on all schemas)
+    (async () => {
+      try {
+        return prisma.emergencyContact
+          ? await prisma.emergencyContact.findMany({
+              where: { tenantId },
+              orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+              take: 8,
+            })
+          : [];
+      } catch { return []; }
+    })(),
+
+    // Events, Holidays, Notification count — already parallel
+    Promise.all([
+      prisma.event
+        ? prisma.event.findMany({ where: { tenantId, isPublished: true }, orderBy: { eventDate: 'asc' }, take: 6 })
+        : Promise.resolve([]),
+      prisma.holiday
+        ? prisma.holiday.findMany({ where: { tenantId }, orderBy: { date: 'asc' }, take: 6 })
+        : Promise.resolve([]),
+      prisma.notification
+        ? prisma.notification.count({ where: { tenantId, recipientId: currentUser.id, isRead: false } })
+        : Promise.resolve(0),
+    ]).catch(() => [[], [], 0] as [any[], any[], number]),
+  ]);
+
+  // ── Unpack events/holidays/notifications ──────────────────────────────────
+  const [dbEvents, dbHolidays, unreadNotificationsCount] = Array.isArray(eventsHolidaysNotif)
+    ? (eventsHolidaysNotif as [any[], any[], number])
+    : [[], [], 0];
+
+  const dbContacts: any[] = Array.isArray(dbContactsRaw) ? dbContactsRaw : [];
+
+  // ── Attendance stats ──────────────────────────────────────────────────────
   const totalClasses = attendanceRecords.length > 0 ? attendanceRecords.length : 15;
   const presentClasses =
     attendanceRecords.length > 0
@@ -137,48 +232,49 @@ export default async function PortalPage({ searchParams }: PageProps) {
   const attendancePercentage =
     attendanceRecords.length > 0
       ? Math.round((presentClasses / totalClasses) * 1000) / 10
-      : 93.3; // 14 / 15 = 93.3% exact
+      : 93.3;
 
-  // 5. Query live Fee Invoices
-  const feeInvoices = await prisma.feeInvoice.findMany({
-    where: {
-      tenantId: targetStudent.tenantId,
-      studentId: targetStudent.id,
-    },
-    orderBy: { dueDate: 'asc' },
-  });
-
+  // ── Fee invoice formatting ────────────────────────────────────────────────
   const totalPaid = feeInvoices.reduce((sum, inv) => sum + Number(inv.paidAmount), 0);
   const pendingAmount = feeInvoices.reduce((sum, inv) => sum + Number(inv.balanceAmount), 0);
   const upcomingInvoice = feeInvoices.find((inv) => Number(inv.balanceAmount) > 0);
   const isOverdue = upcomingInvoice ? new Date(upcomingInvoice.dueDate) < new Date() : false;
   const nextDueDate = upcomingInvoice
-    ? `Due: ${new Date(upcomingInvoice.dueDate).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      })}`
+    ? `Due: ${new Date(upcomingInvoice.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
     : 'No Outstanding Due';
   const statusText = pendingAmount === 0 ? 'Paid' : isOverdue ? 'Overdue' : 'Pending';
 
-  // 6. Query live Exam Results & Subjects
-  const examResults = await prisma.examResult.findMany({
-    where: {
-      tenantId: targetStudent.tenantId,
-      studentId: targetStudent.id,
-    },
-    include: {
-      examSchedule: {
-        include: {
-          subject: true,
-        },
-      },
-    },
-  });
+  const formattedInvoices = feeInvoices.map((inv) => {
+    let title = inv.invoiceNumber;
+    if (inv.invoiceNumber.includes('Q1')) title = 'Quarter 1 Tuition & Core Labs';
+    else if (inv.invoiceNumber.includes('Q2')) title = 'Quarter 2 Tuition & Activities';
+    else if (inv.invoiceNumber.includes('Q3')) title = 'Quarter 3 CBSE Examination & Assessment';
+    else if (inv.invoiceNumber.includes('Q4')) title = 'Quarter 4 Consolidated Session Dues';
+    else if (inv.items?.[0]?.description) title = inv.items[0].description;
 
-  const allSubjects = await prisma.subject.findMany({
-    where: { tenantId: targetStudent.tenantId },
-    orderBy: { code: 'asc' },
+    const isPastDue = new Date(inv.dueDate) < new Date();
+    const invStatus: 'Paid' | 'Pending' | 'Partial' | 'Overdue' =
+      Number(inv.balanceAmount) === 0 ? 'Paid'
+      : Number(inv.paidAmount) > 0 ? 'Partial'
+      : isPastDue ? 'Overdue'
+      : 'Pending';
+
+    return {
+      id: inv.id,
+      invoiceNumber: inv.invoiceNumber,
+      title,
+      totalAmount: Number(inv.totalAmount),
+      paidAmount: Number(inv.paidAmount),
+      balanceAmount: Number(inv.balanceAmount),
+      dueDate: new Date(inv.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      status: invStatus,
+      items: inv.items.map((it) => ({
+        category: it.feeCategory?.name || it.description || 'Fee Component',
+        amount: Number(it.amount),
+        paid: Number(inv.paidAmount) > 0 ? Number(it.amount) : 0,
+        status: (Number(inv.balanceAmount) === 0 ? 'Paid' : 'Pending') as 'Paid' | 'Pending',
+      })),
+    };
   });
 
   const fallbackSubjects = [
@@ -216,55 +312,6 @@ export default async function PortalPage({ searchParams }: PageProps) {
   );
   const cgpa = examResults.length > 0 ? Math.round((totalGradePoints / examResults.length) * 100) / 100 : 8.42;
 
-  // 7. Query live Today's Timetable with active substitutions
-  const today = new Date();
-  const dayOfWeekList: DayOfWeek[] = [
-    'SUNDAY',
-    'MONDAY',
-    'TUESDAY',
-    'WEDNESDAY',
-    'THURSDAY',
-    'FRIDAY',
-    'SATURDAY',
-  ];
-  const currentDay = dayOfWeekList[today.getDay()];
-  const todayDateOnly = new Date(`${today.toISOString().split('T')[0]}T00:00:00.000Z`);
-
-  const timetableEntries = targetStudent.sectionId
-    ? await prisma.timetableEntry.findMany({
-        where: {
-          tenantId: targetStudent.tenantId,
-          sectionId: targetStudent.sectionId,
-          dayOfWeek: currentDay,
-        },
-        include: {
-          subject: true,
-          periodTimeSlot: true,
-          teacher: {
-            include: {
-              user: true,
-            },
-          },
-          substitutions: {
-            where: {
-              date: todayDateOnly,
-            },
-            include: {
-              substituteTeacher: {
-                include: {
-                  user: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          periodTimeSlot: {
-            order: 'asc',
-          },
-        },
-      })
-    : [];
 
   const todaySchedule =
     timetableEntries.length > 0
@@ -340,12 +387,6 @@ export default async function PortalPage({ searchParams }: PageProps) {
           },
         ];
 
-  // 8. Query Institutional Notices
-  const dbNotices = await prisma.notice.findMany({
-    where: { tenantId: targetStudent.tenantId },
-    orderBy: { publishedAt: 'desc' },
-    take: 12,
-  });
 
   const notices =
     dbNotices.length > 0
@@ -404,19 +445,6 @@ export default async function PortalPage({ searchParams }: PageProps) {
           },
         ];
 
-  // 9. Institutional Authorities / Emergency Directory
-  let dbContacts: any[] = [];
-  try {
-    if (prisma.emergencyContact) {
-      dbContacts = await prisma.emergencyContact.findMany({
-        where: { tenantId: targetStudent.tenantId },
-        orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
-        take: 8,
-      });
-    }
-  } catch (_e) {
-    dbContacts = [];
-  }
 
   const defaultFaculty = [
     {
@@ -466,48 +494,6 @@ export default async function PortalPage({ searchParams }: PageProps) {
         }))
       : defaultFaculty;
 
-  // 10. Query Published Events & Calendar Holidays
-  let dbEvents: any[] = [];
-  let dbHolidays: any[] = [];
-  let unreadNotificationsCount = 0;
-
-  try {
-    const [eventsRes, holidaysRes, notifCount] = await Promise.all([
-      prisma.event
-        ? prisma.event.findMany({
-            where: {
-              tenantId: targetStudent.tenantId,
-              isPublished: true,
-            },
-            orderBy: { eventDate: 'asc' },
-            take: 6,
-          })
-        : Promise.resolve([]),
-      prisma.holiday
-        ? prisma.holiday.findMany({
-            where: { tenantId: targetStudent.tenantId },
-            orderBy: { date: 'asc' },
-            take: 6,
-          })
-        : Promise.resolve([]),
-      prisma.notification
-        ? prisma.notification.count({
-            where: {
-              tenantId: targetStudent.tenantId,
-              recipientId: currentUser.id,
-              isRead: false,
-            },
-          })
-        : Promise.resolve(0),
-    ]);
-    dbEvents = eventsRes || [];
-    dbHolidays = holidaysRes || [];
-    unreadNotificationsCount = notifCount || 0;
-  } catch (_e) {
-    dbEvents = [];
-    dbHolidays = [];
-    unreadNotificationsCount = 0;
-  }
 
   const events = dbEvents.map((e) => ({
     id: e.id,
@@ -577,6 +563,7 @@ export default async function PortalPage({ searchParams }: PageProps) {
       faculty={faculty}
       events={events}
       holidays={holidays}
+      invoices={formattedInvoices}
     />
   );
 }

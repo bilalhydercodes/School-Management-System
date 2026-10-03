@@ -260,20 +260,21 @@ export default function SubscriptionsManagerClient({
 
       {/* Create Plan Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex justify-center p-3 sm:p-6 sm:py-8">
           <div
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 transition-opacity"
             onClick={() => !isPending && setIsModalOpen(false)}
           />
 
-          <div className="relative bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-slate-100 space-y-6 my-8 z-10 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div className="relative bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 flex flex-col max-h-[90vh] my-auto overflow-hidden z-10 animate-in zoom-in-95 duration-200">
+            {/* Pinned Header */}
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white z-10">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/30">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/30">
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-900">
+                  <h2 className="text-base font-extrabold text-slate-900">
                     Create Subscription Tier
                   </h2>
                   <p className="text-xs text-slate-400">
@@ -284,6 +285,7 @@ export default function SubscriptionsManagerClient({
 
               {!isPending && (
                 <button
+                  type="button"
                   onClick={() => setIsModalOpen(false)}
                   className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
                 >
@@ -292,106 +294,109 @@ export default function SubscriptionsManagerClient({
               )}
             </div>
 
-            <form onSubmit={handleCreatePlan} className="space-y-4 text-xs">
-              {formError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{formError}</span>
-                </div>
-              )}
+            <form onSubmit={handleCreatePlan} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              <div className="overflow-y-auto px-6 py-5 flex-1 space-y-4 text-xs">
+                {formError && (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{formError}</span>
+                  </div>
+                )}
 
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700">Plan Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Enterprise Campus Plan"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700">Max Students *</label>
+                  <label className="font-bold text-slate-700">Plan Name *</label>
                   <input
-                    type="number"
+                    type="text"
                     required
-                    min={10}
-                    value={maxStudents}
-                    onChange={(e) => setMaxStudents(Number(e.target.value))}
+                    placeholder="e.g. Enterprise Campus Plan"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700">Max Staff *</label>
-                  <input
-                    type="number"
-                    required
-                    min={2}
-                    value={maxStaff}
-                    onChange={(e) => setMaxStaff(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Max Students *</label>
+                    <input
+                      type="number"
+                      required
+                      min={10}
+                      value={maxStudents}
+                      onChange={(e) => setMaxStudents(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Max Staff *</label>
+                    <input
+                      type="number"
+                      required
+                      min={2}
+                      value={maxStaff}
+                      onChange={(e) => setMaxStaff(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Monthly Price (₹) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      value={priceMonthly}
+                      onChange={(e) => setPriceMonthly(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Annual Price (₹) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      value={priceAnnual}
+                      onChange={(e) => setPriceAnnual(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-slate-100">
+                  <label className="font-bold text-slate-700">Included Features</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.keys(features).map((featKey) => (
+                      <label
+                        key={featKey}
+                        className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={features[featKey]}
+                          onChange={() => handleFeatureToggle(featKey)}
+                          className="rounded text-purple-600 focus:ring-purple-500"
+                        />
+                        <span className="capitalize font-medium text-slate-700 text-xs">
+                          {featKey.replace(/([A-Z])/g, ' $1')}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700">Monthly Price (₹) *</label>
-                  <input
-                    type="number"
-                    required
-                    min={0}
-                    value={priceMonthly}
-                    onChange={(e) => setPriceMonthly(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700">Annual Price (₹) *</label>
-                  <input
-                    type="number"
-                    required
-                    min={0}
-                    value={priceAnnual}
-                    onChange={(e) => setPriceAnnual(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <label className="font-bold text-slate-700">Included Features</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {Object.keys(features).map((featKey) => (
-                    <label
-                      key={featKey}
-                      className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={features[featKey]}
-                        onChange={() => handleFeatureToggle(featKey)}
-                        className="rounded text-purple-600 focus:ring-purple-500"
-                      />
-                      <span className="capitalize font-medium text-slate-700 text-xs">
-                        {featKey.replace(/([A-Z])/g, ' $1')}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+              {/* Pinned Footer */}
+              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/90 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   disabled={isPending}
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-bold rounded-xl border border-slate-200 transition-colors cursor-pointer text-xs"
                 >
                   Cancel
                 </button>
@@ -399,7 +404,7 @@ export default function SubscriptionsManagerClient({
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md shadow-purple-600/30 transition-all cursor-pointer disabled:opacity-50 text-xs"
                 >
                   {isPending ? (
                     <>

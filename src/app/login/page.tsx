@@ -161,7 +161,7 @@ function LoginForm() {
 
   return (
     <div
-      className="fixed inset-0 h-screen w-screen overflow-hidden flex items-center justify-center select-none bg-[#CBE9FE]"
+      className="min-h-screen w-full overflow-auto flex items-center justify-center p-4 sm:p-6 bg-[#CBE9FE] select-none"
       style={{
         backgroundImage: "url('/bg-atmosphere.svg')",
         backgroundSize: 'cover',
@@ -169,22 +169,17 @@ function LoginForm() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      <main
-        className="relative bg-white rounded-[26px] overflow-hidden flex flex-row border border-white/70 shadow-[0_20px_50px_-10px_rgba(15,45,95,0.16)] shrink-0"
-        style={{
-          width: '1055px',
-          height: '632px',
-        }}
-      >
-        {/* LEFT COLUMN: BRANDING & SCHOOL ILLUSTRATION */}
+      <main className="relative bg-white rounded-[20px] sm:rounded-[26px] overflow-hidden flex flex-col lg:flex-row border border-white/70 shadow-[0_20px_50px_-10px_rgba(15,45,95,0.16)] w-full max-w-[1055px] min-h-0">
+
+        {/* LEFT COLUMN: BRANDING & SCHOOL ILLUSTRATION — hidden on mobile, shown on lg+ */}
         <section
-          className="relative shrink-0 overflow-hidden"
+          className="hidden lg:block relative shrink-0 overflow-hidden"
           style={{
             width: '588px',
-            height: '632px',
+            minHeight: '632px',
             backgroundImage: "url('/left-panel-raw.png')",
-            backgroundSize: '588px 632px',
-            backgroundPosition: '0 0',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
           }}
           aria-label="Alpha Edu Hub Overview"
@@ -197,40 +192,36 @@ function LoginForm() {
           </div>
         </section>
 
+        {/* MOBILE BRAND HEADER — only shown on mobile/tablet */}
+        <div className="lg:hidden bg-gradient-to-br from-[#0C8CFE] to-[#0066CC] px-6 pt-8 pb-6 text-white">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
+              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 22V12C2 6.477 6.477 2 12 2s10 4.477 10 10v10" /><path d="M7 22v-5a5 5 0 0 1 10 0v5" /><path d="M12 7v5" /><path d="M9.5 9.5 12 7l2.5 2.5" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold tracking-tight">Alpha Edu Hub</h1>
+              <p className="text-xs text-white/70 font-medium">Next-Gen School ERP</p>
+            </div>
+          </div>
+          <p className="text-sm text-white/80 leading-snug">
+            Manage · Grow · Excel — Your unified school platform
+          </p>
+        </div>
+
         {/* RIGHT COLUMN: LOGIN / 2FA OTP FORM PANEL */}
-        <section
-          className="shrink-0 bg-white rounded-l-[28px] flex flex-col select-auto justify-center"
-          style={{
-            width: '467px',
-            height: '632px',
-            paddingLeft: '68px',
-            paddingRight: '50px',
-          }}
-        >
-          <div style={{ width: '349px' }}>
+        <section className="flex-1 bg-white flex flex-col justify-center px-6 py-8 sm:px-10 lg:px-[68px] lg:pr-[50px] select-auto">
+          <div className="w-full max-w-[349px] mx-auto lg:mx-0">
             {!is2FaStep ? (
               /* =================================================== */
               /* STEP 1: CREDENTIALS (STUDENT, PARENT, TEACHER, ADMIN) */
               /* =================================================== */
               <>
-                <h1
-                  className="font-bold leading-none"
-                  style={{
-                    fontSize: '30px',
-                    color: '#000127',
-                    letterSpacing: '-0.025em',
-                  }}
-                >
+                <h1 className="font-bold leading-none text-[26px] sm:text-[30px] text-[#000127]" style={{ letterSpacing: '-0.025em' }}>
                   Welcome Back
                 </h1>
-                <p
-                  className="font-normal leading-tight"
-                  style={{
-                    fontSize: '13.5px',
-                    color: '#7F81A6',
-                    marginTop: '8px',
-                  }}
-                >
+                <p className="text-[13px] sm:text-[13.5px] text-[#7F81A6] mt-2">
                   Sign in to your Alpha Edu Hub account
                 </p>
 
@@ -244,17 +235,12 @@ function LoginForm() {
                   </div>
                 )}
 
-                <form onSubmit={handleCredentialsSubmit} style={{ marginTop: '30px' }}>
+                <form onSubmit={handleCredentialsSubmit} className="mt-7">
                   {/* Field 1: Roll Number / Admission ID / Email */}
                   <div>
                     <label
                       htmlFor="roll-number-input"
-                      className="block font-semibold leading-none"
-                      style={{
-                        fontSize: '12.5px',
-                        color: '#0A1344',
-                        marginBottom: '8px',
-                      }}
+                      className="block font-semibold text-[12.5px] text-[#0A1344] mb-2"
                     >
                       Roll Number / Admission ID / Email
                     </label>
@@ -266,27 +252,15 @@ function LoginForm() {
                       value={userId}
                       onChange={(e) => setUserId(e.target.value)}
                       placeholder="e.g. 101 or teacher@school.com"
-                      className="w-full rounded-[11px] border border-[#E2E8F0] bg-white transition-all font-normal focus:border-[#008CFF] focus:outline-none focus:ring-2 focus:ring-[#008CFF]/20"
-                      style={{
-                        height: '47px',
-                        paddingLeft: '20px',
-                        paddingRight: '20px',
-                        fontSize: '13.5px',
-                        color: '#0A1344',
-                      }}
+                      className="w-full h-[47px] px-5 rounded-[11px] border border-[#E2E8F0] bg-white text-[13.5px] text-[#0A1344] transition-all font-normal focus:border-[#008CFF] focus:outline-none focus:ring-2 focus:ring-[#008CFF]/20"
                     />
                   </div>
 
                   {/* Field 2: Password */}
-                  <div style={{ marginTop: '20px' }}>
+                  <div className="mt-5">
                     <label
                       htmlFor="password-input"
-                      className="block font-semibold leading-none"
-                      style={{
-                        fontSize: '12.5px',
-                        color: '#0A1344',
-                        marginBottom: '8px',
-                      }}
+                      className="block font-semibold text-[12.5px] text-[#0A1344] mb-2"
                     >
                       Password
                     </label>
@@ -299,20 +273,12 @@ function LoginForm() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
-                        className="w-full rounded-[11px] border border-[#E2E8F0] bg-white transition-all font-normal focus:border-[#008CFF] focus:outline-none focus:ring-2 focus:ring-[#008CFF]/20"
-                        style={{
-                          height: '47px',
-                          paddingLeft: '20px',
-                          paddingRight: '44px',
-                          fontSize: '13.5px',
-                          color: '#0A1344',
-                        }}
+                        className="w-full h-[47px] pl-5 pr-11 rounded-[11px] border border-[#E2E8F0] bg-white text-[13.5px] text-[#0A1344] transition-all font-normal focus:border-[#008CFF] focus:outline-none focus:ring-2 focus:ring-[#008CFF]/20"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute top-1/2 -translate-y-1/2 p-1 transition-colors hover:opacity-80 cursor-pointer"
-                        style={{ right: '14px', color: '#8789AD' }}
+                        className="absolute top-1/2 right-3.5 -translate-y-1/2 p-1 transition-colors hover:opacity-80 cursor-pointer text-[#8789AD]"
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? <EyeIcon className="w-4 h-4" /> : <EyeOffIcon className="w-4 h-4" />}
@@ -321,14 +287,10 @@ function LoginForm() {
                   </div>
 
                   {/* Forgot Password Link */}
-                  <div className="text-right" style={{ marginTop: '12px' }}>
+                  <div className="text-right mt-3">
                     <Link
                       href="/login/forgot-password"
-                      className="font-medium hover:underline transition-colors"
-                      style={{
-                        fontSize: '12.5px',
-                        color: '#0080FE',
-                      }}
+                      className="text-[12.5px] text-[#0080FE] font-medium hover:underline transition-colors"
                     >
                       Forgot Password?
                     </Link>
@@ -338,11 +300,8 @@ function LoginForm() {
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="w-full rounded-[11px] text-white font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-60 hover:brightness-105 active:brightness-95"
+                    className="w-full h-[48px] mt-5 rounded-[11px] text-white text-[14.5px] font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-60 hover:brightness-105 active:brightness-95"
                     style={{
-                      height: '48px',
-                      marginTop: '22px',
-                      fontSize: '14.5px',
                       backgroundColor: '#0C8CFE',
                       boxShadow: '0 6px 18px rgba(12, 140, 254, 0.35)',
                     }}
@@ -362,7 +321,6 @@ function LoginForm() {
                       </>
                     )}
                   </button>
-
 
                   {/* Quick Demo Logins Pill Selector */}
                   <div className="mt-4 pt-3 border-t border-slate-100">
@@ -432,24 +390,10 @@ function LoginForm() {
                   </span>
                 </div>
 
-                <h1
-                  className="font-bold leading-none"
-                  style={{
-                    fontSize: '26px',
-                    color: '#000127',
-                    letterSpacing: '-0.025em',
-                  }}
-                >
+                <h1 className="font-bold leading-none text-[22px] sm:text-[26px] text-[#000127]" style={{ letterSpacing: '-0.025em' }}>
                   Verify Your Identity
                 </h1>
-                <p
-                  className="font-normal leading-normal"
-                  style={{
-                    fontSize: '13px',
-                    color: '#7F81A6',
-                    marginTop: '8px',
-                  }}
-                >
+                <p className="text-[13px] text-[#7F81A6] mt-2 leading-normal">
                   Enter the 6-digit verification code dispatched to <strong>{emailHint || 'your contact'}</strong>.
                 </p>
 
@@ -463,44 +407,33 @@ function LoginForm() {
                   </div>
                 )}
 
-                <form onSubmit={handleOtpSubmit} style={{ marginTop: '24px' }}>
+                <form onSubmit={handleOtpSubmit} className="mt-6">
                   <div>
                     <label
                       htmlFor="otp-code-input"
-                      className="block font-semibold leading-none"
-                      style={{
-                        fontSize: '12.5px',
-                        color: '#0A1344',
-                        marginBottom: '8px',
-                      }}
+                      className="block font-semibold text-[12.5px] text-[#0A1344] mb-2"
                     >
                       6-Digit Security Code
                     </label>
                     <input
                       id="otp-code-input"
                       type="text"
+                      inputMode="numeric"
                       maxLength={6}
                       autoFocus
                       required
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                       placeholder="••••••"
-                      className="w-full text-center tracking-[8px] font-mono text-xl font-bold rounded-[11px] border border-[#E2E8F0] bg-white transition-all focus:border-[#008CFF] focus:outline-none focus:ring-2 focus:ring-[#008CFF]/20"
-                      style={{
-                        height: '50px',
-                        color: '#0A1344',
-                      }}
+                      className="w-full h-[50px] text-center tracking-[8px] font-mono text-xl font-bold rounded-[11px] border border-[#E2E8F0] bg-white text-[#0A1344] transition-all focus:border-[#008CFF] focus:outline-none focus:ring-2 focus:ring-[#008CFF]/20"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={isPending || otpCode.length !== 6}
-                    className="w-full rounded-[11px] text-white font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-60 hover:brightness-105 active:brightness-95"
+                    className="w-full h-[48px] mt-5 rounded-[11px] text-white text-[14.5px] font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-60 hover:brightness-105 active:brightness-95"
                     style={{
-                      height: '48px',
-                      marginTop: '20px',
-                      fontSize: '14.5px',
                       backgroundColor: '#0C8CFE',
                       boxShadow: '0 6px 18px rgba(12, 140, 254, 0.35)',
                     }}
@@ -512,7 +445,7 @@ function LoginForm() {
                       </>
                     ) : (
                       <>
-                        <span>Verify & Sign In</span>
+                        <span>Verify &amp; Sign In</span>
                         <svg className="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
                           <line x1="4" y1="12" x2="20" y2="12"></line>
                           <polyline points="13 5 20 12 13 19"></polyline>
@@ -549,7 +482,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="fixed inset-0 h-screen w-screen bg-[#CBE9FE] flex items-center justify-center">
+        <div className="min-h-screen w-full bg-[#CBE9FE] flex items-center justify-center">
           <LoaderIcon className="w-8 h-8 animate-spin text-[#0C8CFE]" />
         </div>
       }

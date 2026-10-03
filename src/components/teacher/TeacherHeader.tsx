@@ -2,17 +2,19 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Search, Bell, ChevronDown, LogOut, User, Shield } from 'lucide-react';
+import { Search, Bell, ChevronDown, LogOut, User, Shield, Menu } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
 
 interface TeacherHeaderProps {
   teacherName?: string;
   roleTitle?: string;
+  onToggleSidebar?: () => void;
 }
 
 export function TeacherHeader({
   teacherName = 'Sanjay Yadav',
   roleTitle = 'Teacher',
+  onToggleSidebar,
 }: TeacherHeaderProps) {
   const [searchValue, setSearchValue] = useState('');
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -35,23 +37,35 @@ export function TeacherHeader({
   }, []);
 
   return (
-    <header className="flex items-center justify-between gap-4 mb-4 select-none">
-      {/* Search Bar */}
-      <div className="relative w-full max-w-[460px]">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#94A3B8]">
-          <Search className="w-4 h-4 stroke-[2]" />
+    <header className="flex items-center justify-between gap-2.5 sm:gap-4 mb-4 select-none">
+      {/* Mobile Hamburger & Search Bar */}
+      <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0 max-w-[460px]">
+        {onToggleSidebar && (
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            className="p-2 sm:p-2.5 rounded-xl text-[#102A56] hover:bg-white/80 lg:hidden transition-colors bg-white shadow-[0_2px_12px_rgba(30,100,200,0.04)] border border-white/80 shrink-0 cursor-pointer"
+            aria-label="Open navigation menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+        <div className="relative w-full">
+          <div className="absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none text-[#94A3B8]">
+            <Search className="w-4 h-4 stroke-[2]" />
+          </div>
+          <input
+            type="text"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            placeholder="Search students, classes, etc..."
+            className="w-full h-10 sm:h-11 pl-9 sm:pl-11 pr-3 sm:pr-4 rounded-[14px] sm:rounded-[16px] bg-white text-xs sm:text-[13.5px] text-[#102A56] placeholder-[#94A3B8] shadow-[0_2px_12px_rgba(30,100,200,0.04)] border border-white/80 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 transition-all truncate"
+          />
         </div>
-        <input
-          type="text"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          placeholder="Search students, classes, etc..."
-          className="w-full h-11 pl-11 pr-4 rounded-[16px] bg-white text-[13.5px] text-[#102A56] placeholder-[#94A3B8] shadow-[0_2px_12px_rgba(30,100,200,0.04)] border border-white/80 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 transition-all"
-        />
       </div>
 
       {/* Header Actions (Notification Bell & Profile) */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
         {/* Notification Bell */}
         <div className="relative" ref={notifRef}>
           <button

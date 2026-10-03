@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -25,6 +25,7 @@ import {
   Settings,
   ChevronRight,
   X,
+  Loader2,
 } from 'lucide-react';
 import SchoolLogo from './illustrations/SchoolLogo';
 
@@ -33,6 +34,7 @@ interface AdminSidebarProps {
   onClose: () => void;
   schoolName?: string;
   tagline?: string;
+  onNavigate?: (href: string) => void;
 }
 
 interface NavSection {
@@ -100,10 +102,25 @@ export default function AdminSidebar({
   onClose,
   schoolName = 'Alpha Edu Hub',
   tagline = 'Next-Gen School ERP',
+  onNavigate,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPendingHref(null);
+  }, [pathname]);
+
+  const handleLinkClick = (href: string) => {
+    if (pathname !== href) {
+      setPendingHref(href);
+      onNavigate?.(href);
+    }
+    onClose();
+  };
 
   const isDashboardActive = pathname === '/admin';
+  const isDashboardPending = pendingHref === '/admin';
 
   return (
     <>
@@ -124,7 +141,12 @@ export default function AdminSidebar({
       >
         {/* Top Branding Section */}
         <div className="pt-5 px-5 pb-3 flex items-center justify-between">
-          <Link href="/admin" className="flex items-center gap-3 group">
+          <Link
+            href="/admin"
+            prefetch={true}
+            onClick={() => handleLinkClick('/admin')}
+            className="flex items-center gap-3 group"
+          >
             <SchoolLogo size={42} />
             <div className="min-w-0">
               <h2 className="text-[15px] font-bold text-slate-900 leading-tight tracking-tight group-hover:text-[#0B72E7] transition-colors truncate">
@@ -151,19 +173,31 @@ export default function AdminSidebar({
           <div>
             <Link
               href="/admin"
-              onClick={onClose}
-              className={`flex items-center gap-3 px-3.5 py-2 rounded-2xl text-[13px] font-semibold transition-all ${
+              prefetch={true}
+              onClick={() => handleLinkClick('/admin')}
+              className={`flex items-center justify-between px-3.5 py-2 rounded-2xl text-[13px] font-semibold transition-all ${
                 isDashboardActive
                   ? 'bg-[#0B72E7] text-white shadow-[0_4px_14px_rgba(11,114,231,0.3)]'
+                  : isDashboardPending
+                  ? 'bg-[#0B72E7]/10 text-[#0B72E7] ring-1 ring-[#0B72E7]/30'
                   : 'text-slate-600 hover:text-[#0B72E7] hover:bg-[#F0F7FE]'
               }`}
             >
-              <Home
-                className={`w-4 h-4 shrink-0 stroke-[2.2] ${
-                  isDashboardActive ? 'text-white' : 'text-slate-500'
-                }`}
-              />
-              <span>Dashboard</span>
+              <div className="flex items-center gap-3">
+                {isDashboardPending ? (
+                  <Loader2 className="w-4 h-4 shrink-0 text-[#0B72E7] animate-spin" />
+                ) : (
+                  <Home
+                    className={`w-4 h-4 shrink-0 stroke-[2.2] ${
+                      isDashboardActive ? 'text-white' : 'text-slate-500'
+                    }`}
+                  />
+                )}
+                <span>Dashboard</span>
+              </div>
+              {isDashboardPending && (
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0B72E7] animate-ping" />
+              )}
             </Link>
           </div>
 
@@ -179,28 +213,39 @@ export default function AdminSidebar({
                 const isActive =
                   !isDashboardActive &&
                   (pathname === item.href || pathname.startsWith(`${item.href}/`));
+                const isPending = pendingHref === item.href;
 
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    onClick={onClose}
-                    className={`group flex items-center justify-between px-3 py-1.5 rounded-xl text-[12px] font-medium transition-colors ${
+                    prefetch={true}
+                    onClick={() => handleLinkClick(item.href)}
+                    className={`group flex items-center justify-between px-3 py-1.5 rounded-xl text-[12px] font-medium transition-all ${
                       isActive
                         ? 'bg-[#EBF4FE] text-[#0B72E7] font-semibold'
+                        : isPending
+                        ? 'bg-[#EBF4FE] text-[#0B72E7] font-semibold ring-1 ring-[#0B72E7]/30 shadow-xs'
                         : 'text-slate-600 hover:text-[#0B72E7] hover:bg-[#F0F7FE]'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <Icon
-                        className={`w-3.5 h-3.5 shrink-0 transition-colors ${
-                          isActive
-                            ? 'text-[#0B72E7]'
-                            : 'text-slate-400 group-hover:text-[#0B72E7]'
-                        }`}
-                      />
+                      {isPending ? (
+                        <Loader2 className="w-3.5 h-3.5 shrink-0 text-[#0B72E7] animate-spin" />
+                      ) : (
+                        <Icon
+                          className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                            isActive
+                              ? 'text-[#0B72E7]'
+                              : 'text-slate-400 group-hover:text-[#0B72E7]'
+                          }`}
+                        />
+                      )}
                       <span className="truncate">{item.name}</span>
                     </div>
+                    {isPending && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#0B72E7] animate-ping shrink-0" />
+                    )}
                   </Link>
                 );
               })}
@@ -212,12 +257,19 @@ export default function AdminSidebar({
         <div className="p-3.5 border-t border-slate-100 bg-[#FAFCFE] rounded-b-[28px]">
           <Link
             href="/admin/settings"
-            onClick={onClose}
-            className="flex items-center justify-between p-2 rounded-xl text-slate-600 hover:text-[#0B72E7] hover:bg-[#F0F7FE] transition-colors group"
+            prefetch={true}
+            onClick={() => handleLinkClick('/admin/settings')}
+            className={`flex items-center justify-between p-2 rounded-xl text-slate-600 hover:text-[#0B72E7] hover:bg-[#F0F7FE] transition-colors group ${
+              pendingHref === '/admin/settings' ? 'bg-[#EBF4FE] text-[#0B72E7] font-semibold ring-1 ring-[#0B72E7]/30' : ''
+            }`}
           >
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center shrink-0">
-                <BookOpen className="w-4 h-4" />
+                {pendingHref === '/admin/settings' ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-[#0B72E7]" />
+                ) : (
+                  <BookOpen className="w-4 h-4" />
+                )}
               </div>
               <span className="text-[12.5px] font-semibold">Help & Support</span>
             </div>
@@ -228,3 +280,4 @@ export default function AdminSidebar({
     </>
   );
 }
+

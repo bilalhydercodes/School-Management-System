@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Sparkles,
   Server,
+  Loader2,
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
 
@@ -22,6 +23,7 @@ interface SuperAdminSidebarProps {
   onClose: () => void;
   adminName: string;
   adminEmail: string;
+  onNavigate?: (href: string) => void;
 }
 
 const navItems = [
@@ -56,8 +58,22 @@ export default function SuperAdminSidebar({
   onClose,
   adminName,
   adminEmail,
+  onNavigate,
 }: SuperAdminSidebarProps) {
   const pathname = usePathname();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPendingHref(null);
+  }, [pathname]);
+
+  const handleLinkClick = (href: string) => {
+    if (pathname !== href) {
+      setPendingHref(href);
+      onNavigate?.(href);
+    }
+    onClose();
+  };
 
   return (
     <>
@@ -112,42 +128,56 @@ export default function SuperAdminSidebar({
               item.href === '/superadmin'
                 ? pathname === '/superadmin'
                 : pathname.startsWith(item.href);
+            const isPending = pendingHref === item.href;
 
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                onClick={onClose}
+                prefetch={true}
+                onClick={() => handleLinkClick(item.href)}
                 className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   isActive
                     ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20 font-bold'
+                    : isPending
+                    ? 'bg-purple-900/40 text-purple-200 ring-1 ring-purple-500/40 font-bold'
                     : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <Icon
-                    className={`w-4 h-4 ${
-                      isActive ? 'text-white' : 'text-slate-400'
-                    }`}
-                  />
-                  <span>{item.name}</span>
+                <div className="flex items-center gap-3 min-w-0">
+                  {isPending ? (
+                    <Loader2 className="w-4 h-4 text-purple-400 animate-spin shrink-0" />
+                  ) : (
+                    <Icon
+                      className={`w-4 h-4 shrink-0 ${
+                        isActive ? 'text-white' : 'text-slate-400'
+                      }`}
+                    />
+                  )}
+                  <span className="truncate">{item.name}</span>
                 </div>
 
-                {item.badge && (
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      isActive
-                        ? 'bg-white/20 text-white'
-                        : 'bg-slate-800 text-purple-400 border border-purple-500/20'
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {isPending && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-ping" />
+                  )}
+                  {item.badge && !isPending && (
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        isActive
+                          ? 'bg-white/20 text-white'
+                          : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
               </Link>
             );
           })}
         </div>
+
 
         {/* Architecture & Multi-Tenant Status Badge */}
         <div className="px-4 py-3">
