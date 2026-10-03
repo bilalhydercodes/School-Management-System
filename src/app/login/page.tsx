@@ -87,25 +87,40 @@ function LoginForm() {
 
     startTransition(async () => {
       try {
-        const result = await loginAction({
-          email: userId.trim(),
-          password: password.trim(),
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: userId.trim(),
+            password: password.trim(),
+          }),
         });
 
-        if (result.requiresOtp && result.challengeId) {
-          // Transition smoothly into 2FA OTP verification step
-          setChallengeId(result.challengeId);
-          setEmailHint(result.emailHint || null);
-          setUserRole(result.role || null);
-          setIs2FaStep(true);
-        } else if (result.success && result.redirectUrl) {
+        const result = await response.json();
+
+        if (result.success && result.redirectUrl) {
           const target = redirectParam || result.redirectUrl;
           window.location.href = target;
         } else {
           setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
         }
-      } catch {
-        setErrorMessage('A network error occurred. Please check your connectivity.');
+      } catch (fetchErr) {
+        // Fallback to Server Action
+        try {
+          const result = await loginAction({
+            email: userId.trim(),
+            password: password.trim(),
+          });
+
+          if (result.success && result.redirectUrl) {
+            const target = redirectParam || result.redirectUrl;
+            window.location.href = target;
+          } else {
+            setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
+          }
+        } catch {
+          setErrorMessage('Unable to reach server. Please check your network connection.');
+        }
       }
     });
   };
