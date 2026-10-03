@@ -125,11 +125,11 @@ export class AuthService {
         }
       }
     } else {
-      // Unscoped login is strictly restricted to platform SUPER_ADMIN accounts
+      // Unscoped / Central domain / localhost login: resolve active user by email
       user = await prisma.user.findFirst({
         where: {
-          email,
-          role: 'SUPER_ADMIN',
+          email: { equals: email, mode: 'insensitive' },
+          isActive: true,
         },
       });
     }
