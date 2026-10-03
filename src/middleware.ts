@@ -21,7 +21,7 @@ const isTeacherRoute = createRouteMatcher(['/teacher(.*)', '/api/teacher(.*)']);
 const isSuperAdminRoute = createRouteMatcher(['/superadmin(.*)', '/api/superadmin(.*)']);
 const isPortalRoute = createRouteMatcher(['/portal(.*)', '/api/portal(.*)', '/student(.*)']);
 
-export default clerkMiddleware(async (auth, request: NextRequest) => {
+async function handleRequest(request: NextRequest, clerkUserId?: string | null): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
   const rawHost = request.headers.get('host') || 'localhost:3000';
   const cleanHost = rawHost.split(':')[0].trim().toLowerCase();
@@ -72,8 +72,7 @@ export default clerkMiddleware(async (auth, request: NextRequest) => {
     requestHeaders.set('x-tenant-slug', slug);
   }
 
-  // 2. Auth Session Resolution (Clerk Auth & Direct Session Token)
-  const { userId: clerkUserId, sessionClaims } = auth();
+  // 2. Auth Session Resolution (Direct Session Token & Clerk Auth)
   const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   let session: JWTPayload | null = null;
 
@@ -137,7 +136,51 @@ export default clerkMiddleware(async (auth, request: NextRequest) => {
       headers: requestHeaders,
     },
   });
-});
+}
+
+const clerkPublishableKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  process.env.CLERK_PUBLISHABLE_KEY;
+
+const hasValidClerkKey = Boolean(
+  clerkPublishableKey &&
+    !clerkPublishableKey.includes('placeholder') &&
+    clerkPublishableKey.startsWith('pk_')
+);
+
+// Lazy-instantiated Clerk middleware handler if valid Clerk keys are configured
+let clerkHandler: ((req: NextRequest, evt: any) => Promise<NextResponse>) | null = null;
+if (hasValidClerkKey) {
+  try {
+    clerkHandler = clerkMiddleware(async (auth, request: NextRequest) => {
+      let clerkUserId: string | null = null;
+      try {
+        const authData = typeof auth === 'function' ? await auth() : auth;
+        clerkUserId = authData?.userId || null;
+      } catch {
+        clerkUserId = null;
+      }
+      return handleRequest(request, clerkUserId);
+    });
+  } catch (err) {
+    console.warn('[MIDDLEWARE] Clerk middleware init skipped:', err);
+    clerkHandler = null;
+  }
+}
+
+export async function middleware(request: NextRequest, event?: any): Promise<NextResponse> {
+  try {
+    if (clerkHandler) {
+      return await clerkHandler(request, event);
+    }
+    return await handleRequest(request);
+  } catch (err) {
+    console.error('[MIDDLEWARE EXECUTION ERROR]:', err);
+    return await handleRequest(request);
+  }
+}
+
+export default middleware;
 
 export const config = {
   matcher: [

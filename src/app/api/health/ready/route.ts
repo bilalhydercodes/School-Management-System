@@ -7,6 +7,8 @@ import { redis } from '@/lib/redis';
  * Verifies that critical downstream infrastructure (PostgreSQL database and Redis)
  * is connected and ready to serve user requests safely.
  */
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const checks: Record<string, 'ok' | 'error' | 'disabled'> = {
     database: 'error',

@@ -5,6 +5,8 @@ import { NextResponse } from 'next/server';
  * Returns 200 OK if the Next.js Node.js process is active.
  * Used by container orchestrators (Kubernetes / ECS / Docker) to determine if the container is running.
  */
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   return NextResponse.json(
     {
