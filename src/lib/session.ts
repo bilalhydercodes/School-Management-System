@@ -13,6 +13,26 @@ export { createSessionToken, verifySessionToken, getJwtSecretKey };
 export const SESSION_COOKIE_NAME = 'session_token';
 export const SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
 
+/**
+ * Returns role-specific session TTL and JWT expiration:
+ * - Student / Parent: 7 days (routine logins, zero friction)
+ * - Teacher: 24 hours (secure workday session, no OTP on page reload)
+ * - School Admin / Super Admin: 4 hours (high security, shorter idle timeout)
+ */
+export function getSessionMaxAgeForRole(role?: RoleType | string): { maxAgeSeconds: number; jwtExpiry: string } {
+  switch (role) {
+    case Role.SUPER_ADMIN:
+    case Role.ADMIN:
+      return { maxAgeSeconds: 4 * 60 * 60, jwtExpiry: '4h' }; // 4 hours
+    case Role.TEACHER:
+      return { maxAgeSeconds: 24 * 60 * 60, jwtExpiry: '24h' }; // 24 hours
+    case Role.STUDENT:
+    case Role.PARENT:
+    default:
+      return { maxAgeSeconds: 7 * 24 * 60 * 60, jwtExpiry: '7d' }; // 7 days
+  }
+}
+
 export interface CookieSecurityOptions {
   httpOnly: boolean;
   secure: boolean;
@@ -44,11 +64,11 @@ export function getSessionCookieOptions(maxAge: number = SESSION_MAX_AGE): Cooki
 }
 
 /**
- * Sets the session cookie in HTTP-only mode with secure flags.
+ * Sets the session cookie in HTTP-only mode with secure flags and custom maxAge.
  */
-export async function setSessionCookie(token: string): Promise<void> {
+export async function setSessionCookie(token: string, maxAgeSeconds: number = SESSION_MAX_AGE): Promise<void> {
   const cookieStore = cookies();
-  cookieStore.set(SESSION_COOKIE_NAME, token, getSessionCookieOptions(SESSION_MAX_AGE));
+  cookieStore.set(SESSION_COOKIE_NAME, token, getSessionCookieOptions(maxAgeSeconds));
 }
 
 /**

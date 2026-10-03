@@ -14,6 +14,11 @@ export interface AuthenticationResult {
   token?: string;
   error?: string;
   mustChangePassword?: boolean;
+  requiresOtp?: boolean;
+  challengeId?: string;
+  emailHint?: string;
+  role?: RoleType;
+  maxAgeSeconds?: number;
 }
 
 const BCRYPT_SALT_ROUNDS = 12;
@@ -22,8 +27,15 @@ const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 const OTP_TTL_SECONDS = 600; // 10 minutes
 const MAX_OTP_ATTEMPTS = 5; // Max 5 verification guesses per OTP
 
-// Fallback in-memory store for OTPs if Redis is unavailable
-const memoryOtpStore = new Map<string, { hash: string; expiresAt: number; attempts: number }>();
+// Fallback in-memory store for OTPs and login challenges if Redis is unavailable
+const memoryOtpStore = new Map<string, { hash: string; expiresAt: number; attempts: number; data?: Record<string, unknown> }>();
+
+function maskEmailAddress(email: string): string {
+  const [local, domain] = email.split('@');
+  if (!domain) return email;
+  if (local.length <= 2) return `${local[0]}*@${domain}`;
+  return `${local[0]}***${local[local.length - 1]}@${domain}`;
+}
 
 export class AuthService {
   /**
@@ -194,14 +206,89 @@ export class AuthService {
       };
     }
 
-    // 7. Successful login - reset failed attempts
+    // 7. Successful password verification - reset failed attempts
     await prisma.user.update({
       where: { id: user.id },
       data: {
         failedLoginAttempts: 0,
         lockedUntil: null,
-        lastLoginAt: new Date(),
       },
+    });
+
+    const is2FaRequired =
+      user.role === 'TEACHER' || user.role === 'ADMIN' || user.role === 'SUPER_ADMIN';
+
+    // 8. Handle 2FA OTP Step for Teachers, School Admins, and Super Admins
+    if (is2FaRequired) {
+      const challengeId = crypto.randomUUID();
+      const otp = crypto.randomInt(100000, 1000000).toString();
+      const otpHash = await bcrypt.hash(otp, 10);
+      const challengeKey = `login_challenge:${challengeId}`;
+
+      let tenantName = 'School Management System';
+      if (user.tenantId) {
+        const tenant = await prisma.tenant.findUnique({
+          where: { id: user.tenantId },
+          select: { name: true },
+        });
+        if (tenant?.name) tenantName = tenant.name;
+      }
+
+      // Store challenge in Redis or memory store (10 minute validity)
+      const challengePayload = {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        tenantId: user.tenantId,
+        hash: otpHash,
+        expiresAt: Date.now() + OTP_TTL_SECONDS * 1000,
+        attempts: 0,
+      };
+
+      if (redis) {
+        try {
+          await redis.set(challengeKey, JSON.stringify(challengePayload), 'EX', OTP_TTL_SECONDS);
+        } catch (rErr) {
+          console.warn('[REDIS-WARN] Login challenge fallback to memory:', rErr instanceof Error ? rErr.message : String(rErr));
+          memoryOtpStore.set(challengeKey, challengePayload);
+        }
+      } else {
+        memoryOtpStore.set(challengeKey, challengePayload);
+      }
+
+      // Dispatch 2FA OTP via Email and SMS
+      await sendPasswordResetOtpEmail({
+        to: user.email,
+        otp,
+        tenantName,
+        recipientName: `${user.firstName} ${user.lastName}`.trim() || 'Staff Member',
+      });
+
+      if (user.phone) {
+        await sendSmsOtp({
+          phone: user.phone,
+          otp,
+          tenantName,
+        });
+      }
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[DEV-ONLY-AUTH] 2FA Login OTP for ${user.email} (${user.role}): ${otp} | ChallengeId: ${challengeId}`);
+      }
+
+      return {
+        success: true,
+        requiresOtp: true,
+        challengeId,
+        emailHint: maskEmailAddress(user.email),
+        role: user.role as RoleType,
+      };
+    }
+
+    // 9. Direct Routine Login for Students & Parents (7-day session)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
     });
 
     try {
@@ -231,21 +318,180 @@ export class AuthService {
       mustChangePassword: user.mustChangePassword,
     };
 
-    const token = await createSessionToken({
-      sub: user.id,
+    const maxAgeSeconds = 7 * 24 * 60 * 60; // 7 days
+    const token = await createSessionToken(
+      {
+        sub: user.id,
+        tenantId: user.tenantId,
+        role: user.role as RoleType,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mustChangePassword: user.mustChangePassword,
+      },
+      '7d'
+    );
+
+    return {
+      success: true,
+      requiresOtp: false,
+      user: sessionUser,
+      token,
+      mustChangePassword: user.mustChangePassword,
+      maxAgeSeconds,
+    };
+  }
+
+  /**
+   * Verifies 2FA login OTP for Teachers, Admins, and SuperAdmins.
+   * Issues role-tailored session tokens:
+   * - Teacher: 24-hour session
+   * - Admin / SuperAdmin: 4-hour session
+   */
+  static async verifyLogin2FA(
+    challengeId: string,
+    otpInput: string,
+    metadata?: { ipAddress?: string; userAgent?: string }
+  ): Promise<AuthenticationResult> {
+    const challengeKey = `login_challenge:${challengeId}`;
+    let challenge: {
+      userId: string;
+      email: string;
+      role: string;
+      tenantId: string | null;
+      hash: string;
+      expiresAt: number;
+      attempts: number;
+    } | null = null;
+
+    if (redis) {
+      try {
+        const raw = await redis.get(challengeKey);
+        if (raw) challenge = JSON.parse(raw);
+      } catch (rErr) {
+        console.warn('[REDIS-WARN] Failed to read login challenge from Redis:', rErr);
+      }
+    }
+
+    if (!challenge) {
+      const mem = memoryOtpStore.get(challengeKey);
+      if (mem && mem.expiresAt > Date.now()) {
+        challenge = mem as unknown as typeof challenge;
+      }
+    }
+
+    if (!challenge || challenge.expiresAt < Date.now()) {
+      return {
+        success: false,
+        error: 'Login session expired or invalid. Please sign in again.',
+      };
+    }
+
+    if (challenge.attempts >= MAX_OTP_ATTEMPTS) {
+      if (redis) {
+        try { await redis.del(challengeKey); } catch {}
+      }
+      memoryOtpStore.delete(challengeKey);
+      return {
+        success: false,
+        error: 'Too many incorrect verification attempts. Please sign in again to request a new code.',
+      };
+    }
+
+    const isValidOtp = await bcrypt.compare(otpInput, challenge.hash);
+    if (!isValidOtp) {
+      challenge.attempts += 1;
+      if (redis) {
+        try {
+          const ttl = Math.max(1, Math.floor((challenge.expiresAt - Date.now()) / 1000));
+          await redis.set(challengeKey, JSON.stringify(challenge), 'EX', ttl);
+        } catch {}
+      } else {
+        memoryOtpStore.set(challengeKey, challenge as unknown as { hash: string; expiresAt: number; attempts: number });
+      }
+
+      return {
+        success: false,
+        error: `Incorrect verification code. ${MAX_OTP_ATTEMPTS - challenge.attempts} attempts remaining.`,
+      };
+    }
+
+    // OTP Verified - Invalidate Challenge
+    if (redis) {
+      try { await redis.del(challengeKey); } catch {}
+    }
+    memoryOtpStore.delete(challengeKey);
+
+    // Fetch fresh user record
+    const user = await prisma.user.findUnique({
+      where: { id: challenge.userId },
+    });
+
+    if (!user || !user.isActive || user.deletedAt !== null) {
+      return {
+        success: false,
+        error: 'User account is inactive or not found.',
+      };
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+
+    try {
+      await prisma.auditLog.create({
+        data: {
+          tenantId: user.tenantId,
+          userId: user.id,
+          action: 'USER_LOGIN_2FA_SUCCESS',
+          entityType: 'User',
+          entityId: user.id,
+          ipAddress: metadata?.ipAddress,
+          userAgent: metadata?.userAgent,
+        },
+      });
+    } catch (logErr) {
+      console.error('[AUDIT-LOG-WARN] Failed to record 2FA login success audit log:', logErr);
+    }
+
+    const sessionUser: UserSession = {
+      userId: user.id,
       tenantId: user.tenantId,
       role: user.role as RoleType,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      avatarUrl: user.avatarUrl,
       mustChangePassword: user.mustChangePassword,
-    });
+    };
+
+    // Calculate role-tailored session duration
+    // Teacher: 24 hours (86,400s) | Admin / Super Admin: 4 hours (14,400s)
+    const isTeacher = user.role === 'TEACHER';
+    const jwtExpiry = isTeacher ? '24h' : '4h';
+    const maxAgeSeconds = isTeacher ? 24 * 60 * 60 : 4 * 60 * 60;
+
+    const token = await createSessionToken(
+      {
+        sub: user.id,
+        tenantId: user.tenantId,
+        role: user.role as RoleType,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mustChangePassword: user.mustChangePassword,
+      },
+      jwtExpiry
+    );
 
     return {
       success: true,
+      requiresOtp: false,
       user: sessionUser,
       token,
       mustChangePassword: user.mustChangePassword,
+      maxAgeSeconds,
     };
   }
 

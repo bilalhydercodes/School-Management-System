@@ -174,6 +174,10 @@ export interface AuthResult {
   user?: UserSession;
   redirectUrl?: string;
   error?: string;
+  requiresOtp?: boolean;
+  challengeId?: string;
+  emailHint?: string;
+  role?: RoleType;
 }
 
 // ----------------------------------------------------------------------------

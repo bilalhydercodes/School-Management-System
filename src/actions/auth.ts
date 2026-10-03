@@ -15,18 +15,22 @@ import {
   ForgotPasswordSchema,
   ResetPasswordSchema,
   ChangePasswordSchema,
+  VerifyLoginOtpSchema,
   type LoginInput,
   type ForgotPasswordInput,
   type ResetPasswordInput,
   type ChangePasswordInput,
+  type VerifyLoginOtpInput,
 } from '@/lib/validations/auth';
 import { revokeAllUserSessions } from '@/lib/session-revocation';
 import { resolveTenantByHostname } from '@/lib/tenant';
+import { verifyTurnstileToken } from '@/lib/turnstile';
 import type { AuthResult } from '@/types';
 
 /**
  * Server Action for authenticating users.
- * Validates credentials against scoped tenant context and issues HTTP-only session cookie.
+ * Validates credentials against scoped tenant context and issues HTTP-only session cookie
+ * or initiates 2FA OTP challenge for Staff/Admins.
  */
 export async function loginAction(input: LoginInput): Promise<AuthResult> {
   // 1. Boundary Zod validation
@@ -48,6 +52,15 @@ export async function loginAction(input: LoginInput): Promise<AuthResult> {
   const ipAddress = headerList.get('x-forwarded-for')?.split(',')[0].trim() || headerList.get('x-real-ip') || undefined;
   const userAgent = headerList.get('user-agent') || undefined;
 
+  // 3. Cloudflare Turnstile Bot Defense Verification
+  const turnstileCheck = await verifyTurnstileToken(credentials.turnstileToken, ipAddress);
+  if (!turnstileCheck.success) {
+    return {
+      success: false,
+      error: turnstileCheck.error || 'Security verification failed. Please try again.',
+    };
+  }
+
   const rawHost = headerList.get('host') || '';
   let resolvedTenantId = credentials.tenantId || headerTenantId || null;
 
@@ -58,20 +71,90 @@ export async function loginAction(input: LoginInput): Promise<AuthResult> {
     }
   }
 
-  // 3. Authenticate with AuthService
+  // 4. Authenticate with AuthService
   const result = await AuthService.login(credentials, resolvedTenantId, { ipAddress, userAgent });
 
-  if (!result.success || !result.token || !result.user) {
+  if (!result.success) {
     return {
       success: false,
       error: result.error || 'Authentication failed.',
     };
   }
 
-  // 4. Set HTTP-only secure cookie
-  await setSessionCookie(result.token);
+  // 5. If 2FA OTP is required (Teacher / Admin / SuperAdmin), return challenge info
+  if (result.requiresOtp && result.challengeId) {
+    return {
+      success: true,
+      requiresOtp: true,
+      challengeId: result.challengeId,
+      emailHint: result.emailHint,
+      role: result.role,
+    };
+  }
 
-  // 5. Determine default redirect landing page (or forced password change)
+  if (!result.token || !result.user) {
+    return {
+      success: false,
+      error: 'Authentication failed to issue session.',
+    };
+  }
+
+  // 6. Direct routine login for Students / Parents (7-day session)
+  await setSessionCookie(result.token, result.maxAgeSeconds);
+
+  const redirectUrl = result.mustChangePassword ? '/change-password' : getRoleDefaultPath(result.user.role);
+
+  return {
+    success: true,
+    user: result.user,
+    redirectUrl,
+  };
+}
+
+/**
+ * Server Action to verify 2FA OTP for Teacher, Admin, and SuperAdmin logins.
+ * Issues role-tailored session cookie:
+ * - Teacher: 24-hour session
+ * - Admin / SuperAdmin: 4-hour session
+ */
+export async function verifyLoginOtpAction(input: VerifyLoginOtpInput): Promise<AuthResult> {
+  const validation = VerifyLoginOtpSchema.safeParse(input);
+  if (!validation.success) {
+    return {
+      success: false,
+      error: validation.error.errors[0]?.message || 'Please provide a valid 6-digit OTP.',
+    };
+  }
+
+  const headerList = headers();
+  const ipAddress = headerList.get('x-forwarded-for')?.split(',')[0].trim() || headerList.get('x-real-ip') || undefined;
+  const userAgent = headerList.get('user-agent') || undefined;
+
+  // Turnstile verification
+  const turnstileCheck = await verifyTurnstileToken(validation.data.turnstileToken, ipAddress);
+  if (!turnstileCheck.success) {
+    return {
+      success: false,
+      error: turnstileCheck.error || 'Security verification failed. Please try again.',
+    };
+  }
+
+  const result = await AuthService.verifyLogin2FA(
+    validation.data.challengeId,
+    validation.data.otp,
+    { ipAddress, userAgent }
+  );
+
+  if (!result.success || !result.token || !result.user) {
+    return {
+      success: false,
+      error: result.error || 'Verification failed.',
+    };
+  }
+
+  // Set HTTP-only secure cookie with role-tailored TTL
+  await setSessionCookie(result.token, result.maxAgeSeconds);
+
   const redirectUrl = result.mustChangePassword ? '/change-password' : getRoleDefaultPath(result.user.role);
 
   return {

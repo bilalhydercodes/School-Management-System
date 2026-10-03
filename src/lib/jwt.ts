@@ -25,14 +25,17 @@ export function getJwtSecretKey(): Uint8Array {
 }
 
 /**
- * Creates a signed JWT session token valid for 7 days.
+ * Creates a signed JWT session token with customizable expiration time (e.g. '7d', '24h', '4h').
  */
-export async function createSessionToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): Promise<string> {
+export async function createSessionToken(
+  payload: Omit<JWTPayload, 'iat' | 'exp'>,
+  expiresIn: string = '7d'
+): Promise<string> {
   const key = getJwtSecretKey();
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('7d')
+    .setExpirationTime(expiresIn)
     .sign(key);
 }
 
