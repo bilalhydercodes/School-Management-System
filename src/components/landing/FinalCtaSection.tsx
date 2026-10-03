@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import GetStartedButton from './GetStartedButton';
 
 export default function FinalCtaSection() {
   return (
@@ -26,13 +27,10 @@ export default function FinalCtaSection() {
             </div>
 
             <div className="flex-shrink-0">
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-7 py-3.5 text-[15px] font-bold text-[#1d8cfd] bg-white hover:bg-blue-50 active:bg-blue-100 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_22px_rgba(0,0,0,0.15)] transition-all duration-150 transform hover:-translate-y-0.5"
-              >
+              <GetStartedButton className="inline-flex items-center gap-2 px-7 py-3.5 text-[15px] font-bold text-[#1d8cfd] bg-white hover:bg-blue-50 active:bg-blue-100 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_22px_rgba(0,0,0,0.15)] transition-all duration-150 transform hover:-translate-y-0.5 cursor-pointer">
                 <span>Get Started</span>
                 <ArrowRight className="w-4 h-4" />
-              </Link>
+              </GetStartedButton>
             </div>
           </div>
         </div>

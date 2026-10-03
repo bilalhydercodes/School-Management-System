@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle2, ShieldCheck, Award } from 'lucide-react';
 import SchoolIllustration from './SchoolIllustration';
+import GetStartedButton from './GetStartedButton';
 
 export default function HeroSection() {
   return (
@@ -28,13 +29,10 @@ export default function HeroSection() {
             </p>
 
             <div className="mt-8">
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2.5 px-7 py-3.5 text-[15px] font-semibold text-white bg-[#1d8cfd] hover:bg-blue-600 active:bg-blue-700 rounded-xl shadow-[0_4px_16px_rgba(29,140,253,0.35)] hover:shadow-[0_6px_22px_rgba(29,140,253,0.45)] transition-all duration-150 transform hover:-translate-y-0.5"
-              >
+              <GetStartedButton className="inline-flex items-center gap-2.5 px-7 py-3.5 text-[15px] font-semibold text-white bg-[#1d8cfd] hover:bg-blue-600 active:bg-blue-700 rounded-xl shadow-[0_4px_16px_rgba(29,140,253,0.35)] hover:shadow-[0_6px_22px_rgba(29,140,253,0.45)] transition-all duration-150 transform hover:-translate-y-0.5 cursor-pointer group">
                 <span>Get Started</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Link>
+              </GetStartedButton>
             </div>
 
             {/* Trust Highlights */}

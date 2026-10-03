@@ -4,18 +4,24 @@ import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Search, Bell, ChevronDown, LogOut, User, Shield, Menu } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
+import { getTeacherAvatarUrl } from '@/lib/teacher-avatar';
 
 interface TeacherHeaderProps {
   teacherName?: string;
   roleTitle?: string;
+  gender?: string | null;
+  avatarUrl?: string | null;
   onToggleSidebar?: () => void;
 }
 
 export function TeacherHeader({
   teacherName = 'Sanjay Yadav',
   roleTitle = 'Teacher',
+  gender,
+  avatarUrl,
   onToggleSidebar,
 }: TeacherHeaderProps) {
+  const resolvedAvatar = getTeacherAvatarUrl({ avatarUrl, gender, teacherName });
   const [searchValue, setSearchValue] = useState('');
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -112,9 +118,10 @@ export function TeacherHeader({
           >
             <div className="relative w-9 h-9 rounded-full ring-2 ring-[#2563EB] ring-offset-2 overflow-hidden bg-slate-100">
               <Image
-                src="/assets/teacher-dashboard/teacher-avatar-header.png"
+                src={resolvedAvatar}
                 alt={teacherName}
                 fill
+                priority
                 className="object-cover"
               />
             </div>

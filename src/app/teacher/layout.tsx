@@ -104,13 +104,37 @@ export default async function TeacherPortalLayout({
     redirect('/unauthorized');
   }
 
-  const teacherName =
+  let teacherName =
     effectiveSession.firstName && effectiveSession.lastName
       ? `${effectiveSession.firstName} ${effectiveSession.lastName}`
       : 'Sanjay Yadav';
+  let teacherAvatarUrl: string | null = null;
+  let teacherGender: string | null = (effectiveSession as any).gender || null;
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (effectiveSession.sub && isUuid.test(effectiveSession.sub)) {
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: effectiveSession.sub },
+        select: { firstName: true, lastName: true, avatarUrl: true },
+      });
+      if (dbUser) {
+        if (dbUser.firstName && dbUser.lastName) {
+          teacherName = `${dbUser.firstName} ${dbUser.lastName}`;
+        }
+        teacherAvatarUrl = dbUser.avatarUrl;
+      }
+    } catch {
+      // Graceful fallback
+    }
+  }
 
   return (
-    <TeacherLayoutClient teacherName={teacherName}>
+    <TeacherLayoutClient
+      teacherName={teacherName}
+      gender={teacherGender}
+      avatarUrl={teacherAvatarUrl}
+    >
       {children}
     </TeacherLayoutClient>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition, Suspense } from 'react';
+import React, { useState, useEffect, useTransition, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -73,7 +73,26 @@ function LoginForm() {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [isImageReady, setIsImageReady] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const img = new window.Image();
+      img.src = '/login_left_panel_image.png';
+      if (img.complete) {
+        setIsImageReady(true);
+      } else {
+        img.onload = () => setIsImageReady(true);
+        img.onerror = () => setIsImageReady(true);
+      }
+      // Safety timeout: reveals form within 400ms even on slow network
+      const timer = setTimeout(() => setIsImageReady(true), 400);
+      return () => clearTimeout(timer);
+    } else {
+      setIsImageReady(true);
+    }
+  }, []);
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,7 +208,7 @@ function LoginForm() {
     });
   };
 
-  if (isNavigating) {
+  if (isNavigating || !isImageReady) {
     return <BrandLoader message="Preparing your workspace..." sublabel="Alpha Edu Hub" />;
   }
 
@@ -203,7 +222,7 @@ function LoginForm() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      <main className="relative bg-white rounded-[20px] sm:rounded-[26px] overflow-hidden flex flex-col lg:flex-row border border-white/70 shadow-[0_20px_50px_-10px_rgba(15,45,95,0.16)] w-full max-w-[1055px] min-h-0">
+      <main className="relative bg-white rounded-[20px] sm:rounded-[26px] overflow-hidden flex flex-col lg:flex-row border border-white/70 shadow-[0_20px_50px_-10px_rgba(15,45,95,0.16)] w-full max-w-[1055px] min-h-0 animate-in fade-in duration-200">
 
         {/* LEFT COLUMN: BRANDING & SCHOOL ILLUSTRATION — hidden on mobile, shown on lg+ */}
         <section
@@ -220,6 +239,7 @@ function LoginForm() {
             fill
             priority
             sizes="588px"
+            onLoad={() => setIsImageReady(true)}
             className="object-cover object-center pointer-events-none select-none"
           />
           <div className="sr-only">

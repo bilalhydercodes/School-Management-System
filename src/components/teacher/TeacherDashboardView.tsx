@@ -11,10 +11,13 @@ import {
   X,
 } from 'lucide-react';
 import { markTeacherCheckOutAction, markTeacherCheckInAction } from '@/actions/attendance';
+import { getTeacherAvatarUrl } from '@/lib/teacher-avatar';
 
 interface TeacherDashboardViewProps {
   teacherName?: string;
   roleTitle?: string;
+  gender?: string | null;
+  avatarUrl?: string | null;
   initialCheckInTime?: string | null;
   initialCheckOutTime?: string | null;
 }
@@ -22,9 +25,12 @@ interface TeacherDashboardViewProps {
 export function TeacherDashboardView({
   teacherName = 'Sanjay Yadav',
   roleTitle = 'Teacher',
+  gender,
+  avatarUrl,
   initialCheckInTime,
   initialCheckOutTime,
 }: TeacherDashboardViewProps) {
+  const resolvedAvatar = getTeacherAvatarUrl({ avatarUrl, gender, teacherName });
   const router = useRouter();
   const [isCheckedIn, setIsCheckedIn] = useState<boolean>(!initialCheckOutTime);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -95,7 +101,7 @@ export function TeacherDashboardView({
           <div className="flex items-center gap-3 sm:gap-4 z-10 pl-0.5 sm:pl-1">
             <div className="relative w-[56px] h-[56px] sm:w-[70px] sm:h-[70px] rounded-full ring-[2.5px] ring-[#2563EB] ring-offset-2 ring-offset-[#E1FDE7] overflow-hidden bg-slate-100 shrink-0">
               <Image
-                src="/assets/teacher-dashboard/teacher-avatar-hero.png"
+                src={resolvedAvatar}
                 alt={teacherName}
                 fill
                 priority

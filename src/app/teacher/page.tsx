@@ -10,19 +10,36 @@ export default async function TeacherDashboardPage() {
   const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
   let todayAttendance = null;
-  // Match reference specification exact name
-  const teacherName = 'Sanjay Yadav';
+  let teacherName =
+    session?.firstName && session?.lastName
+      ? `${session.firstName} ${session.lastName}`
+      : 'Sanjay Yadav';
+  let teacherAvatarUrl: string | null = null;
+  let teacherGender: string | null = (session as any)?.gender || null;
 
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (session?.tenantId && session?.sub && isUuid.test(session.sub) && isUuid.test(session.tenantId)) {
     try {
-      todayAttendance = await prisma.staffAttendance.findFirst({
-        where: {
-          tenantId: session.tenantId,
-          userId: session.sub,
-          date: todayStart,
-        },
-      });
+      const [attendance, dbUser] = await Promise.all([
+        prisma.staffAttendance.findFirst({
+          where: {
+            tenantId: session.tenantId,
+            userId: session.sub,
+            date: todayStart,
+          },
+        }),
+        prisma.user.findUnique({
+          where: { id: session.sub },
+          select: { firstName: true, lastName: true, avatarUrl: true },
+        }),
+      ]);
+      todayAttendance = attendance;
+      if (dbUser) {
+        if (dbUser.firstName && dbUser.lastName) {
+          teacherName = `${dbUser.firstName} ${dbUser.lastName}`;
+        }
+        teacherAvatarUrl = dbUser.avatarUrl;
+      }
     } catch {
       // Graceful fallback
     }
@@ -32,6 +49,8 @@ export default async function TeacherDashboardPage() {
     <TeacherDashboardView
       teacherName={teacherName}
       roleTitle="Teacher"
+      gender={teacherGender}
+      avatarUrl={teacherAvatarUrl}
       initialCheckInTime={todayAttendance?.checkInTime?.toISOString() ?? null}
       initialCheckOutTime={todayAttendance?.checkOutTime?.toISOString() ?? null}
     />

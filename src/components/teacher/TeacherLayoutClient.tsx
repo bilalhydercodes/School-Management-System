@@ -7,11 +7,15 @@ import { TeacherHeader } from './TeacherHeader';
 
 interface TeacherLayoutClientProps {
   teacherName: string;
+  gender?: string | null;
+  avatarUrl?: string | null;
   children: React.ReactNode;
 }
 
 export default function TeacherLayoutClient({
   teacherName,
+  gender,
+  avatarUrl,
   children,
 }: TeacherLayoutClientProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -45,6 +49,8 @@ export default function TeacherLayoutClient({
           <TeacherHeader
             teacherName={teacherName}
             roleTitle="(Teacher)"
+            gender={gender}
+            avatarUrl={avatarUrl}
             onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
           />
           <main className="flex-1 min-w-0">{children}</main>

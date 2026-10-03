@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
+import GetStartedButton from './GetStartedButton';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -58,12 +59,9 @@ export default function Navbar() {
 
           {/* Action CTA Button */}
           <div className="hidden md:flex items-center">
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center px-5 py-2 text-[13.5px] font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-[0_2px_8px_rgba(37,99,235,0.25)] hover:shadow-[0_4px_12px_rgba(37,99,235,0.35)] transition-all duration-150"
-            >
+            <GetStartedButton className="inline-flex items-center justify-center px-5 py-2 text-[13.5px] font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-[0_2px_8px_rgba(37,99,235,0.25)] hover:shadow-[0_4px_12px_rgba(37,99,235,0.35)] transition-all duration-150 cursor-pointer">
               Get Started
-            </Link>
+            </GetStartedButton>
           </div>
 
           {/* Mobile Menu Button */}
@@ -94,13 +92,12 @@ export default function Navbar() {
             </a>
           ))}
           <div className="pt-2">
-            <Link
-              href="/login"
-              className="block w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm"
+            <GetStartedButton
+              className="block w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm cursor-pointer"
               onClick={() => setMobileMenuOpen(false)}
             >
               Get Started
-            </Link>
+            </GetStartedButton>
           </div>
         </div>
       )}
