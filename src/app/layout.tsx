@@ -7,18 +7,27 @@ export const metadata: Metadata = {
   description: 'Enterprise-grade multi-tenant school operating system for K-12 schools',
 };
 
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const hasClerkKey = Boolean(
+  clerkKey && clerkKey.startsWith('pk_') && !clerkKey.includes('placeholder')
+);
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className="min-h-screen bg-brand-subtle text-brand-dark antialiased">
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+  const content = (
+    <html lang="en">
+      <body className="min-h-screen bg-brand-subtle text-brand-dark antialiased">
+        {children}
+      </body>
+    </html>
   );
+
+  if (hasClerkKey && clerkKey) {
+    return <ClerkProvider publishableKey={clerkKey}>{content}</ClerkProvider>;
+  }
+
+  return content;
 }

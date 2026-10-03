@@ -1,11 +1,21 @@
 import { SignIn } from '@clerk/nextjs';
+import { redirect } from 'next/navigation';
 
 export const metadata = {
   title: 'Sign In — Alpha Edu Hub',
   description: 'Sign in to Alpha Edu Hub School Management System',
 };
 
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const hasClerkKey = Boolean(
+  clerkKey && clerkKey.startsWith('pk_') && !clerkKey.includes('placeholder')
+);
+
 export default function SignInPage() {
+  if (!hasClerkKey) {
+    redirect('/login');
+  }
+
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center p-4 bg-[#CBE9FE]"
