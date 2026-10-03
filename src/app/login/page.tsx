@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { loginAction, verifyLoginOtpAction } from '@/actions/auth';
+import BrandLoader from '@/components/ui/BrandLoader';
 
 function EyeIcon({ className = 'w-4 h-4' }: { className?: string }) {
   return (
@@ -70,6 +71,7 @@ function LoginForm() {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
@@ -100,9 +102,11 @@ function LoginForm() {
         const result = await response.json();
 
         if (result.success && result.redirectUrl) {
+          setIsNavigating(true);
           const target = redirectParam || result.redirectUrl;
           window.location.href = target;
         } else {
+          setIsNavigating(false);
           setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
         }
       } catch (fetchErr) {
@@ -114,12 +118,15 @@ function LoginForm() {
           });
 
           if (result.success && result.redirectUrl) {
+            setIsNavigating(true);
             const target = redirectParam || result.redirectUrl;
             window.location.href = target;
           } else {
+            setIsNavigating(false);
             setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
           }
         } catch {
+          setIsNavigating(false);
           setErrorMessage('Unable to reach server. Please check your network connection.');
         }
       }
@@ -149,16 +156,23 @@ function LoginForm() {
         });
 
         if (result.success && result.redirectUrl) {
+          setIsNavigating(true);
           const target = redirectParam || result.redirectUrl;
           window.location.href = target;
         } else {
+          setIsNavigating(false);
           setErrorMessage(result.error || 'Invalid or expired OTP code.');
         }
       } catch {
+        setIsNavigating(false);
         setErrorMessage('A network error occurred during verification.');
       }
     });
   };
+
+  if (isNavigating) {
+    return <BrandLoader message="Preparing your workspace..." sublabel="Alpha Edu Hub" />;
+  }
 
   return (
     <div
@@ -490,13 +504,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen w-full bg-[#CBE9FE] flex items-center justify-center">
-          <LoaderIcon className="w-8 h-8 animate-spin text-[#0C8CFE]" />
-        </div>
-      }
-    >
+    <Suspense fallback={<BrandLoader message="Preparing sign in..." sublabel="Alpha Edu Hub" />}>
       <LoginForm />
     </Suspense>
   );
