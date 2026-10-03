@@ -45,69 +45,79 @@ export async function resolveTenantByHostname(hostname: string): Promise<TenantC
     }
   }
 
-  // 2. Check Database by verified custom domain
-  const tenantByDomain = await prisma.tenantDomain.findFirst({
-    where: {
-      domain: cleanHost,
-      isVerified: true,
-      tenant: { isActive: true },
-    },
-    include: {
-      tenant: {
-        include: { branding: true },
+  // If localhost or root domain in dev without tenant subdomain, return null cleanly
+  if (cleanHost === 'localhost' || cleanHost === '127.0.0.1') {
+    return null;
+  }
+
+  try {
+    // 2. Check Database by verified custom domain
+    const tenantByDomain = await prisma.tenantDomain.findFirst({
+      where: {
+        domain: cleanHost,
+        isVerified: true,
+        tenant: { isActive: true },
       },
-    },
-  });
-
-  if (tenantByDomain) {
-    const context: TenantContext = {
-      tenantId: tenantByDomain.tenant.id,
-      slug: tenantByDomain.tenant.slug,
-      name: tenantByDomain.tenant.name,
-      customDomain: tenantByDomain.domain,
-      branding: tenantByDomain.tenant.branding,
-    };
-
-    if (redis) {
-      try {
-        await redis.set(cacheKey, JSON.stringify(context), 'EX', 86400); // 24 hours
-      } catch {}
-    }
-    return context;
-  }
-
-  // 3. Check Subdomain: e.g. "dps.schoolerp.in" -> slug "dps"
-  const rawAppDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || 'schoolerp.in';
-  const appDomain = rawAppDomain.split(':')[0].toLowerCase();
-
-  let slug: string | null = null;
-  if (appDomain && cleanHost.endsWith(`.${appDomain}`)) {
-    slug = cleanHost.replace(`.${appDomain}`, '');
-  } else if (cleanHost.endsWith('.schoolerp.in')) {
-    slug = cleanHost.replace('.schoolerp.in', '');
-  }
-
-  if (slug) {
-    const tenantBySlug = await prisma.tenant.findUnique({
-      where: { slug, isActive: true },
-      include: { branding: true },
+      include: {
+        tenant: {
+          include: { branding: true },
+        },
+      },
     });
 
-    if (tenantBySlug) {
+    if (tenantByDomain) {
       const context: TenantContext = {
-        tenantId: tenantBySlug.id,
-        slug: tenantBySlug.slug,
-        name: tenantBySlug.name,
-        branding: tenantBySlug.branding,
+        tenantId: tenantByDomain.tenant.id,
+        slug: tenantByDomain.tenant.slug,
+        name: tenantByDomain.tenant.name,
+        customDomain: tenantByDomain.domain,
+        branding: tenantByDomain.tenant.branding,
       };
 
       if (redis) {
         try {
-          await redis.set(cacheKey, JSON.stringify(context), 'EX', 86400);
+          await redis.set(cacheKey, JSON.stringify(context), 'EX', 86400); // 24 hours
         } catch {}
       }
       return context;
     }
+
+    // 3. Check Subdomain: e.g. "dps.schoolerp.in" -> slug "dps"
+    const rawAppDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || 'schoolerp.in';
+    const appDomain = rawAppDomain.split(':')[0].toLowerCase();
+
+    let slug: string | null = null;
+    if (appDomain && cleanHost.endsWith(`.${appDomain}`)) {
+      slug = cleanHost.replace(`.${appDomain}`, '');
+    } else if (cleanHost.endsWith('.schoolerp.in')) {
+      slug = cleanHost.replace('.schoolerp.in', '');
+    }
+
+    if (slug) {
+      const tenantBySlug = await prisma.tenant.findUnique({
+        where: { slug, isActive: true },
+        include: { branding: true },
+      });
+
+      if (tenantBySlug) {
+        const context: TenantContext = {
+          tenantId: tenantBySlug.id,
+          slug: tenantBySlug.slug,
+          name: tenantBySlug.name,
+          branding: tenantBySlug.branding,
+        };
+
+        if (redis) {
+          try {
+            await redis.set(cacheKey, JSON.stringify(context), 'EX', 86400);
+          } catch {}
+        }
+        return context;
+      }
+    }
+  } catch (err) {
+    // Database offline or query failure - fail open/cleanly without crashing the request
+    console.warn(`[TENANT-RESOLVER] Unable to resolve tenant for host "${cleanHost}" from database (DB offline or unreachable).`);
   }
 
   return null;
