@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { BookOpen, Menu, X } from 'lucide-react';
+import Image from 'next/image';
+import { Menu, X } from 'lucide-react';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -22,14 +23,15 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-[68px]">
           {/* Logo Brand */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform duration-200 shadow-xs">
-              <svg
-                viewBox="0 0 24 24"
-                className="w-6 h-6 fill-current text-blue-600"
-                aria-hidden="true"
-              >
-                <path d="M12 4.5C10.5 3.5 8 3 4 3v14c4 0 6.5.5 8 1.5 1.5-1 4-1.5 8-1.5V3c-4 0-6.5.5-8 1.5zm0 13.5c-1.5-1-4-1.5-7-1.5V5c3 0 5 .5 7 1.5v11.5zm1-11.5c2-1 4-1.5 7-1.5v11.5c-3 0-5.5.5-7 1.5V6.5z" />
-              </svg>
+            <div className="w-10 h-10 rounded-xl bg-blue-50/80 border border-blue-100/80 flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform duration-200 shadow-xs shrink-0 overflow-hidden">
+              <Image
+                src="/images/dashboard/logo_transparent_bg.png"
+                alt="Alpha Edu Hub Logo"
+                width={36}
+                height={36}
+                className="w-full h-full object-contain"
+                priority
+              />
             </div>
             <div className="flex flex-col">
               <span className="text-[15px] font-bold text-slate-900 tracking-tight leading-tight group-hover:text-blue-600 transition-colors">

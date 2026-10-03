@@ -110,13 +110,14 @@ export function TeacherSidebar({
           {/* Brand Header */}
           <div className="flex items-center justify-between px-2 pt-1 pb-4 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center shrink-0 border border-sky-100 overflow-hidden">
+              <div className="w-10 h-10 rounded-xl bg-blue-50/80 border border-blue-100/80 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs">
                 <Image
-                  src="/assets/teacher-dashboard/school-logo.png"
-                  alt="School Logo"
-                  width={34}
-                  height={34}
-                  className="object-contain"
+                  src="/images/dashboard/logo_transparent_bg.png"
+                  alt="Alpha Edu Hub"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-contain"
+                  priority
                 />
               </div>
               <div className="min-w-0">

@@ -2,6 +2,7 @@
 
 import React, { useState, useTransition, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { loginAction, verifyLoginOtpAction } from '@/actions/auth';
 
@@ -195,10 +196,15 @@ function LoginForm() {
         {/* MOBILE BRAND HEADER — only shown on mobile/tablet */}
         <div className="lg:hidden bg-gradient-to-br from-[#0C8CFE] to-[#0066CC] px-6 pt-8 pb-6 text-white">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2 22V12C2 6.477 6.477 2 12 2s10 4.477 10 10v10" /><path d="M7 22v-5a5 5 0 0 1 10 0v5" /><path d="M12 7v5" /><path d="M9.5 9.5 12 7l2.5 2.5" />
-              </svg>
+            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs">
+              <Image
+                src="/images/dashboard/logo_transparent_bg.png"
+                alt="Alpha Edu Hub"
+                width={36}
+                height={36}
+                className="w-full h-full object-contain"
+                priority
+              />
             </div>
             <div>
               <h1 className="text-lg font-bold tracking-tight">Alpha Edu Hub</h1>

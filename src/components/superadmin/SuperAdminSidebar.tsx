@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -94,8 +95,15 @@ export default function SuperAdminSidebar({
         {/* Brand & Platform Identity Header */}
         <div className="p-6 border-b border-slate-800/80 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center font-black shadow-lg shadow-purple-500/20">
-              <Server className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs">
+              <Image
+                src="/images/dashboard/logo_transparent_bg.png"
+                alt="Alpha Edu Hub"
+                width={36}
+                height={36}
+                className="w-full h-full object-contain"
+                priority
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
