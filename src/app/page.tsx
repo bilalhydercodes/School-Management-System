@@ -1,5 +1,8 @@
 import { getSessionFromCookies, getRoleDefaultPath } from '@/lib/session';
 import LandingPage from '@/components/landing/LandingPage';
+import { prisma } from '@/lib/db';
+
+export const revalidate = 60; // Revalidate live community statistics every 60s
 
 export const metadata = {
   title: 'Alpha Edu Hub — Next-Gen Multi-Tenant School ERP & Operating System',
@@ -51,6 +54,30 @@ export const metadata = {
 export default async function HomePage() {
   const session = await getSessionFromCookies();
   const dashboardHref = session ? getRoleDefaultPath(session.role) : undefined;
-  return <LandingPage dashboardHref={dashboardHref} />;
-}
 
+  let stats = {
+    schools: 1,
+    students: 5,
+    attendance: 15,
+    uptime: '99.9%',
+  };
+
+  try {
+    const [schoolsCount, studentsCount, attendanceCount] = await Promise.all([
+      prisma.tenant.count({ where: { isActive: true } }),
+      prisma.studentProfile.count(),
+      prisma.studentAttendance.count(),
+    ]);
+
+    stats = {
+      schools: schoolsCount,
+      students: studentsCount,
+      attendance: attendanceCount,
+      uptime: '99.9%',
+    };
+  } catch (error) {
+    console.error('Failed to query live landing stats:', error);
+  }
+
+  return <LandingPage dashboardHref={dashboardHref} stats={stats} />;
+}

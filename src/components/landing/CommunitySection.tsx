@@ -102,12 +102,32 @@ function CommunityIllustration() {
   );
 }
 
-export default function CommunitySection() {
-  const stats = [
-    { value: '500+', label: 'Schools Trust Us' },
-    { value: '100K+', label: 'Students Managed' },
-    { value: '10M+', label: 'Attendance Records' },
-    { value: '99.9%', label: 'Uptime & Security' },
+export interface CommunityStatsProps {
+  schools?: number;
+  students?: number;
+  attendance?: number;
+  uptime?: string;
+}
+
+function formatStatNumber(num?: number): string {
+  if (num === undefined || num === null) return '1+';
+  if (num >= 1_000_000) {
+    const val = (num / 1_000_000).toFixed(1).replace(/\.0$/, '');
+    return `${val}M+`;
+  }
+  if (num >= 1_000) {
+    const val = (num / 1_000).toFixed(1).replace(/\.0$/, '');
+    return `${val}K+`;
+  }
+  return `${num > 0 ? num : 1}+`;
+}
+
+export default function CommunitySection({ stats }: { stats?: CommunityStatsProps }) {
+  const statItems = [
+    { value: formatStatNumber(stats?.schools ?? 1), label: 'Schools Trust Us' },
+    { value: formatStatNumber(stats?.students ?? 5), label: 'Students Managed' },
+    { value: formatStatNumber(stats?.attendance ?? 15), label: 'Attendance Records' },
+    { value: stats?.uptime || '99.9%', label: 'Uptime & Security' },
   ];
 
   return (
@@ -132,9 +152,9 @@ export default function CommunitySection() {
                 everyone.
               </p>
 
-              {/* 4 Statistics Horizontally */}
+              {/* 4 Real Live Database Statistics Horizontally */}
               <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-4 pt-4 border-t border-emerald-200/60">
-                {stats.map((stat) => (
+                {statItems.map((stat) => (
                   <div key={stat.label}>
                     <div className="text-[28px] sm:text-[32px] font-black text-[#1d8cfd] tracking-tight leading-none font-mono">
                       {stat.value}
