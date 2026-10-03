@@ -187,7 +187,7 @@ function LoginForm() {
             fill
             priority
             sizes="588px"
-            className="object-cover object-center"
+            className="object-cover object-center pointer-events-none select-none"
           />
           <div className="sr-only">
             <h1>Alpha Edu Hub</h1>

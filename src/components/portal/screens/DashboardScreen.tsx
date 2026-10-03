@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import {
   BookOpen,
   FileText,
@@ -37,14 +38,15 @@ export default function DashboardScreen({
         {/* Left: Student Avatar + Greeting */}
         <div className="flex items-center gap-5 z-10 shrink-0">
           {/* Circular Student Portrait with Blue Ring */}
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[3px] border-[#2563EB] overflow-hidden bg-white shadow-sm shrink-0">
-            <img
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[3px] border-[#2563EB] overflow-hidden bg-white shadow-sm shrink-0 relative">
+            <Image
               src={student.avatarUrl || '/images/dashboard/ref_avatar.png'}
               alt={student.name}
+              width={96}
+              height={96}
+              priority
               className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/images/dashboard/ref_avatar.png';
-              }}
+              unoptimized={Boolean(student.avatarUrl?.startsWith('data:'))}
             />
           </div>
 
@@ -77,10 +79,13 @@ export default function DashboardScreen({
 
         {/* Right: School Campus Illustration */}
         <div className="relative w-full md:w-auto h-28 sm:h-32 flex items-center justify-end z-0">
-          <img
+          <Image
             src="/images/dashboard/ref_school_hero_clean.png"
             alt="Alpha Edu Hub Campus"
-            className="h-full object-contain rounded-r-2xl select-none pointer-events-none"
+            width={320}
+            height={128}
+            priority
+            className="h-full w-auto object-contain rounded-r-2xl select-none pointer-events-none"
           />
         </div>
       </div>
@@ -215,10 +220,12 @@ export default function DashboardScreen({
               <div className="relative w-36 h-28 flex items-end justify-center">
                 {/* Lighter backdrop circle */}
                 <div className="absolute top-0 right-2 w-24 h-24 rounded-full bg-white/20 -z-10" />
-                <img
+                <Image
                   src="/images/dashboard/card_classes_illust.png"
                   alt="Today's Classes"
-                  className="h-full object-contain object-bottom select-none pointer-events-none drop-shadow-xs"
+                  width={144}
+                  height={112}
+                  className="h-full w-auto object-contain object-bottom select-none pointer-events-none drop-shadow-xs"
                 />
               </div>
 
@@ -249,10 +256,12 @@ export default function DashboardScreen({
               <div className="relative w-36 h-28 flex items-end justify-center">
                 {/* Lighter backdrop circle */}
                 <div className="absolute top-0 right-2 w-24 h-24 rounded-full bg-white/20 -z-10" />
-                <img
+                <Image
                   src="/images/dashboard/card_assignments_illust.png"
                   alt="My Assignments"
-                  className="h-full object-contain object-bottom select-none pointer-events-none drop-shadow-xs"
+                  width={144}
+                  height={112}
+                  className="h-full w-auto object-contain object-bottom select-none pointer-events-none drop-shadow-xs"
                 />
               </div>
 
@@ -283,10 +292,12 @@ export default function DashboardScreen({
               <div className="relative w-36 h-28 flex items-center justify-center">
                 {/* Lighter backdrop circle */}
                 <div className="absolute top-0 right-2 w-24 h-24 rounded-full bg-white/20 -z-10" />
-                <img
+                <Image
                   src="/images/dashboard/illust_study_materials_clean.png"
                   alt="Study Materials"
-                  className="h-full object-contain select-none pointer-events-none drop-shadow-md"
+                  width={144}
+                  height={112}
+                  className="h-full w-auto object-contain select-none pointer-events-none drop-shadow-md"
                 />
               </div>
 
@@ -317,10 +328,12 @@ export default function DashboardScreen({
               <div className="relative w-36 h-28 flex items-center justify-center">
                 {/* Lighter backdrop circle */}
                 <div className="absolute top-0 right-2 w-24 h-24 rounded-full bg-white/20 -z-10" />
-                <img
+                <Image
                   src="/images/dashboard/illust_results.png"
                   alt="My Results"
-                  className="h-full object-contain select-none pointer-events-none drop-shadow-md"
+                  width={144}
+                  height={112}
+                  className="h-full w-auto object-contain select-none pointer-events-none drop-shadow-md"
                 />
               </div>
 

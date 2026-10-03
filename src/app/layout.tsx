@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from 'next';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-plus-jakarta-sans',
+  display: 'swap',
+});
 
 export const viewport: Viewport = {
   themeColor: '#008CFF',
@@ -153,14 +161,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const content = (
-    <html lang="en">
+    <html lang="en" className={plusJakartaSans.variable}>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-screen bg-brand-subtle text-brand-dark antialiased">
+      <body className={`${plusJakartaSans.variable} font-sans min-h-screen bg-brand-subtle text-brand-dark antialiased`}>
         {children}
       </body>
     </html>

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Download, Printer, ShieldCheck, QrCode } from 'lucide-react';
 import SchoolLogo from '../SchoolLogo';
 import PortalPageHeader from '../PortalPageHeader';
@@ -80,14 +81,14 @@ export default function StudentIdCardScreen({
           <div className="p-6 space-y-5">
             {/* Student Photo & Core Tag */}
             <div className="flex flex-col items-center text-center">
-              <div className="w-28 h-28 rounded-full border-4 border-[#2563EB] overflow-hidden bg-sky-50 shadow-md">
-                <img
+              <div className="w-28 h-28 rounded-full border-4 border-[#2563EB] overflow-hidden bg-sky-50 shadow-md relative">
+                <Image
                   src={student.avatarUrl || '/images/dashboard/ref_avatar.png'}
                   alt={student.name}
+                  width={112}
+                  height={112}
                   className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/dashboard/ref_avatar.png';
-                  }}
+                  unoptimized={Boolean(student.avatarUrl?.startsWith('data:'))}
                 />
               </div>
 

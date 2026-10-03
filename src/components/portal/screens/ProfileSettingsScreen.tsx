@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { User, Lock, Save, CheckCircle2, ShieldCheck, Mail, Phone, MapPin } from 'lucide-react';
 import PortalPageHeader from '../PortalPageHeader';
 
@@ -78,14 +79,14 @@ export default function ProfileSettingsScreen({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Summary Avatar Card */}
           <div className="bg-white rounded-[22px] shadow-[0_4px_20px_rgba(0,100,200,0.06)] border border-blue-50/80 p-6 flex flex-col items-center text-center space-y-4">
-            <div className="w-24 h-24 rounded-full border-4 border-[#2563EB] overflow-hidden bg-sky-50 shadow-md">
-              <img
+            <div className="w-24 h-24 rounded-full border-4 border-[#2563EB] overflow-hidden bg-sky-50 shadow-md relative">
+              <Image
                 src={student.avatarUrl || '/images/dashboard/ref_avatar.png'}
                 alt={student.name}
+                width={96}
+                height={96}
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/images/dashboard/ref_avatar.png';
-                }}
+                unoptimized={Boolean(student.avatarUrl?.startsWith('data:'))}
               />
             </div>
             <div>

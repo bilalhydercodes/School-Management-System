@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Search, Bell, ChevronDown, Menu, User, Settings, LogOut, Check } from 'lucide-react';
 import type { ChildOption } from './StudentParentDashboardClient';
 
@@ -160,14 +161,14 @@ export default function PortalHeader({
             className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-slate-100/80 hover:shadow-md transition-all text-left"
           >
             {/* Circular Avatar */}
-            <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-200/90 bg-sky-50 shrink-0">
-              <img
+            <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-200/90 bg-sky-50 shrink-0 relative">
+              <Image
                 src={avatarUrl || '/images/dashboard/ref_avatar.png'}
                 alt={studentName}
+                width={36}
+                height={36}
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/images/dashboard/ref_avatar.png';
-                }}
+                unoptimized={Boolean(avatarUrl?.startsWith('data:'))}
               />
             </div>
             {/* Student Name & Class */}

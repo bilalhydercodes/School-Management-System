@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Image from 'next/image';
 import {
   Calendar,
   Plus,
@@ -296,10 +297,13 @@ export default function EventsManagerClient({ initialEvents }: EventsManagerClie
                 {/* Event Image Banner if available */}
                 {event.imageUrl ? (
                   <div className="w-full h-36 bg-slate-100 overflow-hidden relative border-b border-slate-100">
-                    <img
+                    <Image
                       src={event.imageUrl}
                       alt={event.title}
+                      width={400}
+                      height={144}
                       className="w-full h-full object-cover"
+                      unoptimized={Boolean(event.imageUrl.startsWith('data:'))}
                     />
                   </div>
                 ) : (

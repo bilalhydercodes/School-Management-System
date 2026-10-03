@@ -37,7 +37,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', "Helvetica", "Arial", "sans-serif"],
+        sans: ['var(--font-plus-jakarta-sans)', '"Plus Jakarta Sans"', "Helvetica", "Arial", "sans-serif"],
       },
       borderRadius: {
         sm: "6px",
