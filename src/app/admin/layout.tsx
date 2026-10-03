@@ -48,7 +48,7 @@ export default async function AdminLayout({
       : null,
   ]);
 
-  const schoolName = tenant?.name || 'Sunrise Public School';
+  const schoolName = tenant?.name || 'Alpha Edu Hub';
   const board = tenant?.board || 'CBSE';
   const academicYearName = academicYear?.name || '2026-27';
   const adminName = user

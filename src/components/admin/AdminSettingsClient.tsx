@@ -368,7 +368,7 @@ export default function AdminSettingsClient({
               Visual Identity & UI Design Language
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              The unified design system established by the Sunrise Public School Admin Dashboard.
+              The unified design system established by the Alpha Edu Hub Admin Dashboard.
             </p>
           </div>
 

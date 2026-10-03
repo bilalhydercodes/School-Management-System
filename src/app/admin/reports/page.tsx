@@ -61,7 +61,7 @@ export default async function AdminReportsPage() {
       }),
     ]);
 
-  const schoolName = tenant?.name || 'Sunrise Public School';
+  const schoolName = tenant?.name || 'Alpha Edu Hub';
 
   // Compute fee metrics
   const totalBilled = feeInvoices.reduce((acc, inv) => acc + Number(inv.totalAmount), 0);

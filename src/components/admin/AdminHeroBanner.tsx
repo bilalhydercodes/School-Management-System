@@ -12,7 +12,7 @@ interface AdminHeroBannerProps {
 
 export default function AdminHeroBanner({
   adminName = 'Admin',
-  schoolName = 'Sunrise Public School',
+  schoolName = 'Alpha Edu Hub',
   tagline = 'Manage · Monitor · Build a Better Learning Experience',
 }: AdminHeroBannerProps) {
   return (

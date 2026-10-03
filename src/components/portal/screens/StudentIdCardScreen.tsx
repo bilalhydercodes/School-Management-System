@@ -64,7 +64,7 @@ export default function StudentIdCardScreen({
               <SchoolLogo size={38} />
               <div>
                 <h2 className="text-sm font-bold text-slate-900 leading-tight">
-                  Sunrise Public School
+                  Alpha Edu Hub
                 </h2>
                 <p className="text-[10px] text-slate-500 font-medium">
                   CBSE Affiliated No. 1030482 • New Delhi
@@ -148,7 +148,7 @@ export default function StudentIdCardScreen({
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>Valid through March 31, 2027</span>
             </div>
-            <span className="text-slate-400 text-[10px]">Property of Sunrise Public School</span>
+            <span className="text-slate-400 text-[10px]">Property of Alpha Edu Hub</span>
           </div>
         </div>
 

@@ -64,7 +64,7 @@ export default async function AdminExamsPage() {
     }),
   ]);
 
-  const schoolName = tenant?.name || 'Sunrise Public School';
+  const schoolName = tenant?.name || 'Alpha Edu Hub';
 
   // Standard terms fallback if empty
   const terms: ExamTermItem[] =

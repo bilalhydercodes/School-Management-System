@@ -79,7 +79,7 @@ export default function DashboardScreen({
         <div className="relative w-full md:w-auto h-28 sm:h-32 flex items-center justify-end z-0">
           <img
             src="/images/dashboard/ref_school_hero_clean.png"
-            alt="Sunrise Public School Campus"
+            alt="Alpha Edu Hub Campus"
             className="h-full object-contain rounded-r-2xl select-none pointer-events-none"
           />
         </div>

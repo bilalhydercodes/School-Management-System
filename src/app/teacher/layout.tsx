@@ -7,7 +7,7 @@ import { TeacherHeader } from '@/components/teacher/TeacherHeader';
 import { prisma } from '@/lib/db';
 
 export const metadata = {
-  title: 'Teacher Portal | Sunrise Public School',
+  title: 'Teacher Portal | Alpha Edu Hub',
   description: 'Faculty workspace and management system',
 };
 
@@ -80,7 +80,7 @@ export default async function TeacherPortalLayout({
       <div className="max-w-[1536px] mx-auto flex gap-4 min-h-[calc(100vh-32px)]">
         {/* Persistent Floating Left Sidebar */}
         <TeacherSidebar
-          schoolName="Sunrise Public School"
+          schoolName="Alpha Edu Hub"
           tagline="Learn · Grow · Excel"
         />
 

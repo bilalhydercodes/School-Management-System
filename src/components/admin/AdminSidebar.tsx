@@ -98,8 +98,8 @@ const navSections: NavSection[] = [
 export default function AdminSidebar({
   isOpen,
   onClose,
-  schoolName = 'Sunrise Public School',
-  tagline = 'Learn · Grow · Excel',
+  schoolName = 'Alpha Edu Hub',
+  tagline = 'Next-Gen School ERP',
 }: AdminSidebarProps) {
   const pathname = usePathname();
 

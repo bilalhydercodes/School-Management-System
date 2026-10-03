@@ -96,7 +96,7 @@ export default function AdminExamsClient({
   schedules: initialSchedules,
   sampleReportCards,
   gradeScales,
-  schoolName = 'Sunrise Public School',
+  schoolName = 'Alpha Edu Hub',
 }: AdminExamsClientProps) {
   const [activeTab, setActiveTab] = useState<'SCHEDULES' | 'REPORT_CARDS' | 'GRADING'>('SCHEDULES');
   const [selectedTermId, setSelectedTermId] = useState<string>(terms[0]?.id || 'ALL');

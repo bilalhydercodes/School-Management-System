@@ -43,7 +43,7 @@ export default function PortalSidebar({
           </div>
           <div className="overflow-hidden">
             <h1 className="text-sm font-bold text-slate-900 tracking-tight leading-tight truncate">
-              Sunrise Public School
+              Alpha Edu Hub
             </h1>
             <p className="text-[10px] font-medium text-slate-400 tracking-wide mt-0.5 truncate">
               Learn &nbsp;·&nbsp; Grow &nbsp;·&nbsp; Excel

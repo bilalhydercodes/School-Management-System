@@ -37,10 +37,10 @@ export default async function AdminSettingsPage() {
 
   return (
     <AdminSettingsClient
-      schoolName={tenant?.name || 'Sunrise Public School'}
-      tagline={tenant?.branding?.tagline || 'Learn · Grow · Excel'}
+      schoolName={tenant?.name || 'Alpha Edu Hub'}
+      tagline={tenant?.branding?.tagline || 'Next-Gen School ERP Platform'}
       board={tenant?.board || 'CBSE'}
-      email={tenant?.email || 'admin@sunrisepublic.edu.in'}
+      email={tenant?.email || 'admin@alphaeduhub.in'}
       phone={tenant?.phone || '+91 98765 43210'}
       address={tenant?.address || 'Sector 14, Institutional Area'}
       city={tenant?.city || 'New Delhi'}

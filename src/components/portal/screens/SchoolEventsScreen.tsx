@@ -18,7 +18,7 @@ interface SchoolEventsScreenProps {
 }
 
 const FALLBACK_EVENTS = [
-  { id: '1', title: 'Annual Inter-School Sports Meet & Track Trials', description: 'Selection rounds for 100m, 400m, long jump, and relay teams representing Sunrise Public School.', eventDate: '10 Oct 2026', eventTime: '08:00 AM - 02:00 PM', location: 'Main Athletics Ground', category: 'Sports' },
+  { id: '1', title: 'Annual Inter-School Sports Meet & Track Trials', description: 'Selection rounds for 100m, 400m, long jump, and relay teams representing Alpha Edu Hub.', eventDate: '10 Oct 2026', eventTime: '08:00 AM - 02:00 PM', location: 'Main Athletics Ground', category: 'Sports' },
   { id: '2', title: 'National Science & Robotics Exhibition 2026', description: 'Working prototype display by middle and senior wing students. Judged by senior scientists and engineers.', eventDate: '25 Oct 2026', eventTime: '09:30 AM - 03:30 PM', location: 'Main Auditorium & STEM Labs', category: 'Academic' },
   { id: '3', title: 'Parent-Teacher Meeting (Term 1 Assessment Review)', description: 'One-on-one consultation with subject faculty and class mentors to discuss academic growth.', eventDate: '31 Oct 2026', eventTime: '08:30 AM - 01:30 PM', location: 'Senior Wing Classrooms', category: 'Administrative' },
   { id: '4', title: 'Annual Cultural Fest: Tarangini 2026', description: 'Inter-house music, dance, theatrical drama, and visual arts performances.', eventDate: '14 Nov 2026', eventTime: '10:00 AM - 05:00 PM', location: 'Open Air Amphitheatre', category: 'Cultural' },

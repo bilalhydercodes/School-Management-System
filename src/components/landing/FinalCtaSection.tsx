@@ -21,7 +21,7 @@ export default function FinalCtaSection() {
                 Ready to Transform Your School?
               </h2>
               <p className="mt-2 text-[14.5px] sm:text-[16px] text-blue-100 font-medium leading-relaxed">
-                Join hundreds of schools already using Sunrise Public School.
+                Join hundreds of schools already using Alpha Edu Hub.
               </p>
             </div>
 

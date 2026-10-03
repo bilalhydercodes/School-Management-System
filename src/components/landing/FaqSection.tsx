@@ -14,7 +14,7 @@ const leftFaqs: FAQ[] = [
     id: 'faq-1',
     question: 'Is the software easy to use?',
     answer:
-      'Yes, Sunrise Public School ERP is designed with an intuitive, clean interface for administrators, teachers, parents, and students. Most schools get up and running with minimal training.',
+      'Yes, Alpha Edu Hub ERP is designed with an intuitive, clean interface for administrators, teachers, parents, and students. Most schools get up and running with minimal training.',
   },
   {
     id: 'faq-2',

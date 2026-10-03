@@ -16,7 +16,7 @@ export default function SchoolLogo({ className = '', size = 42 }: SchoolLogoProp
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`shrink-0 ${className}`}
-      aria-label="Sunrise Public School Logo"
+      aria-label="Alpha Edu Hub Logo"
     >
       <defs>
         <linearGradient id="logoLeftGrad" x1="4" y1="8" x2="22" y2="40" gradientUnits="userSpaceOnUse">

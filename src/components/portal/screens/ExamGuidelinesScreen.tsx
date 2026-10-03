@@ -132,7 +132,7 @@ export default function ExamGuidelinesScreen({
 
           <div className="space-y-2.5 text-xs text-slate-600">
             <p>
-              Sunrise Public School enforces a strict zero-tolerance policy towards academic dishonesty and unfair means (UFM).
+              Alpha Edu Hub enforces a strict zero-tolerance policy towards academic dishonesty and unfair means (UFM).
             </p>
             <p>
               Any attempt to communicate, swap question papers, glance at neighboring desks, or possess prohibited items will result in immediate disqualification and disciplinary board referral.

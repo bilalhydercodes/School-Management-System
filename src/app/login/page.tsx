@@ -187,11 +187,11 @@ function LoginForm() {
             backgroundPosition: '0 0',
             backgroundRepeat: 'no-repeat',
           }}
-          aria-label="Sunrise Public School Overview"
+          aria-label="Alpha Edu Hub Overview"
         >
           <div className="sr-only">
-            <h1>Sunrise Public School</h1>
-            <p>Learn · Grow · Excel</p>
+            <h1>Alpha Edu Hub</h1>
+            <p>Next-Gen School ERP · Manage · Grow · Excel</p>
             <h2>Empowering Brighter Tomorrows</h2>
             <p>A simple, unified platform to manage students, classes, teachers and school operations.</p>
           </div>
@@ -231,7 +231,7 @@ function LoginForm() {
                     marginTop: '8px',
                   }}
                 >
-                  Sign in to your Sunrise Public School account
+                  Sign in to your Alpha Edu Hub account
                 </p>
 
                 {errorMessage && (

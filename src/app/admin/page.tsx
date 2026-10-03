@@ -198,7 +198,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminDashboardClient
-      schoolName={tenant?.name || 'Sunrise Public School'}
+      schoolName={tenant?.name || 'Alpha Edu Hub'}
       board={tenant?.board || 'CBSE'}
       metrics={{
         totalStudents,

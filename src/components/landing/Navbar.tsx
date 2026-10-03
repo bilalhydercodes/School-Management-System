@@ -33,10 +33,10 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="text-[15px] font-bold text-slate-900 tracking-tight leading-tight group-hover:text-blue-600 transition-colors">
-                Sunrise Public School
+                Alpha Edu Hub
               </span>
               <span className="text-[11px] font-medium text-slate-400 tracking-wide">
-                Learn • Grow • Excel
+                Next-Gen School ERP Platform
               </span>
             </div>
           </Link>

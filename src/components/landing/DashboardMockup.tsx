@@ -49,10 +49,10 @@ export default function DashboardMockup() {
               </div>
               <div className="overflow-hidden">
                 <div className="text-[11px] font-bold text-slate-900 truncate leading-tight">
-                  Sunrise Public School
+                  Alpha Edu Hub
                 </div>
                 <div className="text-[9px] text-slate-400 font-medium truncate">
-                  Learn • Grow • Excel
+                  Next-Gen School ERP
                 </div>
               </div>
             </div>

@@ -28,7 +28,7 @@ interface TeacherSidebarProps {
 }
 
 export function TeacherSidebar({
-  schoolName = 'Sunrise Public School',
+  schoolName = 'Alpha Edu Hub',
   tagline = 'Learn · Grow · Excel',
 }: TeacherSidebarProps) {
   const pathname = usePathname();

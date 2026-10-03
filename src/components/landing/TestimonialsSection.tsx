@@ -12,7 +12,7 @@ const testimonials: Testimonial[] = [
   {
     id: 'sharma',
     quote:
-      '“Sunrise has completely transformed how we manage our school. It’s simple, powerful and reliable.”',
+      '“Alpha Edu Hub has completely transformed how we manage our school. It’s simple, powerful and reliable.”',
     name: 'Principal Sharma',
     institution: 'Green Valley School',
     avatarVector: (

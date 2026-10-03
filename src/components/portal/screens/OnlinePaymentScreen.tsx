@@ -186,7 +186,7 @@ export default function OnlinePaymentScreen({
         key: orderRes.keyId,
         amount: orderRes.amountInPaise,
         currency: 'INR',
-        name: 'Sunrise Public School',
+        name: 'Alpha Edu Hub',
         description: `${selectedFeeHead} - ${student.name} (${student.className}-${student.sectionName})`,
         image: '/images/dashboard/ref_avatar.png',
         order_id: orderRes.orderId,
@@ -757,7 +757,7 @@ export default function OnlinePaymentScreen({
                   <span className="font-black tracking-wider text-[#3395FF] text-sm">RAZORPAY</span>
                   <span className="text-[10px] text-slate-300 font-mono">SECURE</span>
                 </div>
-                <h3 className="text-sm font-bold text-white mt-1">Sunrise Public School</h3>
+                <h3 className="text-sm font-bold text-white mt-1">Alpha Edu Hub</h3>
                 <p className="text-[11px] text-slate-300">{selectedFeeHead}</p>
               </div>
               <div className="text-right">

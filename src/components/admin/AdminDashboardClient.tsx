@@ -60,7 +60,7 @@ export interface AdminDashboardClientProps {
 }
 
 export default function AdminDashboardClient({
-  schoolName = 'Sunrise Public School',
+  schoolName = 'Alpha Edu Hub',
   board = 'CBSE',
   metrics,
   unsubmittedSections,
