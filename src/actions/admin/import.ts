@@ -138,15 +138,29 @@ export async function generateTeacherTemplateAction(): Promise<{
   }
 }
 
+const MAX_IMPORT_BATCH_SIZE = 50;
+
 /**
  * P1-3 & P2-1 REMEDIATION:
  * 1. Preloads tenant records to eliminate N+1 database queries.
  * 2. Generates unique, secure temporary passwords per user instead of predictable universal passwords.
+ * 3. Enforces MAX_IMPORT_BATCH_SIZE (50) to prevent event loop blocking and DoS.
  */
 export async function importStudentsBatchAction(rows: Array<Record<string, unknown>>) {
   const guard = await requireAuthGuard([Role.ADMIN, Role.SUPER_ADMIN]);
   if (!guard.success) {
     return { success: false, error: guard.error };
+  }
+
+  if (!rows || rows.length === 0) {
+    return { success: false, error: 'No data rows provided in import batch.' };
+  }
+
+  if (rows.length > MAX_IMPORT_BATCH_SIZE) {
+    return {
+      success: false,
+      error: `Batch size limit exceeded. Maximum ${MAX_IMPORT_BATCH_SIZE} rows allowed per import request to prevent system timeout.`,
+    };
   }
 
   const { context } = guard;
@@ -370,6 +384,17 @@ export async function importTeachersBatchAction(rows: Array<Record<string, unkno
   const guard = await requireAuthGuard([Role.ADMIN, Role.SUPER_ADMIN]);
   if (!guard.success) {
     return { success: false, error: guard.error };
+  }
+
+  if (!rows || rows.length === 0) {
+    return { success: false, error: 'No data rows provided in import batch.' };
+  }
+
+  if (rows.length > MAX_IMPORT_BATCH_SIZE) {
+    return {
+      success: false,
+      error: `Batch size limit exceeded. Maximum ${MAX_IMPORT_BATCH_SIZE} rows allowed per import request to prevent system timeout.`,
+    };
   }
 
   const { context } = guard;

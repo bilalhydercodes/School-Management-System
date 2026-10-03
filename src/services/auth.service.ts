@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { redis } from '@/lib/redis';
 import { createSessionToken } from '@/lib/jwt';
 import { rateLimit } from '@/lib/rate-limit';
+import { sendPasswordResetOtpEmail, sendSmsOtp } from '@/lib/email';
 import type { LoginInput } from '@/lib/validations/auth';
 import type { RoleType, UserSession } from '@/types';
 
@@ -320,13 +321,37 @@ export class AuthService {
       });
     }
 
-    // 4. Secure Delivery: NEVER log OTP to stdout in production!
+    // 4. Secure Delivery: Dispatch via Email/SMS transport provider
+    let tenantName = 'School Management System';
+    if (user.tenantId) {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: user.tenantId },
+        select: { name: true },
+      });
+      if (tenant?.name) {
+        tenantName = tenant.name;
+      }
+    }
+
+    // Fire email dispatch
+    await sendPasswordResetOtpEmail({
+      to: normalizedEmail,
+      otp,
+      tenantName,
+      recipientName: `${user.firstName} ${user.lastName}`.trim() || 'User',
+    });
+
+    // Fire SMS dispatch if phone number is present on profile
+    if (user.phone) {
+      await sendSmsOtp({
+        phone: user.phone,
+        otp,
+        tenantName,
+      });
+    }
+
     if (process.env.NODE_ENV === 'development') {
       console.log(`[DEV-ONLY-AUTH] Password reset OTP generated for: ${normalizedEmail} (Code: ${otp})`);
-    } else {
-      // In production, dispatch via messaging provider (e.g. SMS/WhatsApp/Email)
-      // If no messaging provider is configured, log an operational alert without exposing the OTP secret
-      console.info(`[AUTH-EVENT] Password reset OTP dispatched for account ${normalizedEmail.slice(0, 3)}***@***`);
     }
 
     return {
