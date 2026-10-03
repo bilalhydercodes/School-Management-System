@@ -1,10 +1,13 @@
-import React from 'react';
+import { redirect } from 'next/navigation';
 import { getSessionFromCookies } from '@/lib/session';
 import { prisma } from '@/lib/db';
 import { TeacherDashboardView } from '@/components/teacher/TeacherDashboardView';
 
 export default async function TeacherDashboardPage() {
   const session = await getSessionFromCookies();
+  if (!session) {
+    redirect('/login?redirect=/teacher');
+  }
 
   const today = new Date();
   const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());

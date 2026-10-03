@@ -1,4 +1,3 @@
-import { getSessionFromCookies, getRoleDefaultPath } from '@/lib/session';
 import LandingPage from '@/components/landing/LandingPage';
 import { prisma } from '@/lib/db';
 
@@ -52,9 +51,6 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const session = await getSessionFromCookies();
-  const dashboardHref = session ? getRoleDefaultPath(session.role) : undefined;
-
   let stats = {
     schools: 1,
     students: 5,
@@ -79,5 +75,5 @@ export default async function HomePage() {
     console.error('Failed to query live landing stats:', error);
   }
 
-  return <LandingPage dashboardHref={dashboardHref} stats={stats} />;
+  return <LandingPage stats={stats} />;
 }

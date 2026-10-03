@@ -11,15 +11,14 @@ import FaqSection from './FaqSection';
 import FinalCtaSection from './FinalCtaSection';
 
 export interface LandingPageProps {
-  dashboardHref?: string;
   stats?: CommunityStatsProps;
 }
 
-export default function LandingPage({ dashboardHref, stats }: LandingPageProps) {
+export default function LandingPage({ stats }: LandingPageProps) {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
       {/* 1. Header / Navigation */}
-      <Navbar dashboardHref={dashboardHref} />
+      <Navbar />
 
       <main className="flex-1">
         {/* 2. Hero Section */}
