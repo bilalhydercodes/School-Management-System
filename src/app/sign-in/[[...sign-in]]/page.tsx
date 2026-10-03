@@ -27,11 +27,13 @@ export default function SignInPage() {
               card: 'shadow-none border-0 p-0',
               headerTitle: 'text-lg font-bold text-slate-900',
               headerSubtitle: 'text-xs text-slate-500',
+              footerAction: 'hidden', // Completely hide "Don't have an account? Sign up"
+              footer: 'hidden',
             },
           }}
           routing="path"
           path="/sign-in"
-          signUpUrl="/sign-up"
+          signUpUrl={undefined}
         />
       </div>
     </div>
