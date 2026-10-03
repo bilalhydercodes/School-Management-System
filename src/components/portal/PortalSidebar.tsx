@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { ChevronRight, HelpCircle } from 'lucide-react';
 import SchoolLogo from './SchoolLogo';
 import { PORTAL_NAV_SECTIONS, type PortalNavItem } from './navigationData';
@@ -37,19 +38,23 @@ export default function PortalSidebar({
         }`}
       >
         {/* Top School Branding */}
-        <div className="p-4 pb-3 border-b border-slate-100/80 flex items-center gap-3">
-          <div className="shrink-0 p-1 bg-sky-50/60 rounded-xl">
+        <Link
+          href="/"
+          className="p-4 pb-3 border-b border-slate-100/80 flex items-center gap-3 group transition-opacity hover:opacity-90"
+          title="Return to Public Dashboard"
+        >
+          <div className="shrink-0 p-1 bg-sky-50/60 rounded-xl group-hover:scale-105 transition-transform duration-200">
             <SchoolLogo size={36} />
           </div>
           <div className="overflow-hidden">
-            <h1 className="text-sm font-bold text-slate-900 tracking-tight leading-tight truncate">
+            <h1 className="text-sm font-bold text-slate-900 tracking-tight leading-tight truncate group-hover:text-blue-600 transition-colors">
               Alpha Edu Hub
             </h1>
             <p className="text-[10px] font-medium text-slate-400 tracking-wide mt-0.5 truncate">
               Learn &nbsp;·&nbsp; Grow &nbsp;·&nbsp; Excel
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation List (Scrollable) */}
         <div className="flex-1 overflow-y-auto px-3 py-2 space-y-4 text-xs select-none">

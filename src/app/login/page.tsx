@@ -232,8 +232,8 @@ function LoginForm() {
 
         {/* MOBILE BRAND HEADER — only shown on mobile/tablet */}
         <div className="lg:hidden bg-gradient-to-br from-[#0C8CFE] to-[#0066CC] px-6 pt-8 pb-6 text-white">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs">
+          <Link href="/" className="flex items-center gap-3 mb-2 group inline-flex transition-opacity hover:opacity-90" title="Return to Public Dashboard">
+            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs group-hover:scale-105 transition-transform">
               <Image
                 src="/images/dashboard/logo_transparent_bg.png"
                 alt="Alpha Edu Hub"
@@ -247,7 +247,7 @@ function LoginForm() {
               <h1 className="text-lg font-bold tracking-tight">Alpha Edu Hub</h1>
               <p className="text-xs text-white/70 font-medium">Next-Gen School ERP</p>
             </div>
-          </div>
+          </Link>
           <p className="text-sm text-white/80 leading-snug">
             Manage · Grow · Excel — Your unified school platform
           </p>

@@ -109,8 +109,12 @@ export function TeacherSidebar({
         <div className="flex flex-col min-h-0 flex-1">
           {/* Brand Header */}
           <div className="flex items-center justify-between px-2 pt-1 pb-4 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50/80 border border-blue-100/80 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs">
+            <Link
+              href="/"
+              className="flex items-center gap-3 group transition-opacity hover:opacity-90"
+              title="Return to Public Dashboard"
+            >
+              <div className="w-10 h-10 rounded-xl bg-blue-50/80 border border-blue-100/80 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs group-hover:scale-105 transition-transform duration-200">
                 <Image
                   src="/images/dashboard/logo_transparent_bg.png"
                   alt="Alpha Edu Hub"
@@ -121,14 +125,14 @@ export function TeacherSidebar({
                 />
               </div>
               <div className="min-w-0">
-                <h1 className="text-[14.5px] font-bold text-[#102A56] leading-tight truncate">
+                <h1 className="text-[14.5px] font-bold text-[#102A56] leading-tight truncate group-hover:text-blue-600 transition-colors">
                   {schoolName}
                 </h1>
                 <p className="text-[11px] font-medium text-[#64748B] mt-0.5 tracking-wide truncate">
                   {tagline}
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Mobile Close Button */}
             <button

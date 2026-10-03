@@ -94,8 +94,12 @@ export default function SuperAdminSidebar({
       >
         {/* Brand & Platform Identity Header */}
         <div className="p-6 border-b border-slate-800/80 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs">
+          <Link
+            href="/"
+            className="flex items-center gap-3 group transition-opacity hover:opacity-90"
+            title="Return to Public Dashboard"
+          >
+            <div className="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs group-hover:scale-105 transition-transform duration-200">
               <Image
                 src="/images/dashboard/logo_transparent_bg.png"
                 alt="Alpha Edu Hub"
@@ -107,14 +111,14 @@ export default function SuperAdminSidebar({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-sm font-extrabold text-white tracking-tight">SchoolERP SaaS</span>
+                <span className="text-sm font-extrabold text-white tracking-tight group-hover:text-purple-300 transition-colors">SchoolERP SaaS</span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 font-bold px-1.5 py-0.5 rounded border border-purple-500/30">
                   ROOT
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-medium">Platform Super Admin</p>
             </div>
-          </div>
+          </Link>
 
           <button
             onClick={onClose}

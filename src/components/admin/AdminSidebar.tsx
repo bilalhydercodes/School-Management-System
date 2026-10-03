@@ -142,10 +142,11 @@ export default function AdminSidebar({
         {/* Top Branding Section */}
         <div className="pt-5 px-5 pb-3 flex items-center justify-between">
           <Link
-            href="/admin"
+            href="/"
             prefetch={true}
-            onClick={() => handleLinkClick('/admin')}
-            className="flex items-center gap-3 group"
+            onClick={() => handleLinkClick('/')}
+            className="flex items-center gap-3 group transition-opacity hover:opacity-90"
+            title="Return to Public Dashboard"
           >
             <SchoolLogo size={42} />
             <div className="min-w-0">
