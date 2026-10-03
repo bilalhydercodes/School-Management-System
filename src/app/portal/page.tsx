@@ -405,11 +405,18 @@ export default async function PortalPage({ searchParams }: PageProps) {
         ];
 
   // 9. Institutional Authorities / Emergency Directory
-  const dbContacts = await prisma.emergencyContact.findMany({
-    where: { tenantId: targetStudent.tenantId },
-    orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
-    take: 8,
-  });
+  let dbContacts: any[] = [];
+  try {
+    if (prisma.emergencyContact) {
+      dbContacts = await prisma.emergencyContact.findMany({
+        where: { tenantId: targetStudent.tenantId },
+        orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+        take: 8,
+      });
+    }
+  } catch (_e) {
+    dbContacts = [];
+  }
 
   const defaultFaculty = [
     {
@@ -447,7 +454,7 @@ export default async function PortalPage({ searchParams }: PageProps) {
   ];
 
   const faculty =
-    dbContacts.length > 0
+    dbContacts && dbContacts.length > 0
       ? dbContacts.map((c) => ({
           id: c.id,
           roleBadge: c.category,
@@ -460,28 +467,47 @@ export default async function PortalPage({ searchParams }: PageProps) {
       : defaultFaculty;
 
   // 10. Query Published Events & Calendar Holidays
-  const [dbEvents, dbHolidays, unreadNotificationsCount] = await Promise.all([
-    prisma.event.findMany({
-      where: {
-        tenantId: targetStudent.tenantId,
-        isPublished: true,
-      },
-      orderBy: { eventDate: 'asc' },
-      take: 6,
-    }),
-    prisma.holiday.findMany({
-      where: { tenantId: targetStudent.tenantId },
-      orderBy: { date: 'asc' },
-      take: 6,
-    }),
-    prisma.notification.count({
-      where: {
-        tenantId: targetStudent.tenantId,
-        recipientId: currentUser.id,
-        isRead: false,
-      },
-    }),
-  ]);
+  let dbEvents: any[] = [];
+  let dbHolidays: any[] = [];
+  let unreadNotificationsCount = 0;
+
+  try {
+    const [eventsRes, holidaysRes, notifCount] = await Promise.all([
+      prisma.event
+        ? prisma.event.findMany({
+            where: {
+              tenantId: targetStudent.tenantId,
+              isPublished: true,
+            },
+            orderBy: { eventDate: 'asc' },
+            take: 6,
+          })
+        : Promise.resolve([]),
+      prisma.holiday
+        ? prisma.holiday.findMany({
+            where: { tenantId: targetStudent.tenantId },
+            orderBy: { date: 'asc' },
+            take: 6,
+          })
+        : Promise.resolve([]),
+      prisma.notification
+        ? prisma.notification.count({
+            where: {
+              tenantId: targetStudent.tenantId,
+              recipientId: currentUser.id,
+              isRead: false,
+            },
+          })
+        : Promise.resolve(0),
+    ]);
+    dbEvents = eventsRes || [];
+    dbHolidays = holidaysRes || [];
+    unreadNotificationsCount = notifCount || 0;
+  } catch (_e) {
+    dbEvents = [];
+    dbHolidays = [];
+    unreadNotificationsCount = 0;
+  }
 
   const events = dbEvents.map((e) => ({
     id: e.id,
