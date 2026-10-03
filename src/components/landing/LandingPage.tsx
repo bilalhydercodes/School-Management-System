@@ -10,11 +10,15 @@ import TestimonialsSection from './TestimonialsSection';
 import FaqSection from './FaqSection';
 import FinalCtaSection from './FinalCtaSection';
 
-export default function LandingPage() {
+interface LandingPageProps {
+  dashboardHref?: string;
+}
+
+export default function LandingPage({ dashboardHref }: LandingPageProps) {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
       {/* 1. Header / Navigation */}
-      <Navbar />
+      <Navbar dashboardHref={dashboardHref} />
 
       <main className="flex-1">
         {/* 2. Hero Section */}

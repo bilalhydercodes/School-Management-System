@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { getSessionFromCookies, getRoleDefaultPath } from '@/lib/session';
 import LandingPage from '@/components/landing/LandingPage';
 
@@ -51,9 +50,7 @@ export const metadata = {
 
 export default async function HomePage() {
   const session = await getSessionFromCookies();
-  if (session) {
-    redirect(getRoleDefaultPath(session.role));
-  }
-  return <LandingPage />;
+  const dashboardHref = session ? getRoleDefaultPath(session.role) : undefined;
+  return <LandingPage dashboardHref={dashboardHref} />;
 }
 

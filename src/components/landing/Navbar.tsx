@@ -6,7 +6,11 @@ import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import GetStartedButton from './GetStartedButton';
 
-export default function Navbar() {
+interface NavbarProps {
+  dashboardHref?: string;
+}
+
+export default function Navbar({ dashboardHref }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -58,10 +62,19 @@ export default function Navbar() {
           </nav>
 
           {/* Action CTA Button */}
-          <div className="hidden md:flex items-center">
-            <GetStartedButton className="inline-flex items-center justify-center px-5 py-2 text-[13.5px] font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-[0_2px_8px_rgba(37,99,235,0.25)] hover:shadow-[0_4px_12px_rgba(37,99,235,0.35)] transition-all duration-150 cursor-pointer">
-              Get Started
-            </GetStartedButton>
+          <div className="hidden md:flex items-center gap-3">
+            {dashboardHref ? (
+              <Link
+                href={dashboardHref}
+                className="inline-flex items-center justify-center px-5 py-2 text-[13.5px] font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-[0_2px_8px_rgba(37,99,235,0.25)] hover:shadow-[0_4px_12px_rgba(37,99,235,0.35)] transition-all duration-150 cursor-pointer"
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <GetStartedButton className="inline-flex items-center justify-center px-5 py-2 text-[13.5px] font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-[0_2px_8px_rgba(37,99,235,0.25)] hover:shadow-[0_4px_12px_rgba(37,99,235,0.35)] transition-all duration-150 cursor-pointer">
+                Get Started
+              </GetStartedButton>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -92,12 +105,22 @@ export default function Navbar() {
             </a>
           ))}
           <div className="pt-2">
-            <GetStartedButton
-              className="block w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm cursor-pointer"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Get Started
-            </GetStartedButton>
+            {dashboardHref ? (
+              <Link
+                href={dashboardHref}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm cursor-pointer"
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <GetStartedButton
+                className="block w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm cursor-pointer"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Get Started
+              </GetStartedButton>
+            )}
           </div>
         </div>
       )}
