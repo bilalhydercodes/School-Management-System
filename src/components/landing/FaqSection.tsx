@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Plus, Minus } from 'lucide-react';
 
 interface FAQ {
@@ -109,12 +110,12 @@ export default function FaqSection() {
             </p>
           </div>
           <div>
-            <a
-              href="#faq"
+            <Link
+              href="/faq"
               className="inline-flex items-center justify-center px-4 py-2 text-[13.5px] font-semibold text-[#1d8cfd] bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
             >
               View All FAQs
-            </a>
+            </Link>
           </div>
         </div>
 

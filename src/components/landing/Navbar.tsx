@@ -10,12 +10,12 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { label: 'Features', href: '#features' },
-    { label: 'Why Us', href: '#why-us' },
-    { label: 'Modules', href: '#modules' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'Testimonials', href: '#testimonials' },
-    { label: 'FAQ', href: '#faq' },
+    { label: 'Features', href: '/features' },
+    { label: 'Why Us', href: '/why-us' },
+    { label: 'Modules', href: '/modules' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Testimonials', href: '/testimonials' },
+    { label: 'FAQ', href: '/faq' },
   ];
 
   return (
@@ -44,16 +44,16 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-7 lg:gap-8">
+          {/* Desktop Navigation Links (Clean Next.js Link routes without hash) */}
+          <nav className="hidden md:flex items-center gap-7 lg:gap-8" aria-label="Main Navigation">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 className="text-[13.5px] font-medium text-slate-600 hover:text-blue-600 transition-colors"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -82,14 +82,14 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2 animate-in fade-in slide-in-from-top-2 duration-150">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.label}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
           <div className="pt-2">
             <GetStartedButton

@@ -14,27 +14,27 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   const productLinks = [
-    { label: 'Platform Features', href: '/#features' },
-    { label: 'Why Alpha Edu Hub', href: '/#why-us' },
-    { label: 'Role Modules', href: '/#modules' },
-    { label: 'Pricing Plans', href: '/#pricing' },
-    { label: 'School Testimonials', href: '/#testimonials' },
-    { label: 'Frequently Asked Questions', href: '/#faq' },
+    { label: 'Platform Features', href: '/features' },
+    { label: 'Why Alpha Edu Hub', href: '/why-us' },
+    { label: 'Role Modules', href: '/modules' },
+    { label: 'Pricing Plans', href: '/pricing' },
+    { label: 'School Testimonials', href: '/testimonials' },
+    { label: 'Frequently Asked Questions', href: '/faq' },
   ];
 
   const moduleLinks = [
-    { label: 'Student Management', href: '/#features' },
-    { label: 'Attendance Tracking', href: '/#features' },
-    { label: 'Fee Management & Invoices', href: '/#features' },
-    { label: 'Exams & Report Cards', href: '/#features' },
-    { label: 'Timetable & Substitutions', href: '/#features' },
-    { label: 'Student & Parent Portals', href: '/#modules' },
+    { label: 'Student Management', href: '/modules' },
+    { label: 'Attendance Tracking', href: '/features' },
+    { label: 'Fee Management & Invoices', href: '/features' },
+    { label: 'Exams & Report Cards', href: '/features' },
+    { label: 'Timetable & Substitutions', href: '/features' },
+    { label: 'Student & Parent Portals', href: '/modules' },
   ];
 
   const companyLinks = [
     { label: 'About Us', href: '/about' },
     { label: 'Contact Support & Sales', href: '/contact' },
-    { label: 'Request White Label Quote', href: '/#pricing' },
+    { label: 'Request White Label Quote', href: '/pricing' },
     { label: 'Teacher Workspace', href: '/login' },
     { label: 'Admin ERP Portal', href: '/login' },
   ];
