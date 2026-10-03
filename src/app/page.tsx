@@ -3,9 +3,12 @@ import { getSessionFromCookies, getRoleDefaultPath } from '@/lib/session';
 import LandingPage from '@/components/landing/LandingPage';
 
 export const metadata = {
-  title: 'Sunrise Public School - Learn • Grow • Excel | School Management System',
+  title: 'Alpha Edu Hub — Next-Gen Multi-Tenant School ERP & Operating System',
   description:
-    'All-in-One School Management for a Brighter Tomorrow. Simplify administration, enhance communication, and create a better learning experience.',
+    'Alpha Edu Hub provides complete school automation for Indian K-12 institutions. Student attendance, CBSE/ICSE curriculum grading, online fee collection, teacher workspaces, and mobile portals.',
+  alternates: {
+    canonical: 'https://alphaeduhub.in',
+  },
 };
 
 export default async function HomePage() {
