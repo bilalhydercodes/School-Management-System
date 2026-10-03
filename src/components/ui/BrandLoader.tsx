@@ -6,7 +6,7 @@ import Image from 'next/image';
 export interface BrandLoaderProps {
   /**
    * Main status message displayed beneath the logo emblem.
-   * @default 'Preparing your workspace...'
+   * @default 'Preparing your workspace'
    */
   message?: string;
   /**
@@ -55,7 +55,7 @@ const sizeConfig = {
 };
 
 export default function BrandLoader({
-  message = 'Preparing your workspace...',
+  message = 'Preparing your workspace',
   sublabel = 'Alpha Edu Hub',
   fullScreen = true,
   className = '',

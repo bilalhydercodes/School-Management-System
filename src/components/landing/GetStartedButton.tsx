@@ -75,7 +75,7 @@ export default function GetStartedButton({
       {/* Loading animation overlay while waiting for login page & images */}
       {isLoading && (
         <BrandLoader
-          message="Opening sign in portal..."
+          message="Opening sign in portal"
           sublabel="Loading Alpha Edu Hub"
           fullScreen
         />
