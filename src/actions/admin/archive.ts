@@ -4,6 +4,7 @@ import { safeRevalidatePath } from '@/lib/revalidate';
 import { prisma } from '@/lib/db';
 import { requireAuthGuard } from '@/lib/auth-guard';
 import { Role } from '@/types';
+import { revokeAllUserSessions } from '@/lib/session-revocation';
 
 export async function archiveStudentsAction(studentProfileIds: string[]) {
   const guard = await requireAuthGuard([Role.ADMIN, Role.SUPER_ADMIN]);
@@ -28,6 +29,9 @@ export async function archiveStudentsAction(studentProfileIds: string[]) {
         deletedAt: new Date(),
       },
     });
+
+    // Immediately revoke all active sessions for deactivated student users
+    await Promise.all(userIds.map((uid) => revokeAllUserSessions(uid)));
 
     await prisma.auditLog.create({
       data: {
@@ -115,6 +119,9 @@ export async function archiveTeacherAction(teacherProfileId: string) {
         deletedAt: new Date(),
       },
     });
+
+    // Immediately revoke all active sessions for deactivated teacher user
+    await revokeAllUserSessions(profile.userId);
 
     await prisma.auditLog.create({
       data: {

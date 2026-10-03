@@ -112,36 +112,13 @@ export class AuthService {
         }
       }
     } else {
+      // Unscoped login is strictly restricted to platform SUPER_ADMIN accounts
       user = await prisma.user.findFirst({
         where: {
           email,
           role: 'SUPER_ADMIN',
         },
       });
-
-      if (!user) {
-        user = await prisma.user.findFirst({
-          where: {
-            email,
-          },
-        });
-      }
-
-      if (!user) {
-        const isNumeric = /^\d+$/.test(email);
-        const student = await prisma.studentProfile.findFirst({
-          where: {
-            OR: [
-              { admissionNumber: { equals: input.email.trim(), mode: 'insensitive' } },
-              ...(isNumeric ? [{ rollNumber: parseInt(email, 10) }] : []),
-            ],
-          },
-          include: { user: true },
-        });
-        if (student?.user) {
-          user = student.user;
-        }
-      }
     }
 
     // 3. Constant-time dummy comparison if user doesn't exist (Prevent timing enumeration)
@@ -305,7 +282,7 @@ export class AuthService {
       });
     } else {
       user = await prisma.user.findFirst({
-        where: { email: normalizedEmail, deletedAt: null, isActive: true },
+        where: { email: normalizedEmail, role: 'SUPER_ADMIN', deletedAt: null, isActive: true },
       });
     }
 
@@ -377,7 +354,7 @@ export class AuthService {
       });
     } else {
       user = await prisma.user.findFirst({
-        where: { email: normalizedEmail, deletedAt: null, isActive: true },
+        where: { email: normalizedEmail, role: 'SUPER_ADMIN', deletedAt: null, isActive: true },
       });
     }
 

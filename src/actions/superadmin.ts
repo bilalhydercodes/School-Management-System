@@ -7,6 +7,7 @@ import { requireAuthGuard } from '@/lib/auth-guard';
 import { Role } from '@/types';
 import { AuthService } from '@/services/auth.service';
 import { SubscriptionStatus } from '@prisma/client';
+import { revokeAllUserSessions } from '@/lib/session-revocation';
 
 // ==========================================
 // SCHEMAS
@@ -310,6 +311,15 @@ export async function toggleTenantStatusAction(rawInput: z.infer<typeof ToggleTe
         newValues: { status: updatedTenant.subscriptionStatus, isActive: updatedTenant.isActive },
       },
     });
+
+    // Immediately invalidate all active sessions for school users if deactivated or suspended
+    if (!isActive || status === 'SUSPENDED' || status === 'CANCELLED' || status === 'EXPIRED') {
+      const tenantUsers = await prisma.user.findMany({
+        where: { tenantId: updatedTenant.id },
+        select: { id: true },
+      });
+      await Promise.all(tenantUsers.map((u) => revokeAllUserSessions(u.id)));
+    }
 
     revalidatePath('/superadmin');
     revalidatePath('/superadmin/tenants');

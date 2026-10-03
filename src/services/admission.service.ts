@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import { processAadhaarForStorage } from '@/lib/aadhaar';
 import bcrypt from 'bcryptjs';
+import { AuthService } from '@/services/auth.service';
 import {
   CreateAdmissionApplicationSchema,
   CreateAdmissionApplicationInput,
@@ -180,7 +181,8 @@ export async function enrollStudentFromApplication(
 
     // 4. Create Student User & Profile
     const defaultStudentEmail = `std.${input.admissionNumber.toLowerCase()}@school.internal`;
-    const defaultPasswordHash = await bcrypt.hash(`Welcome@${input.admissionNumber}`, 10);
+    const tempStudentPassword = AuthService.generateSecureTemporaryPassword();
+    const defaultPasswordHash = await AuthService.hashPassword(tempStudentPassword);
 
     const studentUser = await tx.user.create({
       data: {
@@ -191,6 +193,7 @@ export async function enrollStudentFromApplication(
         lastName: application.studentLastName,
         role: 'STUDENT',
         isActive: true,
+        mustChangePassword: true,
       },
     });
 
@@ -219,7 +222,8 @@ export async function enrollStudentFromApplication(
     });
 
     if (!parentUser) {
-      const parentPasswordHash = await bcrypt.hash(`Parent@${application.parentPhone.slice(-4)}`, 10);
+      const tempParentPassword = AuthService.generateSecureTemporaryPassword();
+      const parentPasswordHash = await AuthService.hashPassword(tempParentPassword);
       parentUser = await tx.user.create({
         data: {
           tenantId,
@@ -230,6 +234,7 @@ export async function enrollStudentFromApplication(
           lastName: '',
           role: 'PARENT',
           isActive: true,
+          mustChangePassword: true,
         },
       });
     }
