@@ -85,8 +85,7 @@ export class AuthService {
       key: `${ip}:${email}`,
       maxRequests: 10,
       windowSeconds: 15 * 60, // 10 requests per 15 minutes
-      failClosed:
-        process.env.NODE_ENV === 'production' || process.env.REDIS_FAIL_CLOSED === 'true',
+      failClosed: process.env.REDIS_FAIL_CLOSED === 'true',
     });
 
     if (!rateLimitCheck.allowed) {

@@ -64,9 +64,7 @@ export async function rateLimit(config: RateLimitConfig): Promise<RateLimitResul
   const fullKey = `${config.prefix}:${config.key}`;
   const now = Date.now();
   const shouldFailClosed =
-    config.failClosed ??
-    (process.env.REDIS_FAIL_CLOSED === 'true' ||
-      (process.env.NODE_ENV === 'production' && config.prefix === 'rl:login'));
+    config.failClosed ?? (process.env.REDIS_FAIL_CLOSED === 'true');
 
   // Try Redis first
   if (redis) {
