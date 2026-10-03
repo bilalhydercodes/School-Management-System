@@ -34,7 +34,8 @@ export default async function AdminDashboardPage() {
     totalTeachers,
     todayAttendanceRecords,
     allAttendanceRecords,
-    feeInvoices,
+    feeAggregates,
+    overdueFeeAggregates,
     activeSubstitutions,
     notices,
     auditLogs,
@@ -57,11 +58,23 @@ export default async function AdminDashboardPage() {
     prisma.studentAttendance.findMany({
       where: { tenantId },
       select: { status: true },
-      take: 200,
+      take: 100,
     }),
-    prisma.feeInvoice.findMany({
+    prisma.feeInvoice.aggregate({
       where: { tenantId },
-      select: { netAmount: true, paidAmount: true, balanceAmount: true, status: true, dueDate: true },
+      _sum: {
+        netAmount: true,
+        paidAmount: true,
+        balanceAmount: true,
+      },
+    }),
+    prisma.feeInvoice.aggregate({
+      where: {
+        tenantId,
+        balanceAmount: { gt: 0 },
+        dueDate: { lt: todayStart },
+      },
+      _sum: { balanceAmount: true },
     }),
     prisma.teacherSubstitution.count({
       where: { tenantId, status: 'ASSIGNED', date: { gte: todayStart, lte: todayEnd } },
@@ -70,6 +83,14 @@ export default async function AdminDashboardPage() {
       where: { tenantId },
       orderBy: { publishedAt: 'desc' },
       take: 6,
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        publishedAt: true,
+        priority: true,
+        targetAudience: true,
+      },
     }),
     prisma.auditLog.findMany({
       where: { tenantId },
@@ -84,7 +105,12 @@ export default async function AdminDashboardPage() {
     prisma.section.findMany({
       where: { tenantId },
       include: {
-        classGrade: true,
+        classGrade: { select: { id: true, name: true } },
+        classTeacher: {
+          include: {
+            user: { select: { firstName: true, lastName: true } },
+          },
+        },
         students: { select: { id: true } },
       },
     }),
@@ -93,22 +119,11 @@ export default async function AdminDashboardPage() {
     }),
   ]);
 
-  // Resolve Class Teachers
-  const teacherIds = sections
-    .map((s) => s.classTeacherId)
-    .filter((id): id is string => Boolean(id));
-
-  const classTeachers =
-    teacherIds.length > 0
-      ? await prisma.teacherProfile.findMany({
-          where: { id: { in: teacherIds } },
-          include: {
-            user: { select: { firstName: true, lastName: true } },
-          },
-        })
-      : [];
-
-  const teacherMap = new Map(classTeachers.map((t) => [t.id, t]));
+  const teacherMap = new Map(
+    sections
+      .filter((s) => s.classTeacher)
+      .map((s) => [s.classTeacher!.id, s.classTeacher!])
+  );
 
   // Attendance metrics calculation (Today's actual attendance)
   const submittedSectionIds = new Set(todayAttendanceRecords.map((r) => r.sectionId));
@@ -125,18 +140,14 @@ export default async function AdminDashboardPage() {
       ? Math.round((allAttendanceRecords.filter((r) => r.status === 'PRESENT').length / allAttendanceRecords.length) * 100)
       : 100;
 
-  // Fee metrics calculation
-  const totalFeeInvoiced = feeInvoices.reduce((sum, inv) => sum + Number(inv.netAmount), 0);
-  const totalFeePaid = feeInvoices.reduce((sum, inv) => sum + Number(inv.paidAmount), 0);
-  const totalFeePending = feeInvoices.reduce((sum, inv) => sum + Number(inv.balanceAmount), 0);
+  // Fee metrics calculation via DB aggregates
+  const totalFeeInvoiced = Number(feeAggregates._sum.netAmount || 0);
+  const totalFeePaid = Number(feeAggregates._sum.paidAmount || 0);
+  const totalFeePending = Number(feeAggregates._sum.balanceAmount || 0);
   const collectionPercentage =
     totalFeeInvoiced > 0 ? Math.round((totalFeePaid / totalFeeInvoiced) * 100) : 0;
 
-  // Overdue fees
-  const overdueInvoices = feeInvoices.filter(
-    (inv) => Number(inv.balanceAmount) > 0 && inv.dueDate && new Date(inv.dueDate) < todayStart
-  );
-  const totalOverdueAmount = overdueInvoices.reduce((sum, inv) => sum + Number(inv.balanceAmount), 0);
+  const totalOverdueAmount = Number(overdueFeeAggregates._sum.balanceAmount || 0);
 
   const formattedNotices = notices.map((n) => ({
     id: n.id,

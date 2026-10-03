@@ -34,18 +34,29 @@ export default async function AdminFeesPage() {
         include: {
           student: {
             include: {
-              user: true,
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                  phone: true,
+                },
+              },
               section: {
-                include: { classGrade: true },
+                include: { classGrade: { select: { id: true, name: true } } },
               },
             },
           },
-          feeTerm: true,
+          feeTerm: {
+            select: { id: true, name: true },
+          },
           items: {
-            include: { feeCategory: true },
+            include: { feeCategory: { select: { id: true, name: true, type: true } } },
           },
         },
         orderBy: { generatedAt: 'desc' },
+        take: 300,
       }),
 
       prisma.feePayment.findMany({
@@ -55,9 +66,15 @@ export default async function AdminFeesPage() {
             include: {
               student: {
                 include: {
-                  user: true,
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
                   section: {
-                    include: { classGrade: true },
+                    include: { classGrade: { select: { id: true, name: true } } },
                   },
                 },
               },
@@ -65,25 +82,42 @@ export default async function AdminFeesPage() {
           },
         },
         orderBy: { createdAt: 'desc' },
-        take: 100,
+        take: 50,
       }),
 
       prisma.studentProfile.findMany({
         where: { tenantId, user: { isActive: true } },
         include: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              phone: true,
+            },
+          },
           section: {
-            include: { classGrade: true },
+            include: { classGrade: { select: { id: true, name: true } } },
           },
           parents: {
             include: {
               parent: {
-                include: { user: true },
+                include: {
+                  user: {
+                    select: {
+                      firstName: true,
+                      lastName: true,
+                      phone: true,
+                    },
+                  },
+                },
               },
             },
           },
         },
         orderBy: { admissionNumber: 'asc' },
+        take: 300,
       }),
 
       prisma.academicYear.findMany({

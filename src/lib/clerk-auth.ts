@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db';
 import { Role, type RoleType, type UserSession } from '@/types';
@@ -57,8 +58,9 @@ export function isSessionExpired(
 /**
  * Resolves the authenticated user from Clerk, links to Prisma PostgreSQL application user,
  * and rigorously validates account status, tenant membership, and role-specific session TTL.
+ * Deduplicated per request lifecycle via React cache.
  */
-export async function getAuthoritativeUserFromClerk(): Promise<AuthoritativeClerkSession | null> {
+export const getAuthoritativeUserFromClerk = cache(async function getAuthoritativeUserFromClerk(): Promise<AuthoritativeClerkSession | null> {
   const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
   const isClerkConfigured = Boolean(
     clerkKey && clerkKey.startsWith('pk_') && !clerkKey.includes('placeholder')
@@ -296,7 +298,7 @@ export async function getAuthoritativeUserFromClerk(): Promise<AuthoritativeCler
     isSessionExpired,
     mustReauthenticate: isSessionExpired,
   };
-}
+});
 
 /**
  * Safe Administrative Account Linking Helper.

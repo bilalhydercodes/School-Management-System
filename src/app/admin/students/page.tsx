@@ -23,17 +23,34 @@ export default async function AdminStudentsPage() {
     prisma.studentProfile.findMany({
       where: { tenantId },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+            avatarUrl: true,
+            isActive: true,
+          },
+        },
         section: {
           include: {
-            classGrade: true,
+            classGrade: { select: { id: true, name: true } },
           },
         },
         parents: {
           include: {
             parent: {
               include: {
-                user: true,
+                user: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    phone: true,
+                  },
+                },
               },
             },
           },
@@ -41,6 +58,7 @@ export default async function AdminStudentsPage() {
         },
         attendances: {
           select: { status: true },
+          take: 50,
         },
         feeInvoices: {
           select: {
@@ -55,7 +73,7 @@ export default async function AdminStudentsPage() {
     }),
     prisma.section.findMany({
       where: { tenantId },
-      include: { classGrade: true },
+      include: { classGrade: { select: { id: true, name: true } } },
     }),
   ]);
 

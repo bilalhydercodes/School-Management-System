@@ -25,11 +25,28 @@ export default async function AdminTeachersPage() {
     prisma.teacherProfile.findMany({
       where: { tenantId },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+            avatarUrl: true,
+            isActive: true,
+          },
+        },
         assignedSubstitutions: {
           where: {
             status: 'ASSIGNED',
             date: todayDateOnly,
+          },
+          include: {
+            originalTeacher: {
+              include: {
+                user: { select: { firstName: true, lastName: true } },
+              },
+            },
           },
         },
       },
@@ -37,24 +54,9 @@ export default async function AdminTeachersPage() {
     }),
     prisma.section.findMany({
       where: { tenantId },
-      include: { classGrade: true },
+      include: { classGrade: { select: { id: true, name: true } } },
     }),
   ]);
-
-  // Resolve original teachers for substitutions
-  const origTeacherIds = teachersRaw.flatMap((t) =>
-    t.assignedSubstitutions.map((s) => s.originalTeacherId)
-  );
-
-  const origTeachers =
-    origTeacherIds.length > 0
-      ? await prisma.teacherProfile.findMany({
-          where: { id: { in: origTeacherIds } },
-          include: { user: { select: { firstName: true, lastName: true } } },
-        })
-      : [];
-
-  const origTeacherMap = new Map(origTeachers.map((t) => [t.id, t]));
 
   const classTeacherSectionMap = new Map<string, string>();
   for (const sec of sectionsRaw) {
@@ -65,7 +67,7 @@ export default async function AdminTeachersPage() {
 
   const teachers: TeacherItem[] = teachersRaw.map((t) => {
     const activeSub = t.assignedSubstitutions[0];
-    const origTeacher = activeSub ? origTeacherMap.get(activeSub.originalTeacherId) : null;
+    const origTeacher = activeSub?.originalTeacher || null;
 
     return {
       id: t.id,
