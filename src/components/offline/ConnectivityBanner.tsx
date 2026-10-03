@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   WifiOff,
   Wifi,
@@ -15,6 +16,7 @@ import {
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 export default function ConnectivityBanner() {
+  const pathname = usePathname();
   const {
     isOnline,
     isRestored,
@@ -40,6 +42,17 @@ export default function ConnectivityBanner() {
 
   const hasPendingOrFailed = pendingCount > 0 || failedCount > 0;
   const isSyncing = syncStatus === 'syncing' || isManualSyncing;
+
+  // Only display offline/sync banner within authenticated app routes (/admin, /teacher, /portal, /superadmin)
+  const isAppRoute =
+    pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/teacher') ||
+    pathname?.startsWith('/portal') ||
+    pathname?.startsWith('/superadmin');
+
+  if (!isAppRoute) {
+    return null;
+  }
 
   // Render nothing if fully online, no restored message, and no pending/failed items
   if (isOnline && !isRestored && !hasPendingOrFailed) {

@@ -17,13 +17,8 @@ export interface UseOnlineStatusReturn {
 }
 
 export function useOnlineStatus(): UseOnlineStatusReturn {
-  const [isOnline, setIsOnline] = useState<boolean>(() => {
-    if (typeof navigator !== 'undefined') {
-      return navigator.onLine;
-    }
-    return true;
-  });
-
+  const [mounted, setMounted] = useState(false);
+  const [isOnline, setIsOnline] = useState<boolean>(true);
   const [wasOffline, setWasOffline] = useState(false);
   const [isRestored, setIsRestored] = useState(false);
   const [pendingItems, setPendingItems] = useState<PendingMutation[]>([]);
@@ -48,6 +43,10 @@ export function useOnlineStatus(): UseOnlineStatusReturn {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    setMounted(true);
+    if (typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean') {
+      setIsOnline(navigator.onLine);
+    }
 
     const handleOnline = () => {
       setIsOnline(true);
