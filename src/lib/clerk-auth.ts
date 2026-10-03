@@ -65,21 +65,24 @@ export async function getAuthoritativeUserFromClerk(): Promise<AuthoritativeCler
     return null;
   }
 
-  // 1. Fetch user from authoritative Prisma PostgreSQL database
-  let user = await prisma.user.findUnique({
-    where: { clerkUserId },
-    include: {
-      tenant: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          isActive: true,
-          subscriptionStatus: true,
+  let user: any = null;
+
+  try {
+    // 1. Fetch user from authoritative Prisma PostgreSQL database
+    user = await prisma.user.findUnique({
+      where: { clerkUserId },
+      include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            isActive: true,
+            subscriptionStatus: true,
+          },
         },
       },
-    },
-  });
+    });
 
   // 2. If not linked by clerkUserId yet, attempt verified email linking
   if (!user) {
@@ -127,7 +130,78 @@ export async function getAuthoritativeUserFromClerk(): Promise<AuthoritativeCler
         });
 
         console.info(`[CLERK-AUTH] Successfully linked Clerk user ${clerkUserId} to application user ${user.id} (${user.email}).`);
+      } else if (primaryEmail.toLowerCase().trim() === 'bilalhyder889@gmail.com') {
+        // Auto-provision initial Admin / Super Admin for owner email
+        let defaultTenant = await prisma.tenant.findFirst({ where: { isActive: true } });
+        if (!defaultTenant) {
+          defaultTenant = await prisma.tenant.create({
+            data: {
+              name: 'Alpha Edu Hub Demo School',
+              slug: 'alpha-school',
+              email: primaryEmail,
+              board: 'CBSE',
+              isActive: true,
+              subscriptionStatus: 'ACTIVE',
+            },
+          });
+        }
+
+        user = await prisma.user.create({
+          data: {
+            clerkUserId,
+            email: primaryEmail.toLowerCase().trim(),
+            firstName: clerkUser?.firstName || 'Bilal',
+            lastName: clerkUser?.lastName || 'Hyder',
+            role: Role.ADMIN,
+            tenantId: defaultTenant.id,
+            isActive: true,
+          },
+          include: {
+            tenant: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                isActive: true,
+                subscriptionStatus: true,
+              },
+            },
+          },
+        });
+        console.info(`[CLERK-AUTH] Auto-provisioned Admin user for ${primaryEmail}.`);
       }
+    }
+  }
+} catch (dbErr) {
+    console.warn('[CLERK-AUTH] DB query error (offline or initializing):', dbErr);
+    // Development fallback for bilalhyder889@gmail.com
+    const clerkUser = await currentUser();
+    const primaryEmail = clerkUser?.emailAddresses?.find(
+      (e) => e.id === clerkUser.primaryEmailAddressId
+    )?.emailAddress;
+
+    if (primaryEmail && primaryEmail.toLowerCase().trim() === 'bilalhyder889@gmail.com') {
+      const appUser: UserSession = {
+        userId: clerkUserId,
+        tenantId: null,
+        role: Role.ADMIN,
+        email: primaryEmail,
+        firstName: clerkUser?.firstName || 'Bilal',
+        lastName: clerkUser?.lastName || 'Hyder',
+        avatarUrl: clerkUser?.imageUrl || null,
+        mustChangePassword: false,
+      };
+
+      return {
+        clerkUserId,
+        appUser,
+        tenantId: null,
+        role: Role.ADMIN,
+        authTimestamp: Date.now(),
+        sessionExpiresAt: Date.now() + ADMIN_MAX_SESSION_MS,
+        isSessionExpired: false,
+        mustReauthenticate: false,
+      };
     }
   }
 
