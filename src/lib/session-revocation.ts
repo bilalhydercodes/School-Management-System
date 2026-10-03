@@ -23,8 +23,7 @@ export async function revokeAllUserSessions(
   const currentTimestampSeconds = Math.floor(Date.now() / 1000);
   const key = `revoked_before:${userId}`;
   const shouldFailClosed =
-    options?.failClosed ??
-    (process.env.REDIS_FAIL_CLOSED === 'true' || process.env.NODE_ENV === 'production');
+    options?.failClosed ?? (process.env.REDIS_FAIL_CLOSED === 'true');
 
   if (redis) {
     try {
@@ -54,8 +53,8 @@ export async function revokeAllUserSessions(
  * the user's latest session revocation timestamp.
  *
  * In production or fail-closed mode:
- * If Redis is unreachable, treats the session as REVOKED (returns true)
- * to prevent unauthorized access via stale/compromised tokens during outages.
+ * If Redis is unreachable and REDIS_FAIL_CLOSED=true, treats the session as REVOKED (returns true).
+ * Otherwise falls back to in-memory store.
  */
 export async function isSessionRevoked(
   userId: string,
@@ -66,8 +65,7 @@ export async function isSessionRevoked(
 
   const key = `revoked_before:${userId}`;
   const shouldFailClosed =
-    options?.failClosed ??
-    (process.env.REDIS_FAIL_CLOSED === 'true' || process.env.NODE_ENV === 'production');
+    options?.failClosed ?? (process.env.REDIS_FAIL_CLOSED === 'true');
 
   if (redis) {
     try {
