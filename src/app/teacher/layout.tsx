@@ -11,6 +11,8 @@ export const metadata = {
   description: 'Faculty workspace and management system',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function TeacherPortalLayout({
   children,
 }: {

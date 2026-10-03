@@ -193,7 +193,9 @@ export default async function PortalPage({ searchParams }: PageProps) {
     allSubjects.length > 0
       ? allSubjects.map((sub) => {
           const match = examResults.find(
-            (r) => r.examSchedule.subjectId === sub.id || r.examSchedule.subject.code === sub.code
+            (r) =>
+              (r.examSchedule && r.examSchedule.subjectId === sub.id) ||
+              (r.examSchedule?.subject && r.examSchedule.subject.code === sub.code)
           );
           const fb = fallbackSubjects.find((f) => f.code === sub.code);
           return {
@@ -228,58 +230,60 @@ export default async function PortalPage({ searchParams }: PageProps) {
   const currentDay = dayOfWeekList[today.getDay()];
   const todayDateOnly = new Date(`${today.toISOString().split('T')[0]}T00:00:00.000Z`);
 
-  const timetableEntries = await prisma.timetableEntry.findMany({
-    where: {
-      tenantId: targetStudent.tenantId,
-      sectionId: targetStudent.sectionId,
-      dayOfWeek: currentDay,
-    },
-    include: {
-      subject: true,
-      periodTimeSlot: true,
-      teacher: {
-        include: {
-          user: true,
-        },
-      },
-      substitutions: {
+  const timetableEntries = targetStudent.sectionId
+    ? await prisma.timetableEntry.findMany({
         where: {
-          date: todayDateOnly,
+          tenantId: targetStudent.tenantId,
+          sectionId: targetStudent.sectionId,
+          dayOfWeek: currentDay,
         },
         include: {
-          substituteTeacher: {
+          subject: true,
+          periodTimeSlot: true,
+          teacher: {
             include: {
               user: true,
             },
           },
+          substitutions: {
+            where: {
+              date: todayDateOnly,
+            },
+            include: {
+              substituteTeacher: {
+                include: {
+                  user: true,
+                },
+              },
+            },
+          },
         },
-      },
-    },
-    orderBy: {
-      periodTimeSlot: {
-        order: 'asc',
-      },
-    },
-  });
+        orderBy: {
+          periodTimeSlot: {
+            order: 'asc',
+          },
+        },
+      })
+    : [];
 
   const todaySchedule =
     timetableEntries.length > 0
       ? timetableEntries.map((te) => {
-          const sub = te.substitutions[0];
-          const teacherName = sub
+          const sub = te.substitutions?.[0];
+          const teacherName = sub?.substituteTeacher?.user
             ? `${sub.substituteTeacher.user.firstName} ${sub.substituteTeacher.user.lastName}`
-            : te.teacher
+            : te.teacher?.user
             ? `${te.teacher.user.firstName} ${te.teacher.user.lastName}`
             : 'Assigned Teacher';
 
           return {
-            type: te.periodTimeSlot.name.includes('Lab') ? 'Practical' : 'Lecture',
+            type: te.periodTimeSlot?.name?.includes('Lab') ? 'Practical' : 'Lecture',
             subject: te.subject?.name || 'Academic Class',
             code: te.subject?.code || 'GEN-101',
             room: te.roomNumber ? `Room ${te.roomNumber}` : 'Room 204',
-            section: `${targetStudent.section.classGrade.name}-${targetStudent.section.name}`,
+            section: `${targetStudent.section?.classGrade?.name || 'Class 10'}-${targetStudent.section?.name || 'A'}`,
             teacher: teacherName,
-            time: `${te.periodTimeSlot.startTime} - ${te.periodTimeSlot.endTime}`,
+            time: te.periodTimeSlot ? `${te.periodTimeSlot.startTime} - ${te.periodTimeSlot.endTime}` : '08:30 - 09:15 AM',
             isSubstitute: !!sub,
           };
         })
@@ -425,7 +429,7 @@ export default async function PortalPage({ searchParams }: PageProps) {
       phone: '+91 11 2345 6790',
     },
     {
-      roleBadge: `${targetStudent.section.classGrade.name}-${targetStudent.section.name} Class Mentor`,
+      roleBadge: `${targetStudent.section?.classGrade?.name || 'Class 10'}-${targetStudent.section?.name || 'A'} Class Mentor`,
       name: 'Mrs. Shalini Roy',
       designation: 'Class Teacher & PGT Mathematics',
       department: 'Department of Mathematics',
