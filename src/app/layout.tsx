@@ -50,12 +50,22 @@ export const metadata: Metadata = {
     description:
       'Enterprise-grade multi-tenant school operating system for K-12 schools, CBSE/ICSE boards, academic scheduling, attendance, and online fee collection.',
     siteName: 'Alpha Edu Hub',
+    images: [
+      {
+        url: '/images/dashboard/open_graph_image.png',
+        width: 1730,
+        height: 909,
+        alt: 'Alpha Edu Hub — School ERP & Management System Dashboard',
+        type: 'image/png',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Alpha Edu Hub — School ERP & Management System',
     description:
       'Unified school management platform for administration, faculty, students, and parents.',
+    images: ['/images/dashboard/open_graph_image.png'],
   },
   robots: {
     index: true,
