@@ -4,6 +4,7 @@ import React, { useState, useEffect, useTransition, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { loginAction, verifyLoginOtpAction } from '@/actions/auth';
 import BrandLoader from '@/components/ui/BrandLoader';
 
@@ -214,7 +215,7 @@ function LoginForm() {
 
   return (
     <div
-      className="min-h-screen w-full overflow-auto flex items-center justify-center p-4 sm:p-6 bg-[#CBE9FE] select-none"
+      className="min-h-screen w-full overflow-auto flex items-center justify-center p-4 sm:p-6 bg-[#CBE9FE] select-none relative"
       style={{
         backgroundImage: "url('/bg-atmosphere.svg')",
         backgroundSize: 'cover',
@@ -222,6 +223,17 @@ function LoginForm() {
         backgroundRepeat: 'no-repeat',
       }}
     >
+      {/* Top-Left Corner: Go Back to Main Public Landing Page */}
+      <Link
+        href="/"
+        className="fixed top-4 left-4 sm:top-6 sm:left-6 z-30 inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl bg-white/90 hover:bg-white text-slate-700 hover:text-blue-600 text-xs sm:text-sm font-semibold shadow-[0_4px_16px_rgba(15,45,95,0.08)] hover:shadow-[0_6px_20px_rgba(15,45,95,0.14)] border border-white/80 backdrop-blur-md transition-all duration-150 transform hover:-translate-x-0.5 group select-none cursor-pointer"
+        title="Go back to Home"
+        aria-label="Go back to Home"
+      >
+        <ArrowLeft className="w-4 h-4 text-slate-500 group-hover:text-blue-600 transition-colors" />
+        <span>Go Back</span>
+      </Link>
+
       <main className="relative bg-white rounded-[20px] sm:rounded-[26px] overflow-hidden flex flex-col lg:flex-row border border-white/70 shadow-[0_20px_50px_-10px_rgba(15,45,95,0.16)] w-full max-w-[1055px] min-h-0 animate-in fade-in duration-200">
 
         {/* LEFT COLUMN: BRANDING & SCHOOL ILLUSTRATION — hidden on mobile, shown on lg+ */}
@@ -241,6 +253,14 @@ function LoginForm() {
             sizes="588px"
             onLoad={() => setIsImageReady(true)}
             className="object-cover object-center pointer-events-none select-none"
+          />
+
+          {/* Transparent clickable overlay on the logo in the illustration to redirect to public landing page */}
+          <Link
+            href="/"
+            aria-label="Alpha Edu Hub — Return to Home"
+            title="Alpha Edu Hub — Return to Home"
+            className="absolute top-4 left-5 sm:top-5 sm:left-6 z-20 w-[240px] h-[72px] rounded-2xl cursor-pointer hover:bg-white/10 active:bg-white/20 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/40"
           />
           <div className="sr-only">
             <h1>Alpha Edu Hub</h1>
