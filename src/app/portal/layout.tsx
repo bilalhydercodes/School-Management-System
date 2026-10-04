@@ -32,8 +32,8 @@ export const metadata: Metadata = {
     images: ['/images/dashboard/open_graph_image.png'],
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
   },
 };
 

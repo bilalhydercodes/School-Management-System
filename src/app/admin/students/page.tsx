@@ -141,7 +141,7 @@ export default async function AdminStudentsPage() {
       emergencyContact: s.emergencyContact,
       attendancePercentage,
       isActive: s.user.isActive,
-      deletedAt: s.user.deletedAt ? s.user.deletedAt.toISOString() : null,
+      deletedAt: (s.user as any).deletedAt ? (s.user as any).deletedAt.toISOString() : null,
       sectionId: s.sectionId,
       feeStatus: {
         totalInvoiced,

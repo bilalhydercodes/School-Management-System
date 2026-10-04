@@ -46,9 +46,34 @@ export default function ContactPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start max-w-6xl mx-auto">
             {/* Left Column: Contact Cards & Info */}
             <div className="lg:col-span-5 space-y-5 text-left">
-              {/* Card 1: Official Email */}
+              {/* Card 1: Official Phone & Support */}
               <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs hover:border-blue-300 transition-colors">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-[#1d8cfd] flex items-center justify-center mb-4">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">Direct Phone Support</h3>
+                <p className="text-xs text-slate-500 mt-1">Speak directly with our onboarding and technical support specialists.</p>
+                <div className="mt-3 flex flex-col space-y-1.5">
+                  <a
+                    href="tel:+918277300451"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#1d8cfd] hover:underline"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>+91 82773 00451</span>
+                  </a>
+                  <a
+                    href="tel:+919845488621"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#1d8cfd] hover:underline"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>+91 98454 88621</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Card 2: Official Email */}
+              <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs hover:border-blue-300 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
                   <Mail className="w-5 h-5" />
                 </div>
                 <h3 className="text-base font-bold text-slate-900">Official Support Email</h3>
@@ -61,7 +86,7 @@ export default function ContactPage() {
                 </a>
               </div>
 
-              {/* Card 2: Enterprise & White Label */}
+              {/* Card 3: Enterprise & White Label */}
               <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs hover:border-blue-300 transition-colors">
                 <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
                   <ShieldCheck className="w-5 h-5" />
@@ -76,7 +101,7 @@ export default function ContactPage() {
                 </a>
               </div>
 
-              {/* Card 3: Support Hours */}
+              {/* Card 4: Support Hours */}
               <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs">
                 <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center mb-4">
                   <Clock className="w-5 h-5" />

@@ -52,7 +52,7 @@ export default async function AdminFeesPage() {
             select: { id: true, name: true },
           },
           items: {
-            include: { feeCategory: { select: { id: true, name: true, type: true } } },
+            include: { feeCategory: { select: { id: true, name: true } } },
           },
         },
         orderBy: { generatedAt: 'desc' },
@@ -155,7 +155,7 @@ export default async function AdminFeesPage() {
   );
 
   // Map invoices into clean serializable objects
-  const invoices: InvoiceItem[] = invoicesRaw.map((inv) => {
+  const invoices: InvoiceItem[] = invoicesRaw.map((inv: any) => {
     const isDuePassed = new Date(inv.dueDate) < now;
     const isOverdue = isDuePassed && Number(inv.balanceAmount) > 0;
     const lateCalc = calculateLateFineForInvoice(inv, now);
@@ -175,10 +175,10 @@ export default async function AdminFeesPage() {
       lateFee: Number(inv.lateFee) || lateCalc.lateFee,
       status: inv.status as any,
       isOverdue,
-      items: inv.items.map((it) => ({
-        category: it.feeCategory.name,
+      items: (inv.items || []).map((it: any) => ({
+        category: it.feeCategory?.name || 'General Fee',
         amount: Number(it.amount),
-        description: it.description || it.feeCategory.name,
+        description: it.description || it.feeCategory?.name || 'Fee Item',
       })),
     };
   });

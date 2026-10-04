@@ -4,6 +4,10 @@ import { redirect } from 'next/navigation';
 export const metadata = {
   title: 'Sign In — Alpha Edu Hub',
   description: 'Sign in to Alpha Edu Hub School Management System',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;

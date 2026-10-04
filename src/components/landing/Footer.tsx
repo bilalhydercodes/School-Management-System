@@ -3,11 +3,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   Mail,
+  Phone,
   ShieldCheck,
   CheckCircle2,
   Lock,
   ArrowRight,
   ExternalLink,
+  Linkedin,
 } from 'lucide-react';
 
 export default function Footer() {
@@ -20,6 +22,7 @@ export default function Footer() {
     { label: 'Pricing Plans', href: '/pricing' },
     { label: 'School Testimonials', href: '/testimonials' },
     { label: 'Frequently Asked Questions', href: '/faq' },
+    { label: 'Educational Guides', href: '/guides' },
   ];
 
   const moduleLinks = [
@@ -31,8 +34,16 @@ export default function Footer() {
     { label: 'Student & Parent Portals', href: '/modules' },
   ];
 
+  const guideLinks = [
+    { label: 'What is a School Management System?', href: '/guides/what-is-a-school-management-system' },
+    { label: 'Benefits of School ERP Software', href: '/guides/benefits-of-school-erp-software' },
+    { label: 'Digital Attendance for Schools', href: '/guides/digital-attendance-management' },
+    { label: 'School Fee Management Guide', href: '/guides/school-fee-management-software' },
+    { label: 'How Schools Simplify Admin', href: '/guides/how-schools-can-simplify-administration' },
+  ];
+
   const companyLinks = [
-    { label: 'About Us', href: '/about' },
+    { label: 'About Us & Leadership', href: '/about' },
     { label: 'Contact Support & Sales', href: '/contact' },
     { label: 'Request White Label Quote', href: '/pricing' },
     { label: 'Teacher Workspace', href: '/login' },
@@ -76,8 +87,35 @@ export default function Footer() {
             </Link>
 
             <p className="text-[13.5px] text-slate-400 leading-relaxed max-w-sm">
-              All-in-one multi-tenant school operating system designed for modern K-12 institutions, CBSE, ICSE, and State Board schools across India.
+              All-in-one multi-tenant school operating system designed for modern K-12 institutions, CBSE, ICSE, and State Board schools across India. Founded by Mahammad Bilal Hyder.
             </p>
+
+            {/* Public Verified Social Links */}
+            <div className="pt-1 flex flex-col space-y-2">
+              <span className="text-[11.5px] font-semibold uppercase tracking-wider text-slate-400">
+                Official Channels:
+              </span>
+              <div className="flex flex-wrap gap-2.5">
+                <a
+                  href="https://www.linkedin.com/company/143961171/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Company LinkedIn</span>
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/mahammad-bilal-hyder-493295356/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Founder Profile</span>
+                </a>
+              </div>
+            </div>
 
             {/* Trust and Compliance Badges */}
             <div className="pt-2 flex flex-wrap gap-2.5">
@@ -91,18 +129,34 @@ export default function Footer() {
               </span>
             </div>
 
-            {/* Direct Contact Support Email */}
-            <div className="pt-2">
-              <div className="text-[11.5px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-                Official Support:
+            {/* Direct Contact Support Email & Phone */}
+            <div className="pt-2 space-y-2">
+              <div className="text-[11.5px] font-semibold uppercase tracking-wider text-slate-400">
+                Official Support &amp; Enquiries:
               </div>
-              <a
-                href="mailto:support@alphaeduhub.in"
-                className="inline-flex items-center gap-2 text-[13.5px] font-medium text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                <Mail className="w-4 h-4" />
-                <span>support@alphaeduhub.in</span>
-              </a>
+              <div className="flex flex-col space-y-1.5">
+                <a
+                  href="tel:+918277300451"
+                  className="inline-flex items-center gap-2 text-[13px] font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>+91 82773 00451</span>
+                </a>
+                <a
+                  href="tel:+919845488621"
+                  className="inline-flex items-center gap-2 text-[13px] font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>+91 98454 88621</span>
+                </a>
+                <a
+                  href="mailto:support@alphaeduhub.in"
+                  className="inline-flex items-center gap-2 text-[13px] font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>support@alphaeduhub.in</span>
+                </a>
+              </div>
             </div>
           </div>
 
@@ -125,17 +179,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 3: Modules (Span 2) */}
+          {/* Col 3: Guides & Resources (Span 2) */}
           <div className="lg:col-span-2 text-left">
             <h3 className="text-[13px] font-bold uppercase tracking-wider text-white mb-4">
-              ERP Modules
+              Guides &amp; SEO
             </h3>
             <ul className="space-y-2.5" role="list">
-              {moduleLinks.map((link) => (
+              {guideLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-[13.5px] text-slate-400 hover:text-white transition-colors block py-0.5"
+                    className="text-[13px] text-slate-400 hover:text-white transition-colors block py-0.5 leading-snug"
                   >
                     {link.label}
                   </Link>
@@ -188,7 +242,7 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
             <span>&copy; {currentYear} Alpha Edu Hub. All rights reserved.</span>
             <span className="hidden sm:inline text-slate-700">•</span>
-            <span className="text-slate-400">Enterprise K-12 School Management System</span>
+            <span className="text-slate-400">Founded by Mahammad Bilal Hyder</span>
           </div>
 
           <div className="flex items-center gap-4">
