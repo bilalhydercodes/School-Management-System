@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Check, Sparkles, ArrowRight, X, Building2, Mail, Phone, User, Users, CheckCircle2, Send } from 'lucide-react';
 
-interface PricingPlan {
+export interface PricingPlan {
   id: string;
   name: string;
   serverTag: string;
@@ -18,7 +18,7 @@ interface PricingPlan {
   isCustomQuote?: boolean;
 }
 
-const plans: PricingPlan[] = [
+const defaultPlans: PricingPlan[] = [
   {
     id: 'lite',
     name: 'ALPHA EDU HUB LITE',
@@ -74,7 +74,12 @@ const plans: PricingPlan[] = [
   },
 ];
 
-export default function PricingSection() {
+export interface PricingSectionProps {
+  plans?: PricingPlan[];
+}
+
+export default function PricingSection({ plans: initialPlans }: PricingSectionProps = {}) {
+  const activePlans = initialPlans && initialPlans.length > 0 ? initialPlans : defaultPlans;
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
   const [formData, setFormData] = useState({
@@ -131,7 +136,7 @@ export default function PricingSection() {
 
         {/* 3 Pricing Cards Grid */}
         <div className="mt-12 sm:mt-16 grid grid-cols-1 lg:grid-cols-3 gap-7 lg:gap-8 items-stretch max-w-6xl mx-auto">
-          {plans.map((plan) => (
+          {activePlans.map((plan) => (
             <div
               key={plan.id}
               className={`relative rounded-3xl bg-white flex flex-col justify-between transition-all duration-200 text-left ${

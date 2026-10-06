@@ -5,7 +5,7 @@ import FeaturesGrid from './FeaturesGrid';
 import RoleSection from './RoleSection';
 import BenefitsSection from './BenefitsSection';
 import CommunitySection, { CommunityStatsProps } from './CommunitySection';
-import PricingSection from './PricingSection';
+import PricingSection, { PricingPlan } from './PricingSection';
 import TestimonialsSection from './TestimonialsSection';
 import FaqSection from './FaqSection';
 import FinalCtaSection from './FinalCtaSection';
@@ -13,9 +13,10 @@ import Footer from './Footer';
 
 export interface LandingPageProps {
   stats?: CommunityStatsProps;
+  plans?: PricingPlan[];
 }
 
-export default function LandingPage({ stats }: LandingPageProps) {
+export default function LandingPage({ stats, plans }: LandingPageProps) {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
       {/* 1. Header / Navigation */}
@@ -38,7 +39,7 @@ export default function LandingPage({ stats }: LandingPageProps) {
         <CommunitySection stats={stats} />
 
         {/* 7. Transparent Pricing Section */}
-        <PricingSection />
+        <PricingSection plans={plans} />
 
         {/* 8. Testimonials Section */}
         <TestimonialsSection />

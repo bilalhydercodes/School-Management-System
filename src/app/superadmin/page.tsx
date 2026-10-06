@@ -44,7 +44,9 @@ export default async function SuperAdminPage() {
   let platformMrr = 0;
   tenants.forEach((t) => {
     if (t.subscriptionStatus === 'ACTIVE' && t.isActive && t.subscriptionPlan) {
-      platformMrr += Number(t.subscriptionPlan.priceMonthly);
+      const sCount = studentCountMap.get(t.id) || 0;
+      const rate = Number(t.subscriptionPlan.priceMonthly);
+      platformMrr += sCount > 0 ? sCount * rate : rate;
     }
   });
 

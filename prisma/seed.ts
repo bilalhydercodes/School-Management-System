@@ -6,29 +6,139 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding database for School Management System...');
 
-  // 1. Create Subscription Plan
-  const growthPlan = await prisma.subscriptionPlan.upsert({
-    where: { id: '00000000-0000-0000-0000-000000000001' },
-    update: {},
-    create: {
-      id: '00000000-0000-0000-0000-000000000001',
-      name: 'Growth School Plan (CBSE)',
-      maxStudents: 1500,
+  // 1. Create Subscription Plans (Landing Page Pricing: Lite ₹8/student, Prime ₹11/student, White Label ₹25/student)
+  const litePlan = await prisma.subscriptionPlan.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000002' },
+    update: {
+      name: 'Alpha Edu Hub Lite',
+      maxStudents: 2000,
       maxStaff: 100,
       features: {
+        admission: true,
         attendance: true,
         fees: true,
         exams: true,
-        timetable: true,
-        notices: true,
-        customDomain: true,
-        pwa: true,
+        reports: true,
       },
-      priceMonthly: 4999.0,
-      priceAnnual: 49999.0,
+      priceMonthly: 8.0,
+      priceAnnual: 88.0,
+      isActive: true,
+    },
+    create: {
+      id: '00000000-0000-0000-0000-000000000002',
+      name: 'Alpha Edu Hub Lite',
+      maxStudents: 2000,
+      maxStaff: 100,
+      features: {
+        admission: true,
+        attendance: true,
+        fees: true,
+        exams: true,
+        reports: true,
+      },
+      priceMonthly: 8.0,
+      priceAnnual: 88.0,
       isActive: true,
     },
   });
+
+  const primePlan = await prisma.subscriptionPlan.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000001' },
+    update: {
+      name: 'Alpha Edu Hub Prime',
+      maxStudents: 5000,
+      maxStaff: 300,
+      features: {
+        admission: true,
+        attendance: true,
+        fees: true,
+        exams: true,
+        reports: true,
+        portals: true,
+        notifications: true,
+        timetable: true,
+        pwa: true,
+        analytics: true,
+      },
+      priceMonthly: 11.0,
+      priceAnnual: 120.0,
+      isActive: true,
+    },
+    create: {
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Alpha Edu Hub Prime',
+      maxStudents: 5000,
+      maxStaff: 300,
+      features: {
+        admission: true,
+        attendance: true,
+        fees: true,
+        exams: true,
+        reports: true,
+        portals: true,
+        notifications: true,
+        timetable: true,
+        pwa: true,
+        analytics: true,
+      },
+      priceMonthly: 11.0,
+      priceAnnual: 120.0,
+      isActive: true,
+    },
+  });
+
+  const whiteLabelPlan = await prisma.subscriptionPlan.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000003' },
+    update: {
+      name: 'White Label',
+      maxStudents: 10000,
+      maxStaff: 1000,
+      features: {
+        admission: true,
+        attendance: true,
+        fees: true,
+        exams: true,
+        reports: true,
+        portals: true,
+        notifications: true,
+        timetable: true,
+        pwa: true,
+        analytics: true,
+        customDomain: true,
+        whiteLabel: true,
+        prioritySupport: true,
+      },
+      priceMonthly: 25.0,
+      priceAnnual: 270.0,
+      isActive: true,
+    },
+    create: {
+      id: '00000000-0000-0000-0000-000000000003',
+      name: 'White Label',
+      maxStudents: 10000,
+      maxStaff: 1000,
+      features: {
+        admission: true,
+        attendance: true,
+        fees: true,
+        exams: true,
+        reports: true,
+        portals: true,
+        notifications: true,
+        timetable: true,
+        pwa: true,
+        analytics: true,
+        customDomain: true,
+        whiteLabel: true,
+        prioritySupport: true,
+      },
+      priceMonthly: 25.0,
+      priceAnnual: 270.0,
+      isActive: true,
+    },
+  });
+
+  const growthPlan = primePlan;
 
   // 2. Create Super Admin
   const superAdminPassword = await bcrypt.hash('SuperAdmin@123', 12);

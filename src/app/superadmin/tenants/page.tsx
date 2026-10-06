@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { prisma } from '@/lib/db';
 import TenantsManagerClient, {
   TenantListItem,
@@ -78,5 +79,9 @@ export default async function SuperAdminTenantsPage() {
     maxStaff: p.maxStaff,
   }));
 
-  return <TenantsManagerClient tenants={tenantItems} plans={planOptions} />;
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-400">Loading directory...</div>}>
+      <TenantsManagerClient tenants={tenantItems} plans={planOptions} />
+    </Suspense>
+  );
 }

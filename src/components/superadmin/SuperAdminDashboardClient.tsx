@@ -319,8 +319,13 @@ export default function SuperAdminDashboardClient({
                         </td>
                         <td className="py-3 px-3">
                           <span className="text-slate-800 font-semibold">{tenant.planName}</span>
-                          <div className="text-xs text-slate-400">
-                            ₹{tenant.priceMonthly.toLocaleString('en-IN')}/mo
+                          <div className="text-xs text-slate-500 font-medium">
+                            ₹{tenant.priceMonthly.toLocaleString('en-IN')}/student/mo
+                            {tenant.studentCount > 0 && (
+                              <span className="text-purple-600 ml-1 font-semibold">
+                                (₹{(tenant.priceMonthly * tenant.studentCount).toLocaleString('en-IN')}/mo)
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td className="py-3 px-3">

@@ -64,6 +64,11 @@ const SubscriptionPlanSchema = z.object({
   priceAnnual: z.number().nonnegative(),
 });
 
+const UpdateSubscriptionPlanSchema = SubscriptionPlanSchema.extend({
+  id: z.string().uuid(),
+  isActive: z.boolean().optional(),
+});
+
 // ==========================================
 // ACTIONS
 // ==========================================
@@ -549,5 +554,72 @@ export async function createSubscriptionPlanAction(rawInput: z.infer<typeof Subs
     };
   } catch (err: any) {
     return { success: false, error: err.message || 'Failed to create subscription plan.' };
+  }
+}
+
+/**
+ * Super Admin Action to Edit/Update an Existing Subscription Plan Price and Limits
+ */
+export async function updateSubscriptionPlanAction(rawInput: z.infer<typeof UpdateSubscriptionPlanSchema>) {
+  const guard = await requireAuthGuard([Role.SUPER_ADMIN]);
+  if (!guard.success) {
+    return { success: false, error: guard.error };
+  }
+
+  const { userId } = guard.context;
+
+  const validation = UpdateSubscriptionPlanSchema.safeParse(rawInput);
+  if (!validation.success) {
+    return {
+      success: false,
+      error: validation.error.errors.map((e) => e.message).join(', '),
+    };
+  }
+
+  const input = validation.data;
+
+  try {
+    const updatedPlan = await prisma.subscriptionPlan.update({
+      where: { id: input.id },
+      data: {
+        name: input.name.trim(),
+        maxStudents: input.maxStudents,
+        maxStaff: input.maxStaff,
+        features: input.features,
+        priceMonthly: input.priceMonthly,
+        priceAnnual: input.priceAnnual,
+        ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: 'SUBSCRIPTION_PLAN_UPDATED',
+        entityType: 'SubscriptionPlan',
+        entityId: updatedPlan.id,
+        newValues: {
+          name: updatedPlan.name,
+          priceMonthly: input.priceMonthly,
+          priceAnnual: input.priceAnnual,
+          maxStudents: input.maxStudents,
+          maxStaff: input.maxStaff,
+        },
+      },
+    });
+
+    revalidatePath('/superadmin/subscriptions');
+    revalidatePath('/superadmin/tenants');
+    revalidatePath('/superadmin');
+    revalidatePath('/pricing');
+    revalidatePath('/');
+
+    return {
+      success: true,
+      message: `Subscription plan "${updatedPlan.name}" updated successfully.`,
+      data: updatedPlan,
+    };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Failed to update subscription plan.' };
   }
 }

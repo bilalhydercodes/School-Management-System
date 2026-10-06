@@ -1,7 +1,6 @@
 'use client';
 
 import { offlineDb, PendingMutation } from './db';
-import { markDailyAttendanceAction, markTeacherCheckInAction, markTeacherCheckOutAction } from '@/actions/attendance';
 import type { MarkDailyAttendanceInput } from '@/lib/validations/attendance';
 
 export type SyncStatusState = 'idle' | 'syncing' | 'synced' | 'failed';
@@ -113,6 +112,8 @@ class SyncEngine {
    * Dispatches the operation to its respective server action
    */
   private async executeMutation(mutation: PendingMutation): Promise<boolean> {
+    const { markDailyAttendanceAction, markTeacherCheckInAction, markTeacherCheckOutAction } = await import('@/actions/attendance');
+
     switch (mutation.type) {
       case 'MARK_ATTENDANCE': {
         const payload = mutation.payload as MarkDailyAttendanceInput;

@@ -20,12 +20,12 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+    <header suppressHydrationWarning className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[68px]">
           {/* Logo Brand */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-blue-50/80 border border-blue-100/80 flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform duration-200 shadow-xs shrink-0 overflow-hidden">
+            <span className="w-10 h-10 rounded-xl bg-blue-50/80 border border-blue-100/80 flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform duration-200 shadow-xs shrink-0 overflow-hidden">
               <Image
                 src="/images/dashboard/logo_transparent_bg.png"
                 alt="Alpha Edu Hub Logo"
@@ -34,15 +34,15 @@ export default function Navbar() {
                 className="w-full h-full object-contain"
                 priority
               />
-            </div>
-            <div className="flex flex-col">
+            </span>
+            <span className="flex flex-col">
               <span className="text-[15px] font-bold text-slate-900 tracking-tight leading-tight group-hover:text-blue-600 transition-colors">
                 Alpha Edu Hub
               </span>
               <span className="text-[11px] font-medium text-slate-400 tracking-wide">
                 Next-Gen School ERP Platform
               </span>
-            </div>
+            </span>
           </Link>
 
           {/* Desktop Navigation Links (Clean Next.js Link routes without hash) */}
