@@ -6,68 +6,89 @@ import {
   Phone,
   ShieldCheck,
   CheckCircle2,
-  Lock,
-  ArrowRight,
-  ExternalLink,
+  Instagram,
   Linkedin,
+  Youtube,
 } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
-  const productLinks = [
-    { label: 'Platform Features', href: '/features' },
-    { label: 'Why Alpha Edu Hub', href: '/why-us' },
-    { label: 'Role Modules', href: '/modules' },
-    { label: 'Pricing Plans', href: '/pricing' },
-    { label: 'School Testimonials', href: '/testimonials' },
-    { label: 'Frequently Asked Questions', href: '/faq' },
-    { label: 'Educational Guides', href: '/guides' },
-  ];
-
-  const moduleLinks = [
+  const featureLinks = [
     { label: 'Student Management', href: '/modules' },
     { label: 'Attendance Tracking', href: '/features' },
     { label: 'Fee Management & Invoices', href: '/features' },
     { label: 'Exams & Report Cards', href: '/features' },
     { label: 'Timetable & Substitutions', href: '/features' },
     { label: 'Student & Parent Portals', href: '/modules' },
+    { label: 'Platform Role Modules', href: '/modules' },
+    { label: 'Teacher & Admin ERP Login', href: '/login' },
   ];
 
   const guideLinks = [
-    { label: 'What is a School Management System?', href: '/guides/what-is-a-school-management-system' },
-    { label: 'Benefits of School ERP Software', href: '/guides/benefits-of-school-erp-software' },
-    { label: 'Digital Attendance for Schools', href: '/guides/digital-attendance-management' },
-    { label: 'School Fee Management Guide', href: '/guides/school-fee-management-software' },
+    { label: 'What is a School ERP?', href: '/guides/what-is-a-school-management-system' },
+    { label: 'Benefits of School Software', href: '/guides/benefits-of-school-erp-software' },
+    { label: 'Digital Attendance Guide', href: '/guides/digital-attendance-management' },
+    { label: 'Fee Management Guide', href: '/guides/school-fee-management-software' },
     { label: 'How Schools Simplify Admin', href: '/guides/how-schools-can-simplify-administration' },
+    { label: 'All Educational Guides', href: '/guides' },
+    { label: 'Frequently Asked Questions', href: '/faq' },
   ];
 
   const companyLinks = [
-    { label: 'About Us & Leadership', href: '/about' },
+    { label: 'Why Alpha Edu Hub', href: '/why-us' },
+    { label: 'Pricing Plans & Quote', href: '/pricing' },
+    { label: 'School Testimonials', href: '/testimonials' },
+    { label: 'About Us', href: '/about' },
     { label: 'Contact Support & Sales', href: '/contact' },
-    { label: 'Request White Label Quote', href: '/pricing' },
-    { label: 'Teacher Workspace', href: '/login' },
-    { label: 'Admin ERP Portal', href: '/login' },
-  ];
-
-  const legalLinks = [
     { label: 'Privacy Policy', href: '/privacy-policy' },
     { label: 'Terms of Service', href: '/terms' },
-    { label: 'Refund & Cancellation Policy', href: '/refund-policy' },
-    { label: 'Data Security & Compliance', href: '/privacy-policy' },
+    { label: 'Refund & Cancellation', href: '/refund-policy' },
+  ];
+
+  const socialLinks = [
+    {
+      name: 'Instagram',
+      href: 'https://instagram.com',
+      icon: <Instagram className="w-4 h-4 text-slate-300 group-hover:text-pink-400 transition-colors" />,
+    },
+    {
+      name: 'X',
+      href: 'https://x.com',
+      icon: (
+        <svg className="w-3.5 h-3.5 fill-slate-300 group-hover:fill-white transition-colors" viewBox="0 0 24 24">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'YouTube',
+      href: 'https://youtube.com',
+      icon: <Youtube className="w-4 h-4 text-slate-300 group-hover:text-red-400 transition-colors" />,
+    },
+    {
+      name: 'LinkedIn',
+      href: 'https://www.linkedin.com/company/143961171/',
+      icon: <Linkedin className="w-4 h-4 text-slate-300 group-hover:text-blue-400 transition-colors" />,
+    },
   ];
 
   return (
-    <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 selection:bg-blue-600 selection:text-white" aria-labelledby="footer-heading">
+    <footer className="relative bg-[#070a11] text-slate-300 overflow-hidden border-t border-slate-800/80 selection:bg-pink-500 selection:text-white" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Footer</h2>
 
+      {/* Top subtle gradient ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-4xl h-px bg-gradient-to-r from-transparent via-pink-500/40 to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-24 bg-pink-500/5 blur-3xl pointer-events-none" />
+
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+          
           {/* Brand Col: Span 4 */}
           <div className="lg:col-span-4 space-y-5 text-left">
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform duration-200 shadow-xs shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center p-1.5 group-hover:border-pink-500/50 transition-colors duration-200 shadow-sm shrink-0 overflow-hidden">
                 <Image
                   src="/images/dashboard/logo_transparent_bg.png"
                   alt="Alpha Edu Hub Logo"
@@ -76,101 +97,72 @@ export default function Footer() {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <div className="flex flex-col">
-                <span className="text-[17px] font-bold text-white tracking-tight leading-tight group-hover:text-blue-400 transition-colors">
-                  Alpha Edu Hub
+              <div className="flex items-center">
+                <span className="text-2xl font-black text-white tracking-tight leading-none group-hover:text-slate-100 transition-colors">
+                  alphaeduhub
                 </span>
-                <span className="text-[11.5px] font-medium text-slate-400 tracking-wide">
-                  Next-Gen School ERP Platform
-                </span>
+                <span className="w-2.5 h-2.5 rounded-full bg-[#f42e6f] inline-block ml-1 shadow-[0_0_10px_rgba(244,46,111,0.6)]"></span>
               </div>
             </Link>
 
-            <p className="text-[13.5px] text-slate-400 leading-relaxed max-w-sm">
-              All-in-one multi-tenant school operating system designed for modern K-12 institutions, CBSE, ICSE, and State Board schools across India. Founded by Mahammad Bilal Hyder.
+            <p className="text-[13.5px] text-slate-400 leading-relaxed max-w-sm font-normal">
+              India&apos;s all-in-one multi-tenant school operating system designed for modern K-12 institutions, CBSE, ICSE, and State Board schools.
             </p>
 
-            {/* Public Verified Social Links */}
-            <div className="pt-1 flex flex-col space-y-2">
-              <span className="text-[11.5px] font-semibold uppercase tracking-wider text-slate-400">
-                Official Channels:
-              </span>
-              <div className="flex flex-wrap gap-2.5">
-                <a
-                  href="https://www.linkedin.com/company/143961171/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
-                >
-                  <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Company LinkedIn</span>
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/mahammad-bilal-hyder-493295356/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
-                >
-                  <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Founder Profile</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Trust and Compliance Badges */}
-            <div className="pt-2 flex flex-wrap gap-2.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-semibold text-slate-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-                <span>256-Bit SSL Encryption</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-semibold text-slate-300">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>99.9% Uptime SLA</span>
-              </span>
-            </div>
-
             {/* Direct Contact Support Email & Phone */}
-            <div className="pt-2 space-y-2">
-              <div className="text-[11.5px] font-semibold uppercase tracking-wider text-slate-400">
+            <div className="pt-2 flex flex-col space-y-1.5">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-0.5">
                 Official Support &amp; Enquiries:
               </div>
-              <div className="flex flex-col space-y-1.5">
+              <div className="flex flex-col space-y-1 text-[13px] text-slate-400">
                 <a
                   href="tel:+918277300451"
-                  className="inline-flex items-center gap-2 text-[13px] font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                  className="inline-flex items-center gap-2 text-slate-300 hover:text-pink-400 transition-colors"
                 >
-                  <Phone className="w-3.5 h-3.5" />
+                  <Phone className="w-3.5 h-3.5 text-pink-500 shrink-0" />
                   <span>+91 82773 00451</span>
                 </a>
                 <a
                   href="tel:+919845488621"
-                  className="inline-flex items-center gap-2 text-[13px] font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                  className="inline-flex items-center gap-2 text-slate-300 hover:text-pink-400 transition-colors"
                 >
-                  <Phone className="w-3.5 h-3.5" />
+                  <Phone className="w-3.5 h-3.5 text-pink-500 shrink-0" />
                   <span>+91 98454 88621</span>
                 </a>
                 <a
                   href="mailto:support@alphaeduhub.in"
-                  className="inline-flex items-center gap-2 text-[13px] font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                  className="inline-flex items-center gap-2 text-slate-300 hover:text-pink-400 transition-colors"
                 >
-                  <Mail className="w-3.5 h-3.5" />
+                  <Mail className="w-3.5 h-3.5 text-pink-500 shrink-0" />
                   <span>support@alphaeduhub.in</span>
                 </a>
               </div>
             </div>
+
+            {/* Trust Badges */}
+            <div className="pt-2 flex flex-wrap gap-2.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-[11.5px] font-medium text-slate-400">
+                <ShieldCheck className="w-3.5 h-3.5 text-pink-400" />
+                <span>256-Bit SSL Encryption</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-[11.5px] font-medium text-slate-400">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>99.9% Uptime SLA</span>
+              </span>
+            </div>
           </div>
 
-          {/* Col 2: Navigation (Span 2) */}
-          <div className="lg:col-span-2 text-left">
-            <h3 className="text-[13px] font-bold uppercase tracking-wider text-white mb-4">
-              Quick Links
+          {/* Col 2: Features & Modules (Span 3) */}
+          <div className="lg:col-span-3 text-left">
+            <h3 className="text-[12px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+              FEATURES &amp; MODULES
             </h3>
-            <ul className="space-y-2.5" role="list">
-              {productLinks.map((link) => (
+            <ul className="space-y-2" role="list">
+              {featureLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-[13.5px] text-slate-400 hover:text-white transition-colors block py-0.5"
+                    className="text-[13px] text-slate-300 hover:text-white transition-colors block py-0.5"
                   >
                     {link.label}
                   </Link>
@@ -179,17 +171,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 3: Guides & Resources (Span 2) */}
-          <div className="lg:col-span-2 text-left">
-            <h3 className="text-[13px] font-bold uppercase tracking-wider text-white mb-4">
-              Guides &amp; SEO
+          {/* Col 3: Guides & Resources (Span 3) */}
+          <div className="lg:col-span-3 text-left">
+            <h3 className="text-[12px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+              GUIDES &amp; RESOURCES
             </h3>
-            <ul className="space-y-2.5" role="list">
+            <ul className="space-y-2" role="list">
               {guideLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-[13px] text-slate-400 hover:text-white transition-colors block py-0.5 leading-snug"
+                    className="text-[13px] text-slate-300 hover:text-white transition-colors block py-0.5"
                   >
                     {link.label}
                   </Link>
@@ -198,61 +190,80 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 4: Company (Span 2) */}
-          <div className="lg:col-span-2 text-left">
-            <h3 className="text-[13px] font-bold uppercase tracking-wider text-white mb-4">
-              Company
-            </h3>
-            <ul className="space-y-2.5" role="list">
-              {companyLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-[13.5px] text-slate-400 hover:text-white transition-colors block py-0.5"
+          {/* Col 4: Company & Follow Us (Span 2) */}
+          <div className="lg:col-span-2 text-left space-y-6">
+            <div>
+              <h3 className="text-[12px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+                COMPANY
+              </h3>
+              <ul className="space-y-2" role="list">
+                {companyLinks.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-[13px] text-slate-300 hover:text-white transition-colors block py-0.5"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-[12px] font-bold uppercase tracking-widest text-slate-400 mb-3">
+                FOLLOW US
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.name}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={social.name}
+                    className="group inline-flex items-center gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 hover:text-white transition-colors"
                   >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                    {social.icon}
+                    <span className="font-medium text-[12px]">{social.name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Col 5: Legal & Policies (Span 2) */}
-          <div className="lg:col-span-2 text-left">
-            <h3 className="text-[13px] font-bold uppercase tracking-wider text-white mb-4">
-              Legal &amp; Trust
-            </h3>
-            <ul className="space-y-2.5" role="list">
-              {legalLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-[13.5px] text-slate-400 hover:text-white transition-colors block py-0.5"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
+      </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-14 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 text-center sm:text-left">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-            <span>&copy; {currentYear} Alpha Edu Hub. All rights reserved.</span>
-            <span className="hidden sm:inline text-slate-700">•</span>
-            <span className="text-slate-400">Founded by Mahammad Bilal Hyder</span>
+      {/* Giant Outlined Typography Watermark */}
+      <div className="relative w-full overflow-hidden select-none pointer-events-none border-t border-slate-900/60 pt-4 pb-2 sm:pb-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-baseline justify-between">
+          <span
+            className="text-[13vw] font-black tracking-tighter leading-none whitespace-nowrap text-transparent"
+            style={{
+              WebkitTextStroke: '1.2px rgba(255, 255, 255, 0.12)',
+            }}
+          >
+            alphaEduHub
+          </span>
+          <span className="w-5 h-5 sm:w-10 sm:h-10 md:w-16 md:h-16 lg:w-24 lg:h-24 rounded-full bg-[#f42e6f] inline-block shrink-0 mb-1 sm:mb-3 md:mb-5 shadow-[0_0_40px_rgba(244,46,111,0.5)]"></span>
+        </div>
+      </div>
+
+      {/* Copyright Sub-bar */}
+      <div className="border-t border-slate-900/80 bg-[#05070c] py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <div>
+            &copy; {currentYear} Alpha Edu Hub. All rights reserved.
           </div>
-
-          <div className="flex items-center gap-4">
-            <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              All Systems Operational
-            </span>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-emerald-400/90 font-medium">All Systems Operational</span>
           </div>
         </div>
       </div>
     </footer>
   );
 }
+
+
