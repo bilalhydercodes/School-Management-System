@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
-import { getSessionFromCookies } from '@/lib/session';
+import { getAuthenticatedContext } from '@/lib/auth-context';
 import FeeCounterClient, {
   InvoiceItem,
   PaymentItem,
@@ -11,15 +11,15 @@ import { calculateLateFineForInvoice } from '@/services/fee-engine.service';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminFeesPage() {
-  const session = await getSessionFromCookies();
+  const authContext = await getAuthenticatedContext();
   if (
-    !session ||
-    (session.role !== 'ADMIN' && session.role !== 'SUPER_ADMIN' && session.role !== 'ACCOUNTANT')
+    !authContext ||
+    (authContext.role !== 'ADMIN' && authContext.role !== 'SUPER_ADMIN' && authContext.role !== 'ACCOUNTANT')
   ) {
     redirect('/unauthorized');
   }
 
-  const tenantId = session.tenantId;
+  const tenantId = authContext.tenantId;
   if (!tenantId) {
     redirect('/unauthorized');
   }
@@ -62,6 +62,9 @@ export default async function AdminFeesPage() {
       prisma.feePayment.findMany({
         where: { tenantId },
         include: {
+          collector: {
+            select: { firstName: true, lastName: true },
+          },
           feeInvoice: {
             include: {
               student: {
@@ -139,21 +142,6 @@ export default async function AdminFeesPage() {
       }),
     ]);
 
-  // Resolve collector names for payment receipts
-  const collectorIds = Array.from(
-    new Set(paymentsRaw.map((p) => p.collectedById).filter(Boolean) as string[])
-  );
-  const collectors =
-    collectorIds.length > 0
-      ? await prisma.user.findMany({
-          where: { id: { in: collectorIds } },
-          select: { id: true, firstName: true, lastName: true },
-        })
-      : [];
-  const collectorMap = new Map(
-    collectors.map((c) => [c.id, `${c.firstName} ${c.lastName}`])
-  );
-
   // Map invoices into clean serializable objects
   const invoices: InvoiceItem[] = invoicesRaw.map((inv: any) => {
     const isDuePassed = new Date(inv.dueDate) < now;
@@ -197,7 +185,7 @@ export default async function AdminFeesPage() {
       paymentMethod: p.paymentMethod,
       remarks: p.remarks,
       date: p.createdAt.toISOString(),
-      collectorName: p.collectedById ? collectorMap.get(p.collectedById) || 'Admin' : 'System',
+      collectorName: p.collector ? `${p.collector.firstName} ${p.collector.lastName}` : (p.collectedById ? 'Admin' : 'System'),
     };
   });
 

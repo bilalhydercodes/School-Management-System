@@ -134,17 +134,19 @@ export default async function PortalPage({ searchParams }: PageProps) {
     dbContactsRaw,
     eventsHolidaysNotif,
   ] = await Promise.all([
-    // Attendance
+    // Attendance (bounded to most recent 120 records for rapid transmission)
     prisma.studentAttendance.findMany({
       where: { tenantId, studentId },
       orderBy: { date: 'desc' },
+      take: 120,
     }),
 
-    // Fee Invoices
+    // Fee Invoices (bounded to most recent 24 records)
     prisma.feeInvoice.findMany({
       where: { tenantId, studentId },
       include: { items: { include: { feeCategory: true } }, payments: true },
       orderBy: { dueDate: 'asc' },
+      take: 24,
     }),
 
     // Exam Results

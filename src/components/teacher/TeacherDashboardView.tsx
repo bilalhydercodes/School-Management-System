@@ -9,9 +9,12 @@ import {
   ChevronRight,
   CheckCircle2,
   X,
+  Star,
+  MessageSquareHeart,
 } from 'lucide-react';
 import { markTeacherCheckOutAction, markTeacherCheckInAction } from '@/actions/attendance';
 import { getTeacherAvatarUrl } from '@/lib/teacher-avatar';
+import AIInsightsWidget from '@/components/ai/AIInsightsWidget';
 
 interface TeacherDashboardViewProps {
   teacherName?: string;
@@ -20,6 +23,11 @@ interface TeacherDashboardViewProps {
   avatarUrl?: string | null;
   initialCheckInTime?: string | null;
   initialCheckOutTime?: string | null;
+  feedbackSummary?: {
+    responseCount: number;
+    overallRating: number;
+    cycleTitle?: string;
+  } | null;
 }
 
 export function TeacherDashboardView({
@@ -29,6 +37,7 @@ export function TeacherDashboardView({
   avatarUrl,
   initialCheckInTime,
   initialCheckOutTime,
+  feedbackSummary,
 }: TeacherDashboardViewProps) {
   const resolvedAvatar = getTeacherAvatarUrl({ avatarUrl, gender, teacherName });
   const router = useRouter();
@@ -295,6 +304,11 @@ export function TeacherDashboardView({
       </div>
 
       {/* ==================================================================== */}
+      {/* 2.5 PROACTIVE AI INSIGHTS                                            */}
+      {/* ==================================================================== */}
+      <AIInsightsWidget role="TEACHER" title="Teacher Intelligence & Performance Insights" />
+
+      {/* ==================================================================== */}
       {/* 3. MY ACTIVITIES SECTION                                             */}
       {/* ==================================================================== */}
       <div className="space-y-3 pt-1">
@@ -414,6 +428,59 @@ export function TeacherDashboardView({
                 priority
                 className="object-cover object-right"
               />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ==================================================================== */}
+      {/* 4. LATEST FEEDBACK SUMMARY WIDGET                                    */}
+      {/* ==================================================================== */}
+      <div className="w-full bg-white rounded-[24px] p-5 sm:p-6 shadow-[0_2px_14px_rgba(30,100,200,0.03)] border border-slate-100/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0B72E7] flex items-center justify-center shrink-0 border border-blue-100">
+              <MessageSquareHeart className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-bold text-[#102A56]">
+                  Latest Student Feedback
+                </h3>
+                {feedbackSummary?.cycleTitle && (
+                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0B72E7] border border-blue-200/60">
+                    {feedbackSummary.cycleTitle}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Aggregated & anonymized student evaluations from your assigned classes
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-2 bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-100">
+              <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+              <div>
+                <span className="text-base font-bold text-[#102A56]">
+                  {feedbackSummary?.overallRating ? feedbackSummary.overallRating.toFixed(1) : '—'}
+                </span>
+                <span className="text-xs text-slate-400 font-medium ml-1">/ 5.0</span>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <p className="text-xs font-semibold text-slate-600">
+                {feedbackSummary?.responseCount || 0} Responses
+              </p>
+              <Link
+                href="/teacher/feedback"
+                className="text-xs font-bold text-[#0B72E7] hover:underline flex items-center gap-1 mt-0.5"
+              >
+                <span>View Full Insights</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
           </div>
         </div>

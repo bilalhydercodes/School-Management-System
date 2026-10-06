@@ -497,6 +497,7 @@ export async function updateWorkingDaysAction(days: string[]) {
     });
 
     revalidatePath('/admin/timetable');
+    revalidatePath('/admin/calendar');
     return { success: true as const };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Failed to update working days.';

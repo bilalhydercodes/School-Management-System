@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
-import { getSessionFromCookies } from '@/lib/session';
+import { getAuthenticatedContext } from '@/lib/auth-context';
 import StudentDirectoryClient, {
   type StudentItem,
 } from '@/components/admin/StudentDirectoryClient';
@@ -8,12 +8,12 @@ import StudentDirectoryClient, {
 export const dynamic = 'force-dynamic';
 
 export default async function AdminStudentsPage() {
-  const session = await getSessionFromCookies();
-  if (!session || (session.role !== 'ADMIN' && session.role !== 'SUPER_ADMIN')) {
+  const authContext = await getAuthenticatedContext();
+  if (!authContext || (authContext.role !== 'ADMIN' && authContext.role !== 'SUPER_ADMIN')) {
     redirect('/login?redirect=/admin/students');
   }
 
-  const tenantId = session.tenantId;
+  const tenantId = authContext.tenantId;
   if (!tenantId) {
     return <div>Platform context required.</div>;
   }
@@ -32,6 +32,7 @@ export default async function AdminStudentsPage() {
             phone: true,
             avatarUrl: true,
             isActive: true,
+            deletedAt: true,
           },
         },
         section: {
@@ -58,7 +59,8 @@ export default async function AdminStudentsPage() {
         },
         attendances: {
           select: { status: true },
-          take: 50,
+          take: 60,
+          orderBy: { date: 'desc' },
         },
         feeInvoices: {
           select: {
@@ -67,6 +69,7 @@ export default async function AdminStudentsPage() {
             balanceAmount: true,
             status: true,
           },
+          take: 20,
         },
       },
       orderBy: { rollNumber: 'asc' },

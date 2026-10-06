@@ -41,7 +41,7 @@ export const quickActionItems = [
   },
   {
     id: 'calendar',
-    href: '/admin/events',
+    href: '/admin/calendar',
     label1: 'Academic',
     label2: 'Calendar',
     icon: CalendarDays,

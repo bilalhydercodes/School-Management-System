@@ -5,8 +5,8 @@ import Image from 'next/image';
 
 export interface BrandLoaderProps {
   /**
-   * Main status message displayed beneath the logo emblem.
-   * @default 'Preparing your workspace'
+   * Main status message displayed beneath the logo emblem. If omitted or empty, no message is displayed.
+   * @default ''
    */
   message?: string;
   /**
@@ -71,7 +71,7 @@ export default function BrandLoader({
     <div
       role="status"
       aria-live="polite"
-      aria-label="Loading Alpha Edu Hub"
+      aria-label={message || 'Loading Alpha Edu Hub'}
       className={`${containerClasses} ${className}`}
     >
       {/* Background ambient subtle gradient or atmosphere */}
@@ -113,28 +113,32 @@ export default function BrandLoader({
           </div>
         </div>
 
-        {/* Status Message */}
-        <div className="mt-7 sm:mt-8 space-y-1.5 flex flex-col items-center">
-          <p
-            className={`${config.title} font-bold text-slate-800 tracking-tight flex items-center gap-1.5`}
-          >
-            <span>{message}</span>
-            <span className="inline-flex gap-0.5 text-[#008CFF] font-black motion-safe:animate-pulse">
-              <span className="inline-block animate-[bounce_1.4s_infinite_0.1s]">.</span>
-              <span className="inline-block animate-[bounce_1.4s_infinite_0.2s]">.</span>
-              <span className="inline-block animate-[bounce_1.4s_infinite_0.3s]">.</span>
-            </span>
-          </p>
+        {/* Status Message - only rendered when message or sublabel is provided */}
+        {(Boolean(message) || Boolean(sublabel)) && (
+          <div className="mt-7 sm:mt-8 space-y-1.5 flex flex-col items-center">
+            {message ? (
+              <p
+                className={`${config.title} font-bold text-slate-800 tracking-tight flex items-center gap-1.5`}
+              >
+                <span>{message}</span>
+                <span className="inline-flex gap-0.5 text-[#008CFF] font-black motion-safe:animate-pulse">
+                  <span className="inline-block animate-[bounce_1.4s_infinite_0.1s]">.</span>
+                  <span className="inline-block animate-[bounce_1.4s_infinite_0.2s]">.</span>
+                  <span className="inline-block animate-[bounce_1.4s_infinite_0.3s]">.</span>
+                </span>
+              </p>
+            ) : null}
 
-          {/* Brand Sublabel Badge */}
-          {sublabel && (
-            <span
-              className={`${config.badge} font-bold uppercase tracking-[0.18em] text-[#008CFF] bg-blue-50/90 border border-blue-100/90 px-3 py-0.5 rounded-full shadow-2xs mt-1`}
-            >
-              {sublabel}
-            </span>
-          )}
-        </div>
+            {/* Brand Sublabel Badge */}
+            {sublabel ? (
+              <span
+                className={`${config.badge} font-bold uppercase tracking-[0.18em] text-[#008CFF] bg-blue-50/90 border border-blue-100/90 px-3 py-0.5 rounded-full shadow-2xs mt-1`}
+              >
+                {sublabel}
+              </span>
+            ) : null}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,7 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getSessionFromCookies } from '@/lib/session';
-import { getAuthoritativeUserFromClerk } from '@/lib/clerk-auth';
-import { prisma } from '@/lib/db';
+import { getAuthenticatedContext } from '@/lib/auth-context';
 import AdminLayoutClient from '@/components/admin/AdminLayoutClient';
 
 export const metadata = {
@@ -42,52 +40,26 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 1. Session verification & RBAC guard (Supports both Clerk & Session Cookie)
-  const clerkSession = await getAuthoritativeUserFromClerk();
-  const session = await getSessionFromCookies();
+  // 1. Session verification & Zero-redundancy authenticated context
+  const context = await getAuthenticatedContext();
 
-  const effectiveRole = clerkSession?.role || session?.role;
-  const effectiveUserId = clerkSession?.appUser.userId || session?.sub;
-  const effectiveEmail = clerkSession?.appUser.email || session?.email;
-  const effectiveTenantId = clerkSession?.tenantId || session?.tenantId;
-
-  if (!effectiveRole || !effectiveUserId) {
+  if (!context) {
     redirect('/login?redirect=/admin');
   }
 
-  if (effectiveRole !== 'ADMIN' && effectiveRole !== 'SUPER_ADMIN' && effectiveRole !== 'ACCOUNTANT') {
+  if (
+    context.role !== 'ADMIN' &&
+    context.role !== 'SUPER_ADMIN' &&
+    context.role !== 'ACCOUNTANT'
+  ) {
     redirect('/unauthorized');
   }
 
-  // 2. Fetch tenant & user details
-  const [user, tenant, academicYear] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: effectiveUserId },
-      select: { firstName: true, lastName: true, email: true, role: true },
-    }),
-    effectiveTenantId
-      ? prisma.tenant.findUnique({
-          where: { id: effectiveTenantId },
-          select: { name: true, board: true },
-        })
-      : null,
-    effectiveTenantId
-      ? prisma.academicYear.findFirst({
-          where: { tenantId: effectiveTenantId, isCurrent: true },
-          select: { name: true },
-        })
-      : null,
-  ]);
-
-  const schoolName = tenant?.name || 'Alpha Edu Hub';
-  const board = tenant?.board || 'CBSE';
-  const academicYearName = academicYear?.name || '2026-27';
-  const adminName = user
-    ? `${user.firstName} ${user.lastName}`
-    : clerkSession
-    ? `${clerkSession.appUser.firstName} ${clerkSession.appUser.lastName}`
-    : 'Administrator';
-  const adminEmail = user?.email || effectiveEmail || 'admin@dps.edu.in';
+  const schoolName = context.tenant?.name || 'Alpha Edu Hub';
+  const board = context.tenant?.board || 'CBSE';
+  const academicYearName = context.academicYear?.name || '2026-27';
+  const adminName = context.user.fullName || 'Administrator';
+  const adminEmail = context.user.email || 'admin@school.edu.in';
 
   return (
     <AdminLayoutClient
@@ -96,7 +68,7 @@ export default async function AdminLayout({
       academicYear={academicYearName}
       adminName={adminName}
       adminEmail={adminEmail}
-      role={effectiveRole}
+      role={context.role}
     >
       {children}
     </AdminLayoutClient>

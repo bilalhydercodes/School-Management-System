@@ -10,7 +10,9 @@ import {
   CreditCard,
   LogOut as LeaveIcon,
   ChevronRight,
+  MessageSquareHeart,
 } from 'lucide-react';
+import AIInsightsWidget from '@/components/ai/AIInsightsWidget';
 
 interface DashboardScreenProps {
   student: {
@@ -187,8 +189,29 @@ export default function DashboardScreen({
               Leave
             </span>
           </button>
+
+          {/* Action 7: Teacher Feedback */}
+          <button
+            type="button"
+            onClick={() => onSelectNav('teacher-feedback')}
+            className="group flex flex-col items-center focus:outline-none"
+          >
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#E0E7FF] flex items-center justify-center text-[#4F46E5] shadow-2xs group-hover:scale-105 group-hover:shadow-sm transition-all duration-200">
+              <MessageSquareHeart className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
+            </div>
+            <span className="text-xs font-semibold text-slate-700 mt-2.5 leading-tight group-hover:text-blue-600 transition-colors text-center">
+              Teacher
+              <br />
+              Feedback
+            </span>
+          </button>
         </div>
       </div>
+
+      {/* ================================================================== */}
+      {/* 2.5. PROACTIVE AI INSIGHTS                                         */}
+      {/* ================================================================== */}
+      <AIInsightsWidget />
 
       {/* ================================================================== */}
       {/* 3. MY ACTIVITIES SECTION (Vibrant Royal Blue Heading)               */}

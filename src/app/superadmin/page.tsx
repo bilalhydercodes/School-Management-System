@@ -6,34 +6,66 @@ import SuperAdminDashboardClient, {
 export const dynamic = 'force-dynamic';
 
 export default async function SuperAdminPage() {
-  // Query platform-wide data concurrently
-  const [tenants, studentCount, teacherCount, studentGroups, auditLogs] = await Promise.all([
-    prisma.tenant.findMany({
+  let tenants: any[] = [];
+  let studentCount = 0;
+  let teacherCount = 0;
+  let studentGroups: any[] = [];
+  let auditLogs: any[] = [];
+
+  try {
+    tenants = await prisma.tenant.findMany({
       include: {
         subscriptionPlan: true,
         domains: true,
       },
       orderBy: { createdAt: 'desc' },
-    }),
-    prisma.studentProfile.count(),
-    prisma.teacherProfile.count(),
-    prisma.studentProfile.groupBy({
-      by: ['tenantId'],
-      _count: { id: true },
-    }),
-    prisma.auditLog.findMany({
-      take: 8,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        tenant: { select: { name: true } },
-        user: { select: { email: true } },
-      },
-    }),
-  ]);
+    });
+  } catch (err: any) {
+    console.warn('First attempt to query tenants failed, retrying in 500ms...', err?.message);
+    await new Promise((r) => setTimeout(r, 500));
+    try {
+      tenants = await prisma.tenant.findMany({
+        include: {
+          subscriptionPlan: true,
+          domains: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (retryErr) {
+      console.error('Failed to query tenants after retry:', retryErr);
+      tenants = [];
+    }
+  }
+
+  try {
+    const results = await Promise.all([
+      prisma.studentProfile.count().catch(() => 0),
+      prisma.teacherProfile.count().catch(() => 0),
+      prisma.studentProfile.groupBy({
+        by: ['tenantId'],
+        _count: { id: true },
+      }).catch(() => []),
+      prisma.auditLog.findMany({
+        take: 8,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          tenant: { select: { name: true } },
+          user: { select: { email: true } },
+        },
+      }).catch(() => []),
+    ]);
+
+    studentCount = results[0];
+    teacherCount = results[1];
+    studentGroups = results[2];
+    auditLogs = results[3];
+  } catch {
+    // Graceful fallback
+  }
 
   const studentCountMap = new Map<string, number>();
   studentGroups.forEach((g) => {
-    studentCountMap.set(g.tenantId, g._count.id);
+    studentCountMap.set(g.tenantId, g._count?.id || 0);
   });
 
   const totalTenants = tenants.length;
@@ -81,9 +113,9 @@ export default async function SuperAdminPage() {
     }));
 
   const pendingDnsDomains = tenants.flatMap((t) =>
-    t.domains
-      .filter((d) => !d.isVerified)
-      .map((d) => ({
+    (t.domains || [])
+      .filter((d: any) => !d.isVerified)
+      .map((d: any) => ({
         tenantName: t.name,
         domain: d.domain,
       }))

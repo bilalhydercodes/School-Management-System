@@ -206,7 +206,6 @@ export default function RootLayout({
   const content = (
     <html lang="en" className={plusJakartaSans.variable} suppressHydrationWarning>
       <head>
-        <link rel="preload" as="image" href="/login_left_panel_image.png" fetchPriority="high" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -185,3 +185,178 @@ export async function sendSmsOtp({
     return { success: false, error: errorMsg };
   }
 }
+
+/**
+ * Generic email dispatcher reusing configured Resend API or SMTP Transporter with dev fallback
+ */
+async function sendBrandedEmail({
+  to,
+  subject,
+  html,
+  text,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+}): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  try {
+    const fromAddress = process.env.SMTP_FROM || process.env.EMAIL_FROM || '"Alpha Edu Hub" <no-reply@alphaeduhub.in>';
+    const transporter = createTransporter();
+
+    if (process.env.RESEND_API_KEY) {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [to],
+          subject,
+          html,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        return { success: true, messageId: data.id };
+      }
+    }
+
+    if (transporter) {
+      const info = await transporter.sendMail({
+        from: fromAddress,
+        to,
+        subject,
+        text,
+        html,
+      });
+      return { success: true, messageId: info.messageId };
+    }
+
+    console.info(`[EMAIL-DISPATCH-DEV] To: ${to} | Subject: ${subject}`);
+    return { success: true, messageId: `dev-mail-${Date.now()}` };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Failed to dispatch email';
+    console.error('[EMAIL-DISPATCH-ERROR]', errorMsg);
+    return { success: false, error: errorMsg };
+  }
+}
+
+export async function sendRegistrationReceivedEmail({
+  to,
+  recipientName,
+  institutionName,
+  applicationNumber,
+}: {
+  to: string;
+  recipientName: string;
+  institutionName: string;
+  applicationNumber: string;
+}) {
+  const subject = `Application Received: ${institutionName} (${applicationNumber}) — Alpha Edu Hub`;
+  const text = `Hello ${recipientName},\n\nThank you for submitting your application to onboard ${institutionName} onto Alpha Edu Hub. Your application number is ${applicationNumber}.\n\nOur platform team will review your application and contact you soon.`;
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 28px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h2 style="color: #0b72e7; margin: 0; font-size: 24px; font-weight: 800;">Alpha Edu Hub</h2>
+        <p style="color: #64748b; font-size: 13px; margin-top: 4px;">Next-Gen Multi-Tenant School & College ERP</p>
+      </div>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+        <h3 style="color: #0f172a; margin-top: 0; font-size: 18px;">Application Received</h3>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">Hello <strong>${recipientName}</strong>,</p>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">Thank you for registering <strong>${institutionName}</strong> with Alpha Edu Hub. Your institution onboarding application has been successfully logged.</p>
+        <div style="background-color: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 14px; text-align: center; margin: 16px 0;">
+          <span style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 4px;">Application Reference Number</span>
+          <span style="font-family: monospace; font-size: 22px; font-weight: 700; color: #0b72e7; letter-spacing: 2px;">${applicationNumber}</span>
+        </div>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">Our platform verification team is currently reviewing your application. Once approved, you will receive an invitation link to set your administrator credentials and access your dashboard.</p>
+      </div>
+      <p style="color: #94a3b8; font-size: 11px; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} Alpha Edu Hub. All rights reserved.</p>
+    </div>
+  `;
+
+  return sendBrandedEmail({ to, subject, html, text });
+}
+
+export async function sendApplicationApprovedEmail({
+  to,
+  recipientName,
+  institutionName,
+  activationLink,
+}: {
+  to: string;
+  recipientName: string;
+  institutionName: string;
+  activationLink: string;
+}) {
+  const subject = `Your Institution Has Been Approved! Activate Your Administrator Account — Alpha Edu Hub`;
+  const text = `Hello ${recipientName},\n\nGreat news! Your application for ${institutionName} has been approved.\n\nPlease activate your administrator account by visiting the link below:\n${activationLink}\n\nThis activation link is valid for 7 days.`;
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 28px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h2 style="color: #0b72e7; margin: 0; font-size: 24px; font-weight: 800;">Alpha Edu Hub</h2>
+        <p style="color: #64748b; font-size: 13px; margin-top: 4px;">Next-Gen Multi-Tenant School & College ERP</p>
+      </div>
+      <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+        <h3 style="color: #166534; margin-top: 0; font-size: 18px;">Institution Approved</h3>
+        <p style="color: #374151; font-size: 14px; line-height: 1.6;">Hello <strong>${recipientName}</strong>,</p>
+        <p style="color: #374151; font-size: 14px; line-height: 1.6;">Congratulations! Your institution application for <strong>${institutionName}</strong> has been reviewed and approved by the Super Admin team.</p>
+        <p style="color: #374151; font-size: 14px; line-height: 1.6;">Your multi-tenant workspace is ready. To complete setup and activate your Institution Administrator account, click the button below:</p>
+        <div style="text-align: center; margin: 26px 0;">
+          <a href="${activationLink}" style="display: inline-block; background-color: #0b72e7; color: #ffffff; text-decoration: none; padding: 14px 32px; font-size: 15px; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 12px rgba(11, 114, 231, 0.35);">
+            Activate Administrator Account &rarr;
+          </a>
+        </div>
+        <p style="color: #6b7280; font-size: 12px; line-height: 1.5; margin-top: 20px;">Or copy and paste this URL into your browser:<br/><a href="${activationLink}" style="color: #0b72e7; word-break: break-all;">${activationLink}</a></p>
+        <p style="color: #9ca3af; font-size: 11px; margin-top: 14px;">This activation link is securely signed and will expire in 7 days.</p>
+      </div>
+      <p style="color: #94a3b8; font-size: 11px; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} Alpha Edu Hub. All rights reserved.</p>
+    </div>
+  `;
+
+  return sendBrandedEmail({ to, subject, html, text });
+}
+
+export async function sendApplicationRejectedEmail({
+  to,
+  recipientName,
+  institutionName,
+  reason,
+}: {
+  to: string;
+  recipientName: string;
+  institutionName: string;
+  reason?: string;
+}) {
+  const subject = `Update Regarding Your Application for ${institutionName} — Alpha Edu Hub`;
+  const text = `Hello ${recipientName},\n\nThank you for your interest in Alpha Edu Hub. After careful review, we are unable to approve your application for ${institutionName} at this time.\n\nReason: ${reason || 'Details could not be verified'}\n\nIf you have questions, please contact support@alphaeduhub.in.`;
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 28px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h2 style="color: #0b72e7; margin: 0; font-size: 24px; font-weight: 800;">Alpha Edu Hub</h2>
+        <p style="color: #64748b; font-size: 13px; margin-top: 4px;">Next-Gen Multi-Tenant School & College ERP</p>
+      </div>
+      <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+        <h3 style="color: #991b1b; margin-top: 0; font-size: 18px;">Application Status Update</h3>
+        <p style="color: #374151; font-size: 14px; line-height: 1.6;">Hello <strong>${recipientName}</strong>,</p>
+        <p style="color: #374151; font-size: 14px; line-height: 1.6;">Thank you for your interest in onboarding <strong>${institutionName}</strong> onto Alpha Edu Hub. After review, we are unable to approve your application at this time.</p>
+        ${
+          reason
+            ? `<div style="background-color: #ffffff; border: 1px solid #f87171; border-radius: 8px; padding: 14px; margin: 16px 0;">
+                <strong style="color: #991b1b; font-size: 13px; display: block; margin-bottom: 4px;">Reason provided:</strong>
+                <p style="color: #4b5563; font-size: 13px; margin: 0; line-height: 1.5;">${reason}</p>
+              </div>`
+            : ''
+        }
+        <p style="color: #4b5563; font-size: 13px; line-height: 1.6;">If you believe this decision was made in error or wish to submit updated documentation, please contact our onboarding support team at <a href="mailto:support@alphaeduhub.in" style="color: #0b72e7;">support@alphaeduhub.in</a>.</p>
+      </div>
+      <p style="color: #94a3b8; font-size: 11px; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} Alpha Edu Hub. All rights reserved.</p>
+    </div>
+  `;
+
+  return sendBrandedEmail({ to, subject, html, text });
+}
+

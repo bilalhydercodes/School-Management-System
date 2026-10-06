@@ -199,3 +199,13 @@ export interface ApiResponse<T = unknown> {
     total?: number;
   };
 }
+
+export const ApplicationStatus = {
+  PENDING: 'PENDING',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export type ApplicationStatusType = (typeof ApplicationStatus)[keyof typeof ApplicationStatus];

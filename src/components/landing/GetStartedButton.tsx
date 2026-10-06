@@ -21,16 +21,14 @@ export default function GetStartedButton({
   // Eager prefetch in background as soon as component mounts
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const preloadImg = new window.Image();
-      preloadImg.src = '/login_left_panel_image.png';
-      router.prefetch('/login');
+      router.prefetch('/register/institution');
     }
   }, [router]);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (onClick) onClick();
-    router.push('/login');
+    router.push('/register/institution');
   };
 
   return (

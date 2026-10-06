@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
-import { getSessionFromCookies } from '@/lib/session';
+import { getAuthenticatedContext } from '@/lib/auth-context';
 import TeacherDirectoryClient, {
   type TeacherItem,
 } from '@/components/admin/TeacherDirectoryClient';
@@ -8,12 +8,12 @@ import TeacherDirectoryClient, {
 export const dynamic = 'force-dynamic';
 
 export default async function AdminTeachersPage() {
-  const session = await getSessionFromCookies();
-  if (!session || (session.role !== 'ADMIN' && session.role !== 'SUPER_ADMIN')) {
+  const authContext = await getAuthenticatedContext();
+  if (!authContext || (authContext.role !== 'ADMIN' && authContext.role !== 'SUPER_ADMIN')) {
     redirect('/login?redirect=/admin/teachers');
   }
 
-  const tenantId = session.tenantId;
+  const tenantId = authContext.tenantId;
   if (!tenantId) {
     return <div>Platform context required.</div>;
   }
@@ -34,6 +34,7 @@ export default async function AdminTeachersPage() {
             phone: true,
             avatarUrl: true,
             isActive: true,
+            deletedAt: true,
           },
         },
         assignedSubstitutions: {

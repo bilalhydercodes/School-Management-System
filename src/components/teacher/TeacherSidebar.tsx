@@ -8,12 +8,14 @@ import {
   Home,
   UserCheck,
   Calendar,
+  CalendarDays,
   CalendarRange,
   CheckSquare,
   Users,
   FileSpreadsheet,
   UploadCloud,
   MessageSquare,
+  MessageSquareHeart,
   Briefcase,
   ClipboardList,
   Bell,
@@ -65,6 +67,7 @@ export function TeacherSidebar({
     {
       items: [
         { name: 'Dashboard', href: '/teacher', icon: Home },
+        { name: 'Academic Calendar', href: '/teacher/calendar', icon: CalendarDays },
         { name: 'My Attendance', href: '/teacher/attendance', icon: UserCheck },
         { name: "Today's Schedule", href: '/teacher/schedule', icon: Calendar },
         { name: 'Timetable', href: '/teacher/timetable', icon: CalendarRange },
@@ -77,6 +80,7 @@ export function TeacherSidebar({
         { name: 'Exam Marks Entry', href: '/teacher/marks', icon: FileSpreadsheet },
         { name: 'Bulk Marks Import', href: '/teacher/marks/import', icon: UploadCloud },
         { name: 'Student Remarks', href: '/teacher/remarks', icon: MessageSquare },
+        { name: 'My Feedback', href: '/teacher/feedback', icon: MessageSquareHeart },
       ],
     },
     {

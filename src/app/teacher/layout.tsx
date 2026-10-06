@@ -1,8 +1,7 @@
 import React from 'react';
-import { getSessionFromCookies } from '@/lib/session';
 import { Role } from '@/types';
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
+import { getAuthenticatedContext } from '@/lib/auth-context';
 import TeacherLayoutClient from '@/components/teacher/TeacherLayoutClient';
 
 export const metadata = {
@@ -49,53 +48,29 @@ export default async function TeacherPortalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSessionFromCookies();
+  const context = await getAuthenticatedContext();
 
-  if (!session) {
+  if (!context) {
     redirect('/login?redirect=/teacher');
   }
 
   if (
-    session.role !== Role.TEACHER &&
-    session.role !== Role.SUPER_ADMIN &&
-    session.role !== Role.ADMIN
+    context.role !== Role.TEACHER &&
+    context.role !== Role.SUPER_ADMIN &&
+    context.role !== Role.ADMIN
   ) {
     redirect('/unauthorized');
   }
 
-  let teacherName =
-    session.firstName && session.lastName
-      ? `${session.firstName} ${session.lastName}`
-      : 'Teacher';
-  let teacherAvatarUrl: string | null = null;
-  let teacherGender: string | null = (session as any).gender || null;
-
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (session.sub && isUuid.test(session.sub)) {
-    try {
-      const dbUser = await prisma.user.findUnique({
-        where: { id: session.sub },
-        select: { firstName: true, lastName: true, avatarUrl: true },
-      });
-      if (dbUser) {
-        if (dbUser.firstName && dbUser.lastName) {
-          teacherName = `${dbUser.firstName} ${dbUser.lastName}`;
-        }
-        teacherAvatarUrl = dbUser.avatarUrl;
-      }
-    } catch {
-      // Graceful fallback
-    }
-  }
+  const teacherName = context.user.fullName || 'Teacher';
+  const teacherAvatarUrl = context.user.avatarUrl;
 
   return (
     <TeacherLayoutClient
       teacherName={teacherName}
-      gender={teacherGender}
       avatarUrl={teacherAvatarUrl}
     >
       {children}
     </TeacherLayoutClient>
   );
 }
-

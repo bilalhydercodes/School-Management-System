@@ -10,6 +10,7 @@ import PortalSidebar from './PortalSidebar';
 import PortalHeader from './PortalHeader';
 import ScreenSkeleton from './ScreenSkeleton';
 import DashboardScreen from './screens/DashboardScreen';
+import AIChat from '@/components/ai/AIChat';
 
 // ─── Lazy-loaded secondary screen chunks ──────────────────────────────────────
 // Secondary tabs are code-split and fetched on demand when clicked.
@@ -19,6 +20,8 @@ const StudentIdCardScreen    = dynamic(() => import('./screens/StudentIdCardScre
 const ProfileSettingsScreen  = dynamic(() => import('./screens/ProfileSettingsScreen'),  { loading: skeleton });
 const TodayTimetableScreen   = dynamic(() => import('./screens/TodayTimetableScreen'),   { loading: skeleton });
 const WeeklyTimetableScreen  = dynamic(() => import('./screens/WeeklyTimetableScreen'),  { loading: skeleton });
+const AcademicCalendarScreen = dynamic(() => import('./screens/AcademicCalendarScreen'), { loading: skeleton });
+const TeacherFeedbackScreen  = dynamic(() => import('./screens/TeacherFeedbackScreen'),  { loading: skeleton });
 const SyllabusCurriculumScreen = dynamic(() => import('./screens/SyllabusCurriculumScreen'), { loading: skeleton });
 const MyAttendanceScreen     = dynamic(() => import('./screens/MyAttendanceScreen'),     { loading: skeleton });
 const AttendanceCalendarScreen = dynamic(() => import('./screens/AttendanceCalendarScreen'), { loading: skeleton });
@@ -294,6 +297,17 @@ export default function StudentParentDashboardClient({
                 <WeeklyTimetableScreen onBackToDashboard={backToDashboard} onSelectNav={handleSelectNav} />
               )}
 
+              {activeNav === 'academic-calendar' && (
+                <AcademicCalendarScreen
+                  onBackToDashboard={backToDashboard}
+                  userRole={parentContext?.isParentView ? 'PARENT' : 'STUDENT'}
+                />
+              )}
+
+              {activeNav === 'teacher-feedback' && (
+                <TeacherFeedbackScreen onBackToDashboard={backToDashboard} />
+              )}
+
               {activeNav === 'syllabus-curriculum' && (
                 <SyllabusCurriculumScreen onBackToDashboard={backToDashboard} />
               )}
@@ -440,6 +454,13 @@ export default function StudentParentDashboardClient({
           selectedAuthority={selectedAuthority}
         />
       )}
+
+      {/* Alpha AI Copilot Floating Assistant */}
+      <AIChat
+        schoolName="Alpha Edu Hub"
+        initialRole={parentContext?.isParentView ? 'PARENT' : 'STUDENT'}
+        initialUserName={parentContext?.isParentView ? parentContext.parentName : student.name}
+      />
     </div>
   );
 }

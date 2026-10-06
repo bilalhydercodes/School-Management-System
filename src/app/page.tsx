@@ -1,5 +1,6 @@
 import LandingPage from '@/components/landing/LandingPage';
 import { prisma } from '@/lib/db';
+import { unstable_cache } from 'next/cache';
 
 export const revalidate = 60; // Revalidate live community statistics every 60s
 

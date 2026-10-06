@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
-import { getSessionFromCookies } from '@/lib/session';
+import { getAuthenticatedContext } from '@/lib/auth-context';
 import AdminReportsClient, {
   ClassEnrollmentStat,
   FeeMetricReport,
@@ -11,23 +11,19 @@ import { Role } from '@/types';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminReportsPage() {
-  const session = await getSessionFromCookies();
-  if (!session || (session.role !== Role.ADMIN && session.role !== Role.SUPER_ADMIN)) {
+  const authContext = await getAuthenticatedContext();
+  if (!authContext || (authContext.role !== Role.ADMIN && authContext.role !== Role.SUPER_ADMIN)) {
     redirect('/unauthorized');
   }
 
-  const tenantId = session.tenantId;
+  const tenantId = authContext.tenantId;
   if (!tenantId) {
     redirect('/unauthorized');
   }
 
-  // Fetch real aggregate numbers from database
-  const [tenant, totalStudents, totalStaff, totalParents, feeInvoices, classGradesRaw] =
+  // Fetch real aggregate numbers from database in parallel
+  const [totalStudents, totalStaff, totalParents, feeInvoices, classGradesRaw] =
     await Promise.all([
-      prisma.tenant.findUnique({
-        where: { id: tenantId },
-        select: { name: true },
-      }),
       prisma.studentProfile.count({
         where: { tenantId, user: { isActive: true } },
       }),
@@ -61,7 +57,7 @@ export default async function AdminReportsPage() {
       }),
     ]);
 
-  const schoolName = tenant?.name || 'Alpha Edu Hub';
+  const schoolName = authContext.tenant?.name || 'Alpha Edu Hub';
 
   // Compute fee metrics
   const totalBilled = feeInvoices.reduce((acc, inv) => acc + Number(inv.totalAmount), 0);

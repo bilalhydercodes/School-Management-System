@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation';
-import { getSessionFromCookies } from '@/lib/session';
+import { getAuthenticatedContext } from '@/lib/auth-context';
 import { prisma } from '@/lib/db';
 import { TeacherDashboardView } from '@/components/teacher/TeacherDashboardView';
 
 export default async function TeacherDashboardPage() {
-  const session = await getSessionFromCookies();
-  if (!session) {
+  const context = await getAuthenticatedContext();
+  if (!context) {
     redirect('/login?redirect=/teacher');
   }
 
@@ -13,35 +13,58 @@ export default async function TeacherDashboardPage() {
   const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
   let todayAttendance = null;
-  let teacherName =
-    session?.firstName && session?.lastName
-      ? `${session.firstName} ${session.lastName}`
-      : 'Sanjay Yadav';
-  let teacherAvatarUrl: string | null = null;
-  let teacherGender: string | null = (session as any)?.gender || null;
+  let feedbackSummary: { responseCount: number; overallRating: number; cycleTitle?: string } | null = null;
+  const teacherName = context.user.fullName || 'Faculty Member';
+  const teacherAvatarUrl = context.user.avatarUrl;
 
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (session?.tenantId && session?.sub && isUuid.test(session.sub) && isUuid.test(session.tenantId)) {
+  if (context.tenantId && context.userId && isUuid.test(context.userId) && isUuid.test(context.tenantId)) {
     try {
-      const [attendance, dbUser] = await Promise.all([
-        prisma.staffAttendance.findFirst({
-          where: {
-            tenantId: session.tenantId,
-            userId: session.sub,
-            date: todayStart,
-          },
-        }),
-        prisma.user.findUnique({
-          where: { id: session.sub },
-          select: { firstName: true, lastName: true, avatarUrl: true },
-        }),
-      ]);
-      todayAttendance = attendance;
-      if (dbUser) {
-        if (dbUser.firstName && dbUser.lastName) {
-          teacherName = `${dbUser.firstName} ${dbUser.lastName}`;
+      todayAttendance = await prisma.staffAttendance.findFirst({
+        where: {
+          tenantId: context.tenantId,
+          userId: context.userId,
+          date: todayStart,
+        },
+      });
+
+      const teacherProfile = await prisma.teacherProfile.findFirst({
+        where: { tenantId: context.tenantId, userId: context.userId },
+        select: { id: true },
+      });
+
+      if (teacherProfile) {
+        const activeCycle = await prisma.feedbackCycle.findFirst({
+          where: { tenantId: context.tenantId, status: 'ACTIVE' },
+          select: { id: true, title: true },
+        });
+
+        if (activeCycle) {
+          const submissions = await prisma.feedbackSubmission.findMany({
+            where: {
+              tenantId: context.tenantId,
+              teacherId: teacherProfile.id,
+              feedbackCycleId: activeCycle.id,
+            },
+            select: { overallRating: true },
+          });
+
+          if (submissions.length > 0) {
+            let sum = 0;
+            let count = 0;
+            for (const s of submissions) {
+              if (s.overallRating) {
+                sum += Number(s.overallRating);
+                count++;
+              }
+            }
+            feedbackSummary = {
+              responseCount: submissions.length,
+              overallRating: count > 0 ? Number((sum / count).toFixed(1)) : 0,
+              cycleTitle: activeCycle.title,
+            };
+          }
         }
-        teacherAvatarUrl = dbUser.avatarUrl;
       }
     } catch {
       // Graceful fallback
@@ -52,10 +75,12 @@ export default async function TeacherDashboardPage() {
     <TeacherDashboardView
       teacherName={teacherName}
       roleTitle="Teacher"
-      gender={teacherGender}
+      gender={null}
       avatarUrl={teacherAvatarUrl}
       initialCheckInTime={todayAttendance?.checkInTime?.toISOString() ?? null}
       initialCheckOutTime={todayAttendance?.checkOutTime?.toISOString() ?? null}
+      feedbackSummary={feedbackSummary}
     />
   );
 }
+

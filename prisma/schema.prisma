@@ -43,6 +43,7 @@ model Tenant {
   academicYears         AcademicYear[]
   admissionApplications AdmissionApplication[]
   auditLogs             AuditLog[]
+  calendarEvents        CalendarEvent[]
   classGrades           ClassGrade[]
   classSubjectTeachers  ClassSubjectTeacher[]
   emergencyContacts     EmergencyContact[]
@@ -77,6 +78,11 @@ model Tenant {
   domains               TenantDomain[]
   timetableEntries      TimetableEntry[]
   users                 User[]
+  institutionApplications InstitutionApplication[]
+  feedbackCycles        FeedbackCycle[]
+  feedbackTemplates     FeedbackTemplate[]
+  feedbackSubmissions   FeedbackSubmission[]
+  aiConversations       AIConversation[]
 }
 
 model TenantDomain {
@@ -141,6 +147,10 @@ model User {
   enteredExamResults    ExamResult[]          @relation("ExamResultEnteredBy")
   assignedSubstitutions TeacherSubstitution[] @relation("SubstitutionAssigner")
   createdEvents         Event[]               @relation("EventCreator")
+  createdCalendarEvents CalendarEvent[]       @relation("CalendarEventCreator")
+  reviewedApplications  InstitutionApplication[] @relation("ApplicationReviewer")
+  managedApplications   InstitutionApplication[] @relation("ApplicationAdminUser")
+  aiConversations       AIConversation[]
   tenant                Tenant?               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, email])
@@ -166,16 +176,28 @@ model TeacherProfile {
   userId                String                @unique @db.Uuid
   employeeId            String
   department            String
+  designation           String?               @default("Teacher")
   qualification         String
-  joiningDate           DateTime
   specialization        String?
+  joiningDate           DateTime
+  employmentType        EmploymentType        @default(FULL_TIME)
+  status                TeacherStatus         @default(ACTIVE)
+  dateOfBirth           DateTime?
+  gender                String?
+  alternatePhone        String?
+  address               String?
+  city                  String?
+  state                 String?
+  pinCode               String?
+  qualifications        Json?
   createdAt             DateTime              @default(now())
-  updatedAt DateTime@default(now()) @updatedAt
+  updatedAt             DateTime              @default(now()) @updatedAt
   classSubjects         ClassSubjectTeacher[]
   classTeacherSections  Section[]             @relation("SectionClassTeacher")
   originalSubstitutions TeacherSubstitution[] @relation("OriginalTeacher")
   assignedSubstitutions TeacherSubstitution[] @relation("SubstituteTeacher")
   timetables            TimetableEntry[]
+  feedbackSubmissions   FeedbackSubmission[]
   user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   tenant                Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
@@ -205,6 +227,7 @@ model StudentProfile {
   parents              ParentStudentLink[]
   parentalConsents     ParentalConsent[]
   attendances          StudentAttendance[]
+  feedbackSubmissions  FeedbackSubmission[]
   section              Section               @relation(fields: [sectionId], references: [id])
   user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   tenant               Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -261,6 +284,8 @@ model AcademicYear {
   feeInvoices           FeeInvoice[]
   feeStructures         FeeStructure[]
   feeTerms              FeeTerm[]
+  calendarEvents        CalendarEvent[]
+  feedbackCycles        FeedbackCycle[]
   tenant                Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, name])
@@ -986,3 +1011,319 @@ enum ContactCategory {
   POLICE
   OTHER
 }
+
+enum ApplicationStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model InstitutionApplication {
+  id                       String            @id @default(uuid()) @db.Uuid
+  applicationNumber        String            @unique
+  institutionName          String
+  institutionType          String
+  officialEmail            String
+  officialPhone            String
+  website                  String?
+  address                  String
+  city                     String
+  state                    String
+  country                  String            @default("India")
+  postalCode               String
+  studentCount             Int?
+  teacherCount             Int?
+  staffCount               Int?
+  campusCount              Int?              @default(1)
+  academicLevels           String[]          @default([])
+  administratorName        String
+  administratorEmail       String
+  administratorPhone       String
+  administratorDesignation String
+  status                   ApplicationStatus @default(PENDING)
+  reviewedById             String?           @db.Uuid
+  reviewedAt               DateTime?
+  rejectionReason          String?
+  tenantId                 String?           @db.Uuid
+  adminUserId              String?           @db.Uuid
+  activationToken          String?           @unique
+  activationExpiresAt      DateTime?
+  activatedAt              DateTime?
+  createdAt                DateTime          @default(now())
+  updatedAt                DateTime          @default(now()) @updatedAt
+
+  reviewedBy               User?             @relation("ApplicationReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  tenant                   Tenant?           @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  adminUser                User?             @relation("ApplicationAdminUser", fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([officialEmail])
+  @@index([administratorEmail])
+  @@index([createdAt])
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// CENTRALIZED ACADEMIC CALENDAR & TEACHER EXTENSIONS
+// ════════════════════════════════════════════════════════════════════════════
+
+enum CalendarEventType {
+  HOLIDAY
+  VACATION
+  ACADEMIC
+  EXAM
+  SCHOOL_EVENT
+  SPORTS
+  CULTURAL
+  PARENT_TEACHER_MEETING
+  ADMISSION
+  RESULT
+  DEADLINE
+  STAFF_EVENT
+  MEETING
+  OTHER
+}
+
+enum EventAudience {
+  EVERYONE
+  STUDENTS
+  PARENTS
+  TEACHERS
+  STAFF
+  STUDENTS_AND_PARENTS
+  TEACHERS_AND_STAFF
+  ADMIN_ONLY
+}
+
+enum EventRecurrence {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+  CUSTOM
+}
+
+enum CalendarEventStatus {
+  ACTIVE
+  ARCHIVED
+  CANCELLED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  VISITING_FACULTY
+}
+
+enum TeacherStatus {
+  ACTIVE
+  ON_LEAVE
+  SUSPENDED
+  ARCHIVED
+}
+
+model CalendarEvent {
+  id                  String              @id @default(uuid()) @db.Uuid
+  tenantId            String              @db.Uuid
+  academicYearId      String?             @db.Uuid
+  title               String
+  description         String?
+  eventType           CalendarEventType   @default(SCHOOL_EVENT)
+  startDate           DateTime
+  endDate             DateTime
+  startTime           String?
+  endTime             String?
+  isAllDay            Boolean             @default(true)
+  location            String?
+  organizer           String?
+  contactInfo         String?
+  isImportant         Boolean             @default(false)
+  audience            EventAudience       @default(EVERYONE)
+  recurrence          EventRecurrence     @default(NONE)
+  sendNotification    Boolean             @default(false)
+  sourceType          String?             // 'EXAM', 'EVENT', 'HOLIDAY', 'MANUAL'
+  sourceId            String?             // Foreign ID if sourced from exam/event
+  status              CalendarEventStatus @default(ACTIVE)
+  isSpecialWorkingDay Boolean             @default(false)
+  isHoliday           Boolean             @default(false)
+  createdById         String?             @db.Uuid
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @default(now()) @updatedAt
+
+  tenant              Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  academicYear        AcademicYear?       @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
+  creator             User?               @relation("CalendarEventCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, startDate, endDate])
+  @@index([tenantId, academicYearId])
+  @@index([tenantId, eventType])
+  @@index([tenantId, audience])
+  @@index([tenantId, status])
+}
+
+enum GradeGroup {
+  FOUNDATION
+  PRIMARY
+  MIDDLE
+  SECONDARY
+  SENIOR_SECONDARY
+}
+
+enum FeedbackCycleFrequency {
+  MONTHLY
+  QUARTERLY
+  HALF_YEARLY
+  ANNUAL
+  CUSTOM
+}
+
+enum FeedbackCycleStatus {
+  UPCOMING
+  ACTIVE
+  CLOSED
+  ARCHIVED
+}
+
+enum FeedbackQuestionType {
+  RATING
+  EMOJI_RATING
+  SINGLE_SELECT
+  MULTI_SELECT
+  TEXT
+}
+
+model FeedbackCycle {
+  id              String                 @id @default(uuid()) @db.Uuid
+  tenantId        String                 @db.Uuid
+  academicYearId  String?                @db.Uuid
+  title           String
+  description     String?
+  frequency       FeedbackCycleFrequency @default(QUARTERLY)
+  status          FeedbackCycleStatus    @default(ACTIVE)
+  startDate       DateTime
+  endDate         DateTime
+  isPublished     Boolean                @default(true)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @default(now()) @updatedAt
+  submissions     FeedbackSubmission[]
+  tenant          Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  academicYear    AcademicYear?          @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, status])
+  @@index([tenantId, startDate, endDate])
+}
+
+model FeedbackTemplate {
+  id          String             @id @default(uuid()) @db.Uuid
+  tenantId    String             @db.Uuid
+  gradeGroup  GradeGroup
+  title       String
+  description String?
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @default(now()) @updatedAt
+  questions   FeedbackQuestion[]
+  tenant      Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, gradeGroup])
+  @@index([tenantId])
+}
+
+model FeedbackQuestion {
+  id           String               @id @default(uuid()) @db.Uuid
+  templateId   String               @db.Uuid
+  category     String
+  questionText String
+  helperText   String?
+  questionType FeedbackQuestionType
+  displayOrder Int                  @default(0)
+  isRequired   Boolean              @default(true)
+  options      FeedbackOption[]
+  answers      FeedbackAnswer[]
+  template     FeedbackTemplate     @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId, displayOrder])
+}
+
+model FeedbackOption {
+  id           String           @id @default(uuid()) @db.Uuid
+  questionId   String           @db.Uuid
+  label        String
+  value        String
+  emoji        String?
+  displayOrder Int              @default(0)
+  question     FeedbackQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId, displayOrder])
+}
+
+model FeedbackSubmission {
+  id              String           @id @default(uuid()) @db.Uuid
+  tenantId        String           @db.Uuid
+  feedbackCycleId String           @db.Uuid
+  studentId       String           @db.Uuid
+  teacherId       String           @db.Uuid
+  subjectId       String?          @db.Uuid
+  classGradeId    String?          @db.Uuid
+  sectionId       String?          @db.Uuid
+  gradeGroup      GradeGroup
+  overallRating   Decimal?         @db.Decimal(3, 2)
+  submittedAt     DateTime         @default(now())
+  answers         FeedbackAnswer[]
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  feedbackCycle   FeedbackCycle    @relation(fields: [feedbackCycleId], references: [id], onDelete: Cascade)
+  student         StudentProfile   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher         TeacherProfile   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, teacherId, feedbackCycleId])
+  @@index([tenantId, teacherId, feedbackCycleId])
+  @@index([tenantId, feedbackCycleId])
+}
+
+model FeedbackAnswer {
+  id              String             @id @default(uuid()) @db.Uuid
+  submissionId    String             @db.Uuid
+  questionId      String             @db.Uuid
+  ratingValue     Decimal?           @db.Decimal(3, 2)
+  textValue       String?
+  selectedOptions Json?
+  submission      FeedbackSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  question        FeedbackQuestion   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@index([questionId])
+}
+
+model AIConversation {
+  id        String      @id @default(uuid()) @db.Uuid
+  tenantId  String?     @db.Uuid
+  userId    String      @db.Uuid
+  title     String      @default("New Conversation")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now()) @updatedAt
+  messages  AIMessage[]
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, userId])
+  @@index([userId, updatedAt])
+}
+
+model AIMessage {
+  id             String         @id @default(uuid()) @db.Uuid
+  conversationId String         @db.Uuid
+  role           String
+  content        String         @db.Text
+  metadata       Json?
+  createdAt      DateTime       @default(now())
+
+  conversation AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+

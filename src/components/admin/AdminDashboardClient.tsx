@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import AdminHeroBanner from './AdminHeroBanner';
 import AdminQuickActions from './AdminQuickActions';
 import AdminManageOverview from './AdminManageOverview';
 import { publishNoticeAction, type PublishNoticeInput } from '@/actions/admin/notices';
-import { Plus, X, Send, Megaphone, AlertCircle } from 'lucide-react';
+import { Plus, X, Send, Megaphone, AlertCircle, ChevronRight, MessageSquareHeart } from 'lucide-react';
 import AdminModal from './ui/AdminModal';
 import AdminButton from './ui/AdminButton';
+import AIInsightsWidget from '@/components/ai/AIInsightsWidget';
 
 export interface AdminDashboardClientProps {
   schoolName: string;
@@ -115,6 +117,43 @@ export default function AdminDashboardClient({
 
       {/* 3. Manage & Overview Section */}
       <AdminManageOverview />
+
+      {/* 3.5 AI Proactive Insights */}
+      <AIInsightsWidget role="ADMIN" title="Executive Operational & Academic Insights" />
+
+      {/* 4. Teaching Experience Summary Widget */}
+      <div className="w-full bg-white rounded-[24px] p-5 sm:p-6 shadow-[0_2px_14px_rgba(30,100,200,0.03)] border border-slate-100/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0B72E7] flex items-center justify-center shrink-0 border border-blue-100">
+              <MessageSquareHeart className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-bold text-[#102A56]">
+                  Teaching Experience & Feedback
+                </h3>
+                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0B72E7] border border-blue-200/60">
+                  Adaptive Portal Active
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                School-wide student evaluations, teaching quality dimensions, and anonymized faculty insights
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 sm:gap-6">
+            <Link
+              href="/admin/feedback"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-50 text-[#0B72E7] hover:bg-blue-100/80 text-xs font-bold transition-colors"
+            >
+              <span>View Feedback Analytics</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
 
       {/* Operational Notice Modal (Preserving existing action functionality) */}
       <AdminModal

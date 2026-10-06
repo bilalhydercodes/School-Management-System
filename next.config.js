@@ -58,10 +58,8 @@ const nextConfig = {
       'razorpay',
     ],
   },
-  webpack: (config, { dev }) => {
-    if (dev) {
-      config.cache = false;
-    }
+  poweredByHeader: false,
+  webpack: (config) => {
     return config;
   },
   async headers() {

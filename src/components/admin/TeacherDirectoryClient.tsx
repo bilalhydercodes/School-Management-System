@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Search,
   GraduationCap,
@@ -32,6 +33,7 @@ import AdminSearchInput from './ui/AdminSearchInput';
 import { AdminTabs } from './ui/AdminTabs';
 import AdminDrawer from './ui/AdminDrawer';
 import { archiveTeacherAction, reactivateTeacherAction } from '@/actions/admin/archive';
+import AddTeacherModal from './AddTeacherModal';
 
 export interface TeacherItem {
   id: string;
@@ -60,11 +62,17 @@ interface TeacherDirectoryClientProps {
 export default function TeacherDirectoryClient({
   teachers: initialTeachers,
 }: TeacherDirectoryClientProps) {
+  const router = useRouter();
   const [teachers, setTeachers] = useState<TeacherItem[]>(initialTeachers);
+  const [isAddTeacherModalOpen, setIsAddTeacherModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDept, setSelectedDept] = useState('ALL');
   const [selectedTeacher, setSelectedTeacher] = useState<TeacherItem | null>(null);
+
+  useEffect(() => {
+    setTeachers(initialTeachers);
+  }, [initialTeachers]);
 
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -172,11 +180,13 @@ export default function TeacherDirectoryClient({
                 Bulk Import
               </AdminButton>
             </Link>
-            <Link href="/admin/academics">
-              <AdminButton variant="primary" icon={<BookOpen className="w-3.5 h-3.5" />}>
-                Manage Classes
-              </AdminButton>
-            </Link>
+            <AdminButton
+              variant="primary"
+              icon={<Plus className="w-3.5 h-3.5" />}
+              onClick={() => setIsAddTeacherModalOpen(true)}
+            >
+              + Add Teacher
+            </AdminButton>
           </div>
         }
       />
@@ -460,6 +470,15 @@ export default function TeacherDirectoryClient({
         description={confirmDialog.description}
         variant={confirmDialog.variant}
         confirmLabel={confirmDialog.confirmLabel}
+      />
+
+      {/* 8. ADD TEACHER MODAL */}
+      <AddTeacherModal
+        isOpen={isAddTeacherModalOpen}
+        onClose={() => setIsAddTeacherModalOpen(false)}
+        onSuccess={() => {
+          router.refresh();
+        }}
       />
     </div>
   );

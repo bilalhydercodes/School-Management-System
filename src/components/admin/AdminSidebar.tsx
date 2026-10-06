@@ -16,6 +16,7 @@ import {
   CreditCard,
   Receipt,
   MessageSquare,
+  MessageSquareHeart,
   Smartphone,
   CalendarCheck,
   Gift,
@@ -26,6 +27,7 @@ import {
   ChevronRight,
   X,
   Loader2,
+  Clock,
 } from 'lucide-react';
 import SchoolLogo from './illustrations/SchoolLogo';
 
@@ -59,7 +61,8 @@ const navSections: NavSection[] = [
     title: 'ACADEMIC MANAGEMENT',
     items: [
       { name: 'Classes & Sections', href: '/admin/academics', icon: BookOpen },
-      { name: 'Timetable & Substitution', href: '/admin/timetable', icon: Calendar },
+      { name: 'Academic Calendar', href: '/admin/calendar', icon: Calendar },
+      { name: 'Timetable & Substitution', href: '/admin/timetable', icon: Clock },
       { name: 'Exams & Report Cards', href: '/admin/exams', icon: ClipboardList },
     ],
   },
@@ -67,6 +70,7 @@ const navSections: NavSection[] = [
     title: 'STAFF MANAGEMENT',
     items: [
       { name: 'Teachers & Staff', href: '/admin/teachers', icon: GraduationCap },
+      { name: 'Teacher Feedback', href: '/admin/feedback', icon: MessageSquareHeart },
       { name: 'Leave Management', href: '/admin/leave', icon: CalendarMinus },
     ],
   },
@@ -88,7 +92,7 @@ const navSections: NavSection[] = [
   {
     title: 'OPERATIONS & ADMIN',
     items: [
-      { name: 'Events & Holidays', href: '/admin/events', icon: Gift },
+      { name: 'Events & Holidays', href: '/admin/calendar', icon: Gift },
       { name: 'Bulk Import (Excel)', href: '/admin/bulk-import', icon: FileSpreadsheet },
       { name: 'Audit Trail', href: '/admin/audit', icon: ShieldCheck },
       { name: 'Emergency Directory', href: '/admin/emergency', icon: PhoneCall },

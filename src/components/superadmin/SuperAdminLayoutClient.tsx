@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SuperAdminSidebar from './SuperAdminSidebar';
 import SuperAdminHeader from './SuperAdminHeader';
+import AIChat from '@/components/ai/AIChat';
 
 interface SuperAdminLayoutClientProps {
   adminName: string;
@@ -49,6 +50,13 @@ export default function SuperAdminLayoutClient({
           {children}
         </main>
       </div>
+
+      {/* Alpha AI Copilot Floating Assistant */}
+      <AIChat
+        schoolName="Platform Admin"
+        initialRole="SUPER_ADMIN"
+        initialUserName={adminName}
+      />
     </div>
   );
 }

@@ -1,17 +1,17 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
-import { getSessionFromCookies } from '@/lib/session';
+import { getAuthenticatedContext } from '@/lib/auth-context';
 import AdminDashboardClient from '@/components/admin/AdminDashboardClient';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-  const session = await getSessionFromCookies();
-  if (!session || (session.role !== 'ADMIN' && session.role !== 'SUPER_ADMIN')) {
+  const authContext = await getAuthenticatedContext();
+  if (!authContext || (authContext.role !== 'ADMIN' && authContext.role !== 'SUPER_ADMIN')) {
     redirect('/login?redirect=/admin');
   }
 
-  const tenantId = session.tenantId;
+  const tenantId = authContext.tenantId;
   if (!tenantId) {
     return (
       <div className="p-8 text-center bg-white rounded-xl border border-slate-200">
@@ -27,9 +27,8 @@ export default async function AdminDashboardPage() {
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-  // Run queries in parallel for high performance
+  // Run all independent queries in parallel for high performance
   const [
-    tenant,
     totalStudents,
     totalTeachers,
     todayAttendanceRecords,
@@ -42,10 +41,6 @@ export default async function AdminDashboardPage() {
     sections,
     pendingAdmissionsCount,
   ] = await Promise.all([
-    prisma.tenant.findUnique({
-      where: { id: tenantId },
-      select: { name: true, board: true },
-    }),
     prisma.studentProfile.count({ where: { tenantId } }),
     prisma.teacherProfile.count({ where: { tenantId } }),
     prisma.studentAttendance.findMany({
@@ -120,12 +115,6 @@ export default async function AdminDashboardPage() {
     }),
   ]);
 
-  const teacherMap = new Map(
-    sections
-      .filter((s) => s.classTeacher)
-      .map((s) => [s.classTeacher!.id, s.classTeacher!])
-  );
-
   // Attendance metrics calculation (Today's actual attendance)
   const submittedSectionIds = new Set(todayAttendanceRecords.map((r) => r.sectionId));
   const unsubmittedSections = sections.filter((s) => !submittedSectionIds.has(s.id));
@@ -193,7 +182,6 @@ export default async function AdminDashboardPage() {
   });
 
   const formattedSections = sections.map((sec) => {
-    const teacher = sec.classTeacherId ? teacherMap.get(sec.classTeacherId) : null;
     const isSubmittedToday = submittedSectionIds.has(sec.id);
 
     return {
@@ -201,8 +189,8 @@ export default async function AdminDashboardPage() {
       className: sec.classGrade.name,
       sectionName: sec.name,
       studentCount: sec.students.length,
-      classTeacherName: teacher?.user
-        ? `${teacher.user.firstName} ${teacher.user.lastName}`
+      classTeacherName: sec.classTeacher?.user
+        ? `${sec.classTeacher.user.firstName} ${sec.classTeacher.user.lastName}`
         : 'Unassigned',
       isSubmittedToday,
     };
@@ -210,8 +198,8 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminDashboardClient
-      schoolName={tenant?.name || 'Alpha Edu Hub'}
-      board={tenant?.board || 'CBSE'}
+      schoolName={authContext.tenant?.name || 'Alpha Edu Hub'}
+      board={authContext.tenant?.board || 'CBSE'}
       metrics={{
         totalStudents,
         totalTeachers,

@@ -16,6 +16,7 @@ import {
   Sparkles,
   Server,
   Loader2,
+  ClipboardList,
 } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
 
@@ -38,6 +39,12 @@ const navItems = [
     name: 'Schools & Tenants',
     href: '/superadmin/tenants',
     icon: Building2,
+    badge: null,
+  },
+  {
+    name: 'Institution Requests',
+    href: '/superadmin/institution-requests',
+    icon: ClipboardList,
     badge: null,
   },
   {

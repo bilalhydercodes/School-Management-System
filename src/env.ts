@@ -15,6 +15,8 @@ export const env = createEnv({
     WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
     MSG91_AUTH_KEY: z.string().optional(),
     MSG91_SENDER_ID: z.string().default('SCHLRP'),
+    GROQ_API_KEY: z.string().optional(),
+    GROQ_MODEL: z.string().default('llama-3.3-70b-versatile'),
   },
   client: {
     NEXT_PUBLIC_APP_DOMAIN: z.string().default('localhost:3000'),

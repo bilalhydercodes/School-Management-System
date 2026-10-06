@@ -58,15 +58,27 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Action CTA Button */}
-          <div className="hidden md:flex items-center">
+          {/* Action CTA Buttons: Login + Get Started */}
+          <div className="hidden md:flex items-center gap-3">
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center px-4 py-2 text-[13.5px] font-semibold text-slate-700 hover:text-blue-600 transition-colors"
+            >
+              Login
+            </Link>
             <GetStartedButton className="inline-flex items-center justify-center px-5 py-2 text-[13.5px] font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-[0_2px_8px_rgba(37,99,235,0.25)] hover:shadow-[0_4px_12px_rgba(37,99,235,0.35)] transition-all duration-150 cursor-pointer">
               Get Started
             </GetStartedButton>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex md:hidden">
+          {/* Mobile: Login link + Menu Button */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center px-4 py-1.5 text-[13px] font-semibold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+            >
+              Login
+            </Link>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -92,7 +104,14 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          <div className="pt-2">
+          <div className="pt-2 space-y-2">
+            <Link
+              href="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block w-full text-center px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+            >
+              Login
+            </Link>
             <GetStartedButton
               className="block w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm cursor-pointer"
               onClick={() => setMobileMenuOpen(false)}

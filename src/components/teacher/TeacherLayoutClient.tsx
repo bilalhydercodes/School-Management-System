@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { TeacherSidebar } from './TeacherSidebar';
 import { TeacherHeader } from './TeacherHeader';
+import AIChat from '@/components/ai/AIChat';
 
 interface TeacherLayoutClientProps {
   teacherName: string;
@@ -56,6 +57,13 @@ export default function TeacherLayoutClient({
           <main className="flex-1 min-w-0">{children}</main>
         </div>
       </div>
+
+      {/* Alpha AI Copilot Floating Assistant */}
+      <AIChat
+        schoolName="Alpha Edu Hub"
+        initialRole="TEACHER"
+        initialUserName={teacherName}
+      />
     </div>
   );
 }

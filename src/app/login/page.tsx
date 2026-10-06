@@ -74,26 +74,7 @@ function LoginForm() {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
-  const [isImageReady, setIsImageReady] = useState(false);
   const [isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const img = new window.Image();
-      img.src = '/login_left_panel_image.png';
-      if (img.complete) {
-        setIsImageReady(true);
-      } else {
-        img.onload = () => setIsImageReady(true);
-        img.onerror = () => setIsImageReady(true);
-      }
-      // Safety timeout: reveals form within 400ms even on slow network
-      const timer = setTimeout(() => setIsImageReady(true), 400);
-      return () => clearTimeout(timer);
-    } else {
-      setIsImageReady(true);
-    }
-  }, []);
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,7 +191,7 @@ function LoginForm() {
   };
 
   if (isNavigating) {
-    return <BrandLoader message="Preparing your workspace" sublabel="Alpha Edu Hub" />;
+    return <BrandLoader message="Redirecting to your dashboard" sublabel="Alpha Edu Hub" />;
   }
 
   return (
@@ -223,12 +204,6 @@ function LoginForm() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      {/* Loading overlay until left panel image is loaded (prevents hydration mismatch) */}
-      {!isImageReady && (
-        <div className="fixed inset-0 z-50 bg-[#CBE9FE] flex items-center justify-center animate-in fade-in duration-150">
-          <BrandLoader message="Preparing your workspace" sublabel="Alpha Edu Hub" fullScreen />
-        </div>
-      )}
       {/* Top-Left Corner: Go Back to Main Public Landing Page */}
       <Link
         href="/"
@@ -257,7 +232,6 @@ function LoginForm() {
             fill
             priority
             sizes="588px"
-            onLoad={() => setIsImageReady(true)}
             className="object-cover object-center pointer-events-none select-none"
           />
 
@@ -411,58 +385,73 @@ function LoginForm() {
                     )}
                   </button>
 
-                  {/* Quick Demo Logins Pill Selector */}
-                  <div className="mt-4 pt-3 border-t border-slate-100">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
-                      Demo Accounts Quick-Fill:
+                  {/* Registration Link for New Institutions */}
+                  <div className="mt-5 pt-4 border-t border-slate-100 text-center">
+                    <p className="text-[13px] text-slate-500 font-medium">
+                      New institution?{' '}
+                      <Link
+                        href="/register/institution"
+                        className="font-semibold text-[#0C8CFE] hover:text-blue-700 hover:underline transition-colors"
+                      >
+                        Register your institution &rarr;
+                      </Link>
                     </p>
-                    <div className="grid grid-cols-4 gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUserId('admin@dps.edu.in');
-                          setPassword('Admin@123');
-                          setErrorMessage(null);
-                        }}
-                        className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
-                      >
-                        Admin
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUserId('teacher@dps.edu.in');
-                          setPassword('Teacher@123');
-                          setErrorMessage(null);
-                        }}
-                        className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
-                      >
-                        Teacher
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUserId('student@dps.edu.in');
-                          setPassword('Student@123');
-                          setErrorMessage(null);
-                        }}
-                        className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
-                      >
-                        Student
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUserId('superadmin@schoolerp.in');
-                          setPassword('SuperAdmin@123');
-                          setErrorMessage(null);
-                        }}
-                        className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
-                      >
-                        Super
-                      </button>
-                    </div>
                   </div>
+
+                  {/* Quick Demo Logins Pill Selector (Development only) */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="mt-4 pt-3 border-t border-slate-100">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                        Demo Accounts Quick-Fill (Dev Mode):
+                      </p>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserId('admin@dps.edu.in');
+                            setPassword('Admin@123');
+                            setErrorMessage(null);
+                          }}
+                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                        >
+                          Admin
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserId('teacher@dps.edu.in');
+                            setPassword('Teacher@123');
+                            setErrorMessage(null);
+                          }}
+                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                        >
+                          Teacher
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserId('student@dps.edu.in');
+                            setPassword('Student@123');
+                            setErrorMessage(null);
+                          }}
+                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                        >
+                          Student
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserId('superadmin@schoolerp.in');
+                            setPassword('SuperAdmin@123');
+                            setErrorMessage(null);
+                          }}
+                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                        >
+                          Super
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </form>
               </>
             ) : (
@@ -569,7 +558,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<BrandLoader message="Preparing sign in" sublabel="Alpha Edu Hub" />}>
+    <Suspense fallback={<BrandLoader message="Loading login page" sublabel="Alpha Edu Hub" />}>
       <LoginForm />
     </Suspense>
   );

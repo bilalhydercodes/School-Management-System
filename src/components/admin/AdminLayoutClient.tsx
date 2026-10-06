@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
+import AIChat from '@/components/ai/AIChat';
 
 interface AdminLayoutClientProps {
   children: React.ReactNode;
@@ -64,6 +65,13 @@ export default function AdminLayoutClient({
           {children}
         </main>
       </div>
+
+      {/* Alpha AI Copilot Floating Assistant */}
+      <AIChat
+        schoolName={schoolName}
+        initialRole={role}
+        initialUserName={adminName}
+      />
     </div>
   );
 }

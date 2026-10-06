@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
-import { getSessionFromCookies } from '@/lib/session';
+import { getAuthenticatedContext } from '@/lib/auth-context';
 import AcademicsManagerClient, {
   TimetableSlotItem,
   TeacherLookupItem,
@@ -10,12 +10,12 @@ import AcademicsManagerClient, {
 export const dynamic = 'force-dynamic';
 
 export default async function AdminAcademicsPage() {
-  const session = await getSessionFromCookies();
-  if (!session || (session.role !== 'ADMIN' && session.role !== 'SUPER_ADMIN')) {
+  const authContext = await getAuthenticatedContext();
+  if (!authContext || (authContext.role !== 'ADMIN' && authContext.role !== 'SUPER_ADMIN')) {
     redirect('/unauthorized');
   }
 
-  const tenantId = session.tenantId;
+  const tenantId = authContext.tenantId;
   if (!tenantId) {
     redirect('/unauthorized');
   }
@@ -37,7 +37,7 @@ export default async function AdminAcademicsPage() {
         subject: true,
         teacher: {
           include: {
-            user: true,
+            user: { select: { firstName: true, lastName: true } },
           },
         },
         substitutions: {
@@ -50,7 +50,7 @@ export default async function AdminAcademicsPage() {
           include: {
             substituteTeacher: {
               include: {
-                user: true,
+                user: { select: { firstName: true, lastName: true } },
               },
             },
           },
@@ -66,7 +66,7 @@ export default async function AdminAcademicsPage() {
     prisma.teacherProfile.findMany({
       where: { tenantId },
       include: {
-        user: true,
+        user: { select: { firstName: true, lastName: true } },
       },
       orderBy: {
         user: {
@@ -102,7 +102,7 @@ export default async function AdminAcademicsPage() {
         },
         substituteTeacher: {
           include: {
-            user: true,
+            user: { select: { firstName: true, lastName: true } },
           },
         },
       },

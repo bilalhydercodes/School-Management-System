@@ -50,8 +50,10 @@ export const PORTAL_NAV_SECTIONS: PortalNavSection[] = [
   {
     title: 'ACADEMIC',
     items: [
+      { id: 'academic-calendar', label: 'Academic Calendar', icon: CalendarDays },
+      { id: 'teacher-feedback', label: 'Teacher Feedback', icon: MessageSquareHeart },
       { id: 'today-timetable', label: "Today's Timetable", icon: CalendarClock },
-      { id: 'weekly-timetable', label: 'Weekly Timetable', icon: CalendarDays },
+      { id: 'weekly-timetable', label: 'Weekly Timetable', icon: CalendarRange },
       { id: 'syllabus-curriculum', label: 'Syllabus & Curriculum', icon: BookOpen },
     ],
   },

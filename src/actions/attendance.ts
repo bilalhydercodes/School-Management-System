@@ -470,34 +470,41 @@ export async function getAdminAttendanceOverviewAction() {
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-    // Get all sections with class info
-    const sections = await prisma.section.findMany({
-      where: { tenantId },
-      include: {
-        classGrade: { select: { name: true } },
-        students: { select: { id: true } },
-      },
-    });
+    // Run all 3 independent queries in parallel for high performance
+    const sevenDaysAgoStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+    sevenDaysAgoStart.setHours(0, 0, 0, 0);
 
-    // Get class teacher info
-    const teacherIds = sections.map(s => s.classTeacherId).filter((id): id is string => Boolean(id));
-    const classTeachers = teacherIds.length > 0
-      ? await prisma.teacherProfile.findMany({
-          where: { id: { in: teacherIds } },
-          include: { user: { select: { firstName: true, lastName: true } } },
-        })
-      : [];
-    const teacherMap = new Map(classTeachers.map(t => [t.id, `${t.user.firstName} ${t.user.lastName}`]));
-
-    // Today's attendance records
-    const todayRecords = await prisma.studentAttendance.findMany({
-      where: {
-        tenantId,
-        date: { gte: todayStart, lte: todayEnd },
-        period: null, // daily attendance only
-      },
-      select: { status: true, sectionId: true },
-    });
+    const [sections, todayRecords, allSevenDaysRecords] = await Promise.all([
+      // 1. Sections with class grade, students count, and class teacher
+      prisma.section.findMany({
+        where: { tenantId },
+        include: {
+          classGrade: { select: { name: true } },
+          students: { select: { id: true } },
+          classTeacher: {
+            include: { user: { select: { firstName: true, lastName: true } } },
+          },
+        },
+      }),
+      // 2. Today's attendance records
+      prisma.studentAttendance.findMany({
+        where: {
+          tenantId,
+          date: { gte: todayStart, lte: todayEnd },
+          period: null, // daily attendance only
+        },
+        select: { status: true, sectionId: true },
+      }),
+      // 3. 7-day trend records
+      prisma.studentAttendance.findMany({
+        where: {
+          tenantId,
+          date: { gte: sevenDaysAgoStart, lte: todayEnd },
+          period: null,
+        },
+        select: { status: true, date: true },
+      }),
+    ]);
 
     const totalPresent = todayRecords.filter(r => r.status === 'PRESENT').length;
     const totalAbsent = todayRecords.filter(r => r.status === 'ABSENT').length;
@@ -516,7 +523,9 @@ export async function getAdminAttendanceOverviewAction() {
         id: s.id,
         className: s.classGrade.name,
         sectionName: s.name,
-        classTeacherName: s.classTeacherId ? (teacherMap.get(s.classTeacherId) ?? 'Unassigned') : 'Unassigned',
+        classTeacherName: s.classTeacher?.user
+          ? `${s.classTeacher.user.firstName} ${s.classTeacher.user.lastName}`
+          : 'Unassigned',
         studentCount: s.students.length,
       }));
 
@@ -540,21 +549,9 @@ export async function getAdminAttendanceOverviewAction() {
       };
     });
 
-    // 7-day trend: Single batched date-range query (O(1) database round-trips instead of 7)
+    // 7-day trend: Single batched date-range aggregation
     const trend: Array<{ date: string; dayLabel: string; percentage: number; total: number; present: number }> = [];
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-    const sevenDaysAgoStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
-    sevenDaysAgoStart.setHours(0, 0, 0, 0);
-
-    const allSevenDaysRecords = await prisma.studentAttendance.findMany({
-      where: {
-        tenantId,
-        date: { gte: sevenDaysAgoStart, lte: todayEnd },
-        period: null,
-      },
-      select: { status: true, date: true },
-    });
 
     // Group records by YYYY-MM-DD
     const recordsByDay = new Map<string, Array<{ status: string }>>();
