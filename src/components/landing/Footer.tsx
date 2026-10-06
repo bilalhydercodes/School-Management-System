@@ -4,11 +4,6 @@ import Image from 'next/image';
 import {
   Mail,
   Phone,
-  ShieldCheck,
-  CheckCircle2,
-  Instagram,
-  Linkedin,
-  Youtube,
 } from 'lucide-react';
 
 export default function Footer() {
@@ -153,18 +148,6 @@ export default function Footer() {
                 </a>
               </div>
             </div>
-
-            {/* Trust Badges */}
-            <div className="pt-2 flex flex-wrap gap-2.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-[11.5px] font-medium text-slate-400">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-                <span>256-Bit SSL Encryption</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-[11.5px] font-medium text-slate-400">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>99.9% Uptime SLA</span>
-              </span>
-            </div>
           </div>
 
           {/* Col 2: Features & Modules (Span 3) */}
@@ -267,18 +250,15 @@ export default function Footer() {
 
       {/* Copyright Sub-bar */}
       <div className="border-t border-slate-900/80 bg-[#05070c] py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center sm:justify-start text-xs text-slate-500">
           <div>
             &copy; {currentYear} Alpha Edu Hub. All rights reserved.
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-emerald-400/90 font-medium">All Systems Operational</span>
           </div>
         </div>
       </div>
     </footer>
   );
 }
+
 
 
