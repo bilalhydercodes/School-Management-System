@@ -88,7 +88,7 @@ export default function Footer() {
           {/* Brand Col: Span 4 */}
           <div className="lg:col-span-4 space-y-5 text-left">
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center p-1.5 group-hover:border-pink-500/50 transition-colors duration-200 shadow-sm shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center p-1.5 group-hover:border-blue-500/50 transition-colors duration-200 shadow-sm shrink-0 overflow-hidden">
                 <Image
                   src="/images/dashboard/logo_transparent_bg.png"
                   alt="Alpha Edu Hub Logo"
@@ -98,10 +98,9 @@ export default function Footer() {
                 />
               </div>
               <div className="flex items-center">
-                <span className="text-2xl font-black text-white tracking-tight leading-none group-hover:text-slate-100 transition-colors">
-                  alphaeduhub
+                <span className="text-2xl font-black text-white tracking-tight leading-none group-hover:text-blue-400 transition-colors">
+                  AlphaEduHub
                 </span>
-                <span className="w-2.5 h-2.5 rounded-full bg-[#f42e6f] inline-block ml-1 shadow-[0_0_10px_rgba(244,46,111,0.6)]"></span>
               </div>
             </Link>
 
@@ -114,27 +113,27 @@ export default function Footer() {
               <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-0.5">
                 Official Support &amp; Enquiries:
               </div>
-              <div className="flex flex-col space-y-1 text-[13px] text-slate-400">
+              <div className="flex flex-col space-y-1.5 text-[13px] text-slate-400">
                 <a
                   href="tel:+918277300451"
-                  className="inline-flex items-center gap-2 text-slate-300 hover:text-pink-400 transition-colors"
+                  className="group inline-flex items-center gap-2 text-slate-300 hover:text-blue-400 transition-colors"
                 >
-                  <Phone className="w-3.5 h-3.5 text-pink-500 shrink-0" />
-                  <span>+91 82773 00451</span>
+                  <Phone className="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-300 shrink-0 transition-colors" />
+                  <span className="group-hover:text-blue-400 transition-colors">+91 82773 00451</span>
                 </a>
                 <a
                   href="tel:+919845488621"
-                  className="inline-flex items-center gap-2 text-slate-300 hover:text-pink-400 transition-colors"
+                  className="group inline-flex items-center gap-2 text-slate-300 hover:text-blue-400 transition-colors"
                 >
-                  <Phone className="w-3.5 h-3.5 text-pink-500 shrink-0" />
-                  <span>+91 98454 88621</span>
+                  <Phone className="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-300 shrink-0 transition-colors" />
+                  <span className="group-hover:text-blue-400 transition-colors">+91 98454 88621</span>
                 </a>
                 <a
                   href="mailto:support@alphaeduhub.in"
-                  className="inline-flex items-center gap-2 text-slate-300 hover:text-pink-400 transition-colors"
+                  className="group inline-flex items-center gap-2 text-slate-300 hover:text-blue-400 transition-colors"
                 >
-                  <Mail className="w-3.5 h-3.5 text-pink-500 shrink-0" />
-                  <span>support@alphaeduhub.in</span>
+                  <Mail className="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-300 shrink-0 transition-colors" />
+                  <span className="group-hover:text-blue-400 transition-colors">support@alphaeduhub.in</span>
                 </a>
               </div>
             </div>
@@ -142,7 +141,7 @@ export default function Footer() {
             {/* Trust Badges */}
             <div className="pt-2 flex flex-wrap gap-2.5">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-[11.5px] font-medium text-slate-400">
-                <ShieldCheck className="w-3.5 h-3.5 text-pink-400" />
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
                 <span>256-Bit SSL Encryption</span>
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-[11.5px] font-medium text-slate-400">
@@ -237,16 +236,15 @@ export default function Footer() {
 
       {/* Giant Outlined Typography Watermark */}
       <div className="relative w-full overflow-hidden select-none pointer-events-none border-t border-slate-900/60 pt-4 pb-2 sm:pb-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-baseline justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-baseline justify-center sm:justify-start">
           <span
-            className="text-[13vw] font-black tracking-tighter leading-none whitespace-nowrap text-transparent"
+            className="text-[14vw] sm:text-[13.5vw] font-black tracking-tighter leading-none whitespace-nowrap text-transparent"
             style={{
               WebkitTextStroke: '1.2px rgba(255, 255, 255, 0.12)',
             }}
           >
-            alphaEduHub
+            AlphaEduHub
           </span>
-          <span className="w-5 h-5 sm:w-10 sm:h-10 md:w-16 md:h-16 lg:w-24 lg:h-24 rounded-full bg-[#f42e6f] inline-block shrink-0 mb-1 sm:mb-3 md:mb-5 shadow-[0_0_40px_rgba(244,46,111,0.5)]"></span>
         </div>
       </div>
 
