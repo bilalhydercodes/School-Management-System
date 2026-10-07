@@ -7,16 +7,16 @@ import FinalCtaSection from '@/components/landing/FinalCtaSection';
 import Footer from '@/components/landing/Footer';
 
 export const metadata: Metadata = {
-  title: 'Alpha Edu Hub Pricing — Transparent Plans for Every Institution',
+  title: 'Alpha Edu Hub Pricing — Plans Coming Soon',
   description:
-    'Simple, transparent pricing for schools starting at ₹8/student/month. Lite, Prime, and White Label custom deployment tiers with zero hidden setup fees.',
+    'Transparent per-student pricing plans for schools coming soon. Request early access and special introductory rates for your institution.',
   alternates: {
     canonical: 'https://alphaeduhub.in/pricing',
   },
   openGraph: {
-    title: 'Alpha Edu Hub Pricing Plans',
+    title: 'Alpha Edu Hub Pricing — Coming Soon',
     description:
-      'Predictable, student-based pricing plans for schools of all sizes. Lite (₹8), Prime (₹11), and White Label options.',
+      'Transparent per-student pricing plans for schools coming soon. Request early access and special introductory rates.',
     url: 'https://alphaeduhub.in/pricing',
     siteName: 'Alpha Edu Hub',
     images: ['/images/dashboard/open_graph_image.png'],
@@ -45,8 +45,8 @@ export default async function PricingPage() {
           id: p.id,
           name: p.name.toUpperCase(),
           serverTag: isWhiteLabel ? 'Your Dedicated Server' : 'Alpha Edu Hub Cloud Server',
-          price: isWhiteLabel && Number(p.priceMonthly) >= 20 ? 'Custom' : `₹${Number(p.priceMonthly)}`,
-          billingPeriod: isWhiteLabel ? 'Ask for Quotation' : 'Per Student / Month',
+          price: 'Coming Soon',
+          billingPeriod: isWhiteLabel ? 'Ask for Quotation' : 'Announcing Soon',
           description: isPrime
             ? 'Complete School ERP with web portals, notifications, and advanced automation features.'
             : isWhiteLabel
@@ -73,9 +73,8 @@ export default async function PricingPage() {
               };
               return map[k] || k.replace(/([A-Z])/g, ' $1');
             }),
-          ctaLabel: isWhiteLabel ? 'Request a Quote' : isPrime ? 'Choose Prime' : 'Get Started',
-          ctaHref: isWhiteLabel ? undefined : '/login',
-          isCustomQuote: isWhiteLabel,
+          ctaLabel: isWhiteLabel ? 'Request a Quote' : 'Request Early Access',
+          isCustomQuote: true,
         };
       });
     }

@@ -91,8 +91,8 @@ export default async function HomePage() {
           id: p.id,
           name: p.name.toUpperCase(),
           serverTag: isWhiteLabel ? 'Your Dedicated Server' : 'Alpha Edu Hub Cloud Server',
-          price: isWhiteLabel && Number(p.priceMonthly) >= 20 ? 'Custom' : `₹${Number(p.priceMonthly)}`,
-          billingPeriod: isWhiteLabel ? 'Ask for Quotation' : 'Per Student / Month',
+          price: 'Coming Soon',
+          billingPeriod: isWhiteLabel ? 'Ask for Quotation' : 'Announcing Soon',
           description: isPrime
             ? 'Complete School ERP with web portals, notifications, and advanced automation features.'
             : isWhiteLabel
@@ -119,9 +119,8 @@ export default async function HomePage() {
               };
               return map[k] || k.replace(/([A-Z])/g, ' $1');
             }),
-          ctaLabel: isWhiteLabel ? 'Request a Quote' : isPrime ? 'Choose Prime' : 'Get Started',
-          ctaHref: isWhiteLabel ? undefined : '/login',
-          isCustomQuote: isWhiteLabel,
+          ctaLabel: isWhiteLabel ? 'Request a Quote' : 'Request Early Access',
+          isCustomQuote: true,
         };
       });
     }

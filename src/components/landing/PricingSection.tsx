@@ -23,8 +23,8 @@ const defaultPlans: PricingPlan[] = [
     id: 'lite',
     name: 'ALPHA EDU HUB LITE',
     serverTag: 'Alpha Edu Hub Cloud Server',
-    price: '₹8',
-    billingPeriod: 'Per Student / Month',
+    price: 'Coming Soon',
+    billingPeriod: 'Announcing Soon',
     description: 'Perfect for schools looking for a reliable and affordable ERP solution.',
     features: [
       'Online Admission',
@@ -33,15 +33,15 @@ const defaultPlans: PricingPlan[] = [
       'Examination Management',
       'Reports & Analytics',
     ],
-    ctaLabel: 'Get Started',
-    ctaHref: '/login',
+    ctaLabel: 'Request Early Access',
+    isCustomQuote: true,
   },
   {
     id: 'prime',
     name: 'ALPHA EDU HUB PRIME',
     serverTag: 'Alpha Edu Hub Cloud Server',
-    price: '₹11',
-    billingPeriod: 'Per Student / Month',
+    price: 'Coming Soon',
+    billingPeriod: 'Announcing Soon',
     description: 'Complete School ERP with web portals, notifications, and advanced automation features.',
     isPopular: true,
     features: [
@@ -52,14 +52,14 @@ const defaultPlans: PricingPlan[] = [
       'Advanced Reports',
       'Priority Support',
     ],
-    ctaLabel: 'Choose Prime',
-    ctaHref: '/login',
+    ctaLabel: 'Request Early Access',
+    isCustomQuote: true,
   },
   {
     id: 'white-label',
     name: 'WHITE LABEL',
     serverTag: 'Your Dedicated Server',
-    price: 'Custom',
+    price: 'Coming Soon',
     billingPeriod: 'Ask for Quotation',
     description: 'ERP deployed under your school’s brand name with complete ownership and customization.',
     features: [
@@ -120,17 +120,17 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100/80 text-[#1d8cfd] text-[12px] font-bold uppercase tracking-wider mb-4 shadow-xs">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-100/80 text-[#1d8cfd] text-[12px] font-bold uppercase tracking-wider mb-4 shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#1d8cfd]" />
-            <span>Transparent Pricing</span>
+            <span>Pricing — Coming Soon</span>
           </div>
 
           <h2 className="text-[30px] sm:text-[38px] lg:text-[42px] font-black text-slate-900 tracking-[-0.03em] leading-tight">
-            Predictable Plans for{' '}
-            <span className="text-[#1d8cfd]">Every Institution</span>
+            Institutional Plans{' '}
+            <span className="text-[#1d8cfd]">Launching Soon</span>
           </h2>
           <p className="mt-3.5 text-[14.5px] sm:text-[16px] text-slate-500 max-w-xl mx-auto leading-relaxed">
-            Transparent per-student pricing with zero hidden costs. Choose the tier that best fits your institution’s scale.
+            Transparent per-student pricing packages and special introductory offers are coming soon. Get in touch today for early access and priority onboarding.
           </p>
         </div>
 
@@ -168,12 +168,14 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                 </div>
 
                 {/* Price Display */}
-                <div className="mt-6 flex items-baseline gap-2">
-                  <span className="text-[38px] sm:text-[44px] font-black text-slate-900 tracking-tight leading-none">
-                    {plan.price}
-                  </span>
-                  <span className="text-[13px] font-medium text-slate-500">
-                    {plan.billingPeriod}
+                <div className="mt-6 flex flex-col gap-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[30px] sm:text-[34px] font-black tracking-tight leading-none bg-gradient-to-r from-blue-600 via-[#1d8cfd] to-indigo-600 bg-clip-text text-transparent">
+                      {plan.price || 'Coming Soon'}
+                    </span>
+                  </div>
+                  <span className="text-[12.5px] font-semibold text-slate-400">
+                    {plan.billingPeriod || 'Announcing Soon'}
                   </span>
                 </div>
 
@@ -211,10 +213,14 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                   <button
                     type="button"
                     onClick={() => setQuoteModalOpen(true)}
-                    className="w-full py-3.5 px-5 rounded-xl font-semibold text-[14px] text-slate-700 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 active:bg-blue-100 border border-slate-200/80 transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer"
+                    className={
+                      plan.isPopular
+                        ? 'w-full py-3.5 px-5 rounded-xl font-bold text-[14.5px] text-white bg-[#1d8cfd] hover:bg-blue-600 active:bg-blue-700 shadow-[0_4px_14px_rgba(29,140,253,0.35)] hover:shadow-[0_6px_20px_rgba(29,140,253,0.45)] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer'
+                        : 'w-full py-3.5 px-5 rounded-xl font-semibold text-[14px] text-slate-700 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 active:bg-blue-100 border border-slate-200/80 transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer'
+                    }
                   >
                     <span>{plan.ctaLabel}</span>
-                    <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-blue-600" />
+                    <ArrowRight className={`w-4 h-4 transition-transform group-hover:translate-x-0.5 ${plan.isPopular ? 'text-white' : 'text-slate-500 group-hover:text-blue-600'}`} />
                   </button>
                 ) : plan.isPopular ? (
                   <Link
