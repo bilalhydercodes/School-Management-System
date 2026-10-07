@@ -4,7 +4,7 @@ import React, { useState, useEffect, useTransition, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Sparkles, GraduationCap, Users, ShieldCheck } from 'lucide-react';
 import { loginAction, verifyLoginOtpAction } from '@/actions/auth';
 import BrandLoader from '@/components/ui/BrandLoader';
 
@@ -76,19 +76,10 @@ function LoginForm() {
   const [isNavigating, setIsNavigating] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const handleCredentialsSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const executeLogin = (emailToUse: string, passwordToUse: string) => {
     setErrorMessage(null);
-
-    if (!userId.trim()) {
-      setErrorMessage('Please enter your Roll Number / Admission ID or Email.');
-      return;
-    }
-
-    if (!password.trim()) {
-      setErrorMessage('Please enter your password.');
-      return;
-    }
+    setUserId(emailToUse);
+    setPassword(passwordToUse);
 
     startTransition(async () => {
       try {
@@ -96,8 +87,8 @@ function LoginForm() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email: userId.trim(),
-            password: password.trim(),
+            email: emailToUse.trim(),
+            password: passwordToUse.trim(),
           }),
         });
 
@@ -117,12 +108,12 @@ function LoginForm() {
           setIsNavigating(false);
           setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
         }
-      } catch (fetchErr) {
+      } catch {
         // Fallback to Server Action
         try {
           const result = await loginAction({
-            email: userId.trim(),
-            password: password.trim(),
+            email: emailToUse.trim(),
+            password: passwordToUse.trim(),
           });
 
           if (result.success && result.redirectUrl) {
@@ -145,6 +136,23 @@ function LoginForm() {
         }
       }
     });
+  };
+
+  const handleCredentialsSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+
+    if (!userId.trim()) {
+      setErrorMessage('Please enter your Roll Number / Admission ID or Email.');
+      return;
+    }
+
+    if (!password.trim()) {
+      setErrorMessage('Please enter your password.');
+      return;
+    }
+
+    executeLogin(userId, password);
   };
 
   const handleOtpSubmit = (e: React.FormEvent) => {
@@ -398,35 +406,81 @@ function LoginForm() {
                     </p>
                   </div>
 
-                  {/* Quick Demo Logins Pill Selector (Development only) */}
-                  {process.env.NODE_ENV === 'development' && (
-                    <div className="mt-4 pt-3 border-t border-slate-100">
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
-                        Demo Accounts Quick-Fill (Dev Mode):
-                      </p>
-                      <div className="grid grid-cols-4 gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserId('admin@dps.edu.in');
-                            setPassword('Admin@123');
-                            setErrorMessage(null);
-                          }}
-                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
-                        >
-                          Admin
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserId('teacher@dps.edu.in');
-                            setPassword('Teacher@123');
-                            setErrorMessage(null);
-                          }}
-                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
-                        >
-                          Teacher
-                        </button>
+                  {/* Dedicated Quick Demo Access Section for Evaluators & Visitors */}
+                  <div className="mt-5 pt-4 border-t border-slate-100">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                        <Sparkles className="w-3.5 h-3.5 text-[#0C8CFE]" />
+                        <span>Quick Demo Access</span>
+                      </div>
+                      <span className="text-[10.5px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full font-semibold">
+                        1-Click Sign In
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      {/* Demo Student */}
+                      <button
+                        type="button"
+                        id="demo-student-login-btn"
+                        onClick={() => executeLogin('student@dps.edu.in', 'Student@123')}
+                        disabled={isPending}
+                        className="p-2.5 rounded-xl border border-blue-200/80 bg-gradient-to-b from-blue-50/70 to-white hover:border-blue-400 hover:shadow-xs transition-all text-left group cursor-pointer disabled:opacity-50"
+                        title="Click to sign in instantly as Student (Rohan Sharma)"
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-[12px] text-blue-900 group-hover:text-blue-700">
+                          <GraduationCap className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <span>Student</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-0.5 truncate font-medium">Rohan Sharma</p>
+                        <span className="text-[9px] text-blue-600 font-medium mt-0.5 block truncate">
+                          Student Portal &rarr;
+                        </span>
+                      </button>
+
+                      {/* Demo Teacher */}
+                      <button
+                        type="button"
+                        id="demo-teacher-login-btn"
+                        onClick={() => executeLogin('teacher@dps.edu.in', 'Teacher@123')}
+                        disabled={isPending}
+                        className="p-2.5 rounded-xl border border-emerald-200/80 bg-gradient-to-b from-emerald-50/70 to-white hover:border-emerald-400 hover:shadow-xs transition-all text-left group cursor-pointer disabled:opacity-50"
+                        title="Click to sign in instantly as Teacher (Anandita Sen)"
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-[12px] text-emerald-900 group-hover:text-emerald-700">
+                          <Users className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>Teacher</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-0.5 truncate font-medium">Anandita Sen</p>
+                        <span className="text-[9px] text-emerald-600 font-medium mt-0.5 block truncate">
+                          Teacher Portal &rarr;
+                        </span>
+                      </button>
+
+                      {/* Demo Admin */}
+                      <button
+                        type="button"
+                        id="demo-admin-login-btn"
+                        onClick={() => executeLogin('admin@dps.edu.in', 'Admin@123')}
+                        disabled={isPending}
+                        className="p-2.5 rounded-xl border border-indigo-200/80 bg-gradient-to-b from-indigo-50/70 to-white hover:border-indigo-400 hover:shadow-xs transition-all text-left group cursor-pointer disabled:opacity-50"
+                        title="Click to sign in instantly as School Admin"
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-[12px] text-indigo-900 group-hover:text-indigo-700">
+                          <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                          <span>Admin</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-0.5 truncate font-medium">Principal Admin</p>
+                        <span className="text-[9px] text-indigo-600 font-medium mt-0.5 block truncate">
+                          Admin ERP &rarr;
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* Quick credential filler row */}
+                    <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                      <span>Or fill form:</span>
+                      <div className="flex items-center gap-2">
                         <button
                           type="button"
                           onClick={() => {
@@ -434,10 +488,35 @@ function LoginForm() {
                             setPassword('Student@123');
                             setErrorMessage(null);
                           }}
-                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                          className="hover:text-blue-600 hover:underline font-medium cursor-pointer"
                         >
                           Student
                         </button>
+                        <span>·</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserId('teacher@dps.edu.in');
+                            setPassword('Teacher@123');
+                            setErrorMessage(null);
+                          }}
+                          className="hover:text-emerald-600 hover:underline font-medium cursor-pointer"
+                        >
+                          Teacher
+                        </button>
+                        <span>·</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserId('admin@dps.edu.in');
+                            setPassword('Admin@123');
+                            setErrorMessage(null);
+                          }}
+                          className="hover:text-indigo-600 hover:underline font-medium cursor-pointer"
+                        >
+                          Admin
+                        </button>
+                        <span>·</span>
                         <button
                           type="button"
                           onClick={() => {
@@ -445,13 +524,14 @@ function LoginForm() {
                             setPassword('SuperAdmin@123');
                             setErrorMessage(null);
                           }}
-                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                          className="hover:text-purple-600 hover:underline font-medium cursor-pointer"
+                          title="Platform Super Admin"
                         >
-                          Super
+                          Super Admin
                         </button>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </form>
               </>
             ) : (
