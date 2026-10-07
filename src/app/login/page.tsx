@@ -261,12 +261,12 @@ function LoginForm() {
         {/* MOBILE BRAND HEADER — only shown on mobile/tablet */}
         <div className="lg:hidden bg-gradient-to-br from-[#0C8CFE] to-[#0066CC] px-6 pt-8 pb-6 text-white">
           <Link href="/" className="flex items-center gap-3 mb-2 group inline-flex transition-opacity hover:opacity-90" title="Return to Public Dashboard">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs group-hover:scale-105 transition-transform">
+            <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs border border-white/60 group-hover:scale-105 transition-transform">
               <Image
                 src="/images/dashboard/logo_crest.png"
                 alt="Alpha Edu Hub"
-                width={36}
-                height={36}
+                width={38}
+                height={38}
                 className="w-full h-full object-contain"
                 priority
               />
@@ -406,130 +406,60 @@ function LoginForm() {
                     </p>
                   </div>
 
-                  {/* Dedicated Quick Demo Access Section for Evaluators & Visitors */}
+                  {/* DEMO ACCOUNTS QUICK-FILL */}
                   <div className="mt-5 pt-4 border-t border-slate-100">
-                    <div className="flex items-center justify-between mb-2.5">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                        <Sparkles className="w-3.5 h-3.5 text-[#0C8CFE]" />
-                        <span>Quick Demo Access</span>
-                      </div>
-                      <span className="text-[10.5px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full font-semibold">
-                        1-Click Sign In
-                      </span>
-                    </div>
-
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                      Demo Accounts Quick-Fill:
+                    </p>
                     <div className="grid grid-cols-3 gap-2">
-                      {/* Demo Student */}
                       <button
                         type="button"
-                        id="demo-student-login-btn"
-                        onClick={() => executeLogin('student@dps.edu.in', 'Student@123')}
-                        disabled={isPending}
-                        className="p-2.5 rounded-xl border border-blue-200/80 bg-gradient-to-b from-blue-50/70 to-white hover:border-blue-400 hover:shadow-xs transition-all text-left group cursor-pointer disabled:opacity-50"
-                        title="Click to sign in instantly as Student (Rohan Sharma)"
+                        id="demo-admin-pill"
+                        onClick={() => {
+                          setUserId('admin@dps.edu.in');
+                          setPassword('Admin@123');
+                          setErrorMessage(null);
+                        }}
+                        className={`py-2 px-3 rounded-[10px] text-[12px] font-semibold transition-all text-center border cursor-pointer ${
+                          userId === 'admin@dps.edu.in'
+                            ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-2xs font-bold'
+                            : 'bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border-transparent text-slate-600'
+                        }`}
                       >
-                        <div className="flex items-center gap-1.5 font-bold text-[12px] text-blue-900 group-hover:text-blue-700">
-                          <GraduationCap className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                          <span>Student</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-0.5 truncate font-medium">Rohan Sharma</p>
-                        <span className="text-[9px] text-blue-600 font-medium mt-0.5 block truncate">
-                          Student Portal &rarr;
-                        </span>
+                        Admin
                       </button>
-
-                      {/* Demo Teacher */}
                       <button
                         type="button"
-                        id="demo-teacher-login-btn"
-                        onClick={() => executeLogin('teacher@dps.edu.in', 'Teacher@123')}
-                        disabled={isPending}
-                        className="p-2.5 rounded-xl border border-emerald-200/80 bg-gradient-to-b from-emerald-50/70 to-white hover:border-emerald-400 hover:shadow-xs transition-all text-left group cursor-pointer disabled:opacity-50"
-                        title="Click to sign in instantly as Teacher (Anandita Sen)"
+                        id="demo-teacher-pill"
+                        onClick={() => {
+                          setUserId('teacher@dps.edu.in');
+                          setPassword('Teacher@123');
+                          setErrorMessage(null);
+                        }}
+                        className={`py-2 px-3 rounded-[10px] text-[12px] font-semibold transition-all text-center border cursor-pointer ${
+                          userId === 'teacher@dps.edu.in'
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-700 shadow-2xs font-bold'
+                            : 'bg-slate-100 hover:bg-emerald-50 hover:text-emerald-600 border-transparent text-slate-600'
+                        }`}
                       >
-                        <div className="flex items-center gap-1.5 font-bold text-[12px] text-emerald-900 group-hover:text-emerald-700">
-                          <Users className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          <span>Teacher</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-0.5 truncate font-medium">Anandita Sen</p>
-                        <span className="text-[9px] text-emerald-600 font-medium mt-0.5 block truncate">
-                          Teacher Portal &rarr;
-                        </span>
+                        Teacher
                       </button>
-
-                      {/* Demo Admin */}
                       <button
                         type="button"
-                        id="demo-admin-login-btn"
-                        onClick={() => executeLogin('admin@dps.edu.in', 'Admin@123')}
-                        disabled={isPending}
-                        className="p-2.5 rounded-xl border border-indigo-200/80 bg-gradient-to-b from-indigo-50/70 to-white hover:border-indigo-400 hover:shadow-xs transition-all text-left group cursor-pointer disabled:opacity-50"
-                        title="Click to sign in instantly as School Admin"
+                        id="demo-student-pill"
+                        onClick={() => {
+                          setUserId('student@dps.edu.in');
+                          setPassword('Student@123');
+                          setErrorMessage(null);
+                        }}
+                        className={`py-2 px-3 rounded-[10px] text-[12px] font-semibold transition-all text-center border cursor-pointer ${
+                          userId === 'student@dps.edu.in'
+                            ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-2xs font-bold'
+                            : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-600 border-transparent text-slate-600'
+                        }`}
                       >
-                        <div className="flex items-center gap-1.5 font-bold text-[12px] text-indigo-900 group-hover:text-indigo-700">
-                          <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                          <span>Admin</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-0.5 truncate font-medium">Principal Admin</p>
-                        <span className="text-[9px] text-indigo-600 font-medium mt-0.5 block truncate">
-                          Admin ERP &rarr;
-                        </span>
+                        Student
                       </button>
-                    </div>
-
-                    {/* Quick credential filler row */}
-                    <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                      <span>Or fill form:</span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserId('student@dps.edu.in');
-                            setPassword('Student@123');
-                            setErrorMessage(null);
-                          }}
-                          className="hover:text-blue-600 hover:underline font-medium cursor-pointer"
-                        >
-                          Student
-                        </button>
-                        <span>·</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserId('teacher@dps.edu.in');
-                            setPassword('Teacher@123');
-                            setErrorMessage(null);
-                          }}
-                          className="hover:text-emerald-600 hover:underline font-medium cursor-pointer"
-                        >
-                          Teacher
-                        </button>
-                        <span>·</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserId('admin@dps.edu.in');
-                            setPassword('Admin@123');
-                            setErrorMessage(null);
-                          }}
-                          className="hover:text-indigo-600 hover:underline font-medium cursor-pointer"
-                        >
-                          Admin
-                        </button>
-                        <span>·</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserId('superadmin@schoolerp.in');
-                            setPassword('SuperAdmin@123');
-                            setErrorMessage(null);
-                          }}
-                          className="hover:text-purple-600 hover:underline font-medium cursor-pointer"
-                          title="Platform Super Admin"
-                        >
-                          Super Admin
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </form>
