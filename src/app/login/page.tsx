@@ -199,7 +199,7 @@ function LoginForm() {
   };
 
   if (isNavigating) {
-    return <BrandLoader message="Redirecting to your dashboard" sublabel="Alpha Edu Hub" />;
+    return <BrandLoader fullScreen message="Redirecting to your dashboard" sublabel="Alpha Edu Hub" />;
   }
 
   return (
@@ -568,7 +568,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<BrandLoader message="Loading login page" sublabel="Alpha Edu Hub" />}>
+    <Suspense fallback={<BrandLoader fullScreen message="Loading login page" sublabel="Alpha Edu Hub" />}>
       <LoginForm />
     </Suspense>
   );

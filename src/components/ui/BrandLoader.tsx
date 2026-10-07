@@ -57,15 +57,15 @@ const sizeConfig = {
 export default function BrandLoader({
   message = 'Preparing your workspace',
   sublabel = 'Alpha Edu Hub',
-  fullScreen = false,
+  fullScreen = true,
   className = '',
   size = 'md',
 }: BrandLoaderProps) {
   const config = sizeConfig[size] || sizeConfig.md;
 
   const containerClasses = fullScreen
-    ? 'fixed inset-0 z-[9999] h-screen w-screen bg-[#F3F4F6] flex flex-col items-center justify-center select-none overflow-hidden'
-    : 'relative w-full min-h-[300px] bg-[#F3F4F6] rounded-2xl flex flex-col items-center justify-center p-8 select-none';
+    ? 'fixed inset-0 z-[9999] w-screen h-[100dvh] min-h-screen bg-[#CBE9FE] flex flex-col items-center justify-center select-none overflow-hidden'
+    : 'relative w-full min-h-[350px] bg-slate-50 rounded-2xl flex flex-col items-center justify-center p-8 select-none';
 
   return (
     <div
@@ -73,16 +73,26 @@ export default function BrandLoader({
       aria-live="polite"
       aria-label={message || 'Loading Alpha Edu Hub'}
       className={`${containerClasses} ${className}`}
+      style={
+        fullScreen
+          ? {
+              backgroundImage: "url('/bg-atmosphere.svg')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+            }
+          : undefined
+      }
     >
-      {/* Background ambient subtle gradient or atmosphere */}
+      {/* Background ambient subtle glow */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-40"
+        className="absolute inset-0 pointer-events-none opacity-50"
         style={{
-          backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(29, 140, 253, 0.08) 0%, transparent 65%)',
+          backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 0%, rgba(203, 233, 254, 0.4) 65%)',
         }}
       />
 
-      <div className="relative z-10 flex flex-col items-center text-center px-4">
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 my-auto">
         {/* Central Logo Emblem with Spinner Ring */}
         <div className="relative flex items-center justify-center">
           {/* Subtle Outer Spinner Ring */}
