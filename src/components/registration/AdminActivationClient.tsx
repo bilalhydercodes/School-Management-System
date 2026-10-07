@@ -69,7 +69,7 @@ export default function AdminActivationClient({
       <header className="bg-white border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center p-1.5 shadow-2xs">
+            <div className="w-9 h-9 rounded-2xl bg-[#EEF6FF] border border-blue-100 flex items-center justify-center p-0.5 shadow-2xs overflow-hidden">
               <Image
                 src="/images/dashboard/logo_transparent_bg.png"
                 alt="Alpha Edu Hub"
