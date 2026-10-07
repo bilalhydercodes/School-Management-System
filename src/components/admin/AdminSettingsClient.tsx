@@ -397,7 +397,7 @@ export default function AdminSettingsClient({
               <SchoolLogo size={48} />
               <div>
                 <h4 className="font-bold text-slate-900 text-xs">Official Crest Icon</h4>
-                <p className="text-[11px] text-slate-400">Sunrise Open Book Logo</p>
+                <p className="text-[11px] text-slate-400">AlphaEduHub Crest Emblem</p>
               </div>
             </div>
           </div>
