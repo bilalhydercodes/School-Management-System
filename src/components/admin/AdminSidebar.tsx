@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   Home,
@@ -152,7 +153,16 @@ export default function AdminSidebar({
             className="flex items-center gap-3 group transition-opacity hover:opacity-90"
             title="Return to Public Dashboard"
           >
-            <SchoolLogo size={42} />
+            <div className="w-10 h-10 rounded-2xl bg-[#EEF6FF] border border-blue-100 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs group-hover:scale-105 transition-transform duration-200">
+              <Image
+                src="/images/dashboard/logo_transparent_bg.png"
+                alt="Alpha Edu Hub"
+                width={38}
+                height={38}
+                className="w-full h-full object-contain"
+                priority
+              />
+            </div>
             <div className="min-w-0">
               <h2 className="text-[15px] font-bold text-slate-900 leading-tight tracking-tight group-hover:text-[#0B72E7] transition-colors truncate">
                 {schoolName}

@@ -80,8 +80,8 @@ export default function HelpSupportScreen({
             <div className="pt-2 space-y-2.5 text-xs text-slate-700">
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-blue-600 shrink-0" />
-                <a href="mailto:support@sunrisepublic.edu.in" className="hover:text-blue-600 font-medium">
-                  support@sunrisepublic.edu.in
+                <a href="mailto:support@alphaeduhub.in" className="hover:text-blue-600 font-medium">
+                  support@alphaeduhub.in
                 </a>
               </div>
               <div className="flex items-center gap-2.5">

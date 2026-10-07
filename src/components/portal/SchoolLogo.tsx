@@ -9,7 +9,7 @@ interface SchoolLogoProps {
 export default function SchoolLogo({ className = '', size = 38 }: SchoolLogoProps) {
   return (
     <div
-      className={`shrink-0 flex items-center justify-center overflow-hidden ${className}`}
+      className={`shrink-0 rounded-2xl bg-[#EEF6FF] border border-blue-100 flex items-center justify-center p-1 overflow-hidden shadow-xs ${className}`}
       style={{ width: size, height: size }}
       aria-label="Alpha Edu Hub Logo"
     >

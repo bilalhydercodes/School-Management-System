@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronRight, HelpCircle } from 'lucide-react';
-import SchoolLogo from './SchoolLogo';
 import { PORTAL_NAV_SECTIONS, type PortalNavItem } from './navigationData';
 
 interface PortalSidebarProps {
@@ -43,8 +43,15 @@ export default function PortalSidebar({
           className="p-4 pb-3 border-b border-slate-100/80 flex items-center gap-3 group transition-opacity hover:opacity-90"
           title="Return to Public Dashboard"
         >
-          <div className="shrink-0 p-1 bg-sky-50/60 rounded-xl group-hover:scale-105 transition-transform duration-200">
-            <SchoolLogo size={36} />
+          <div className="w-10 h-10 rounded-2xl bg-[#EEF6FF] border border-blue-100 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs group-hover:scale-105 transition-transform duration-200">
+            <Image
+              src="/images/dashboard/logo_transparent_bg.png"
+              alt="Alpha Edu Hub"
+              width={38}
+              height={38}
+              className="w-full h-full object-contain"
+              priority
+            />
           </div>
           <div className="overflow-hidden">
             <h1 className="text-sm font-bold text-slate-900 tracking-tight leading-tight truncate group-hover:text-blue-600 transition-colors">

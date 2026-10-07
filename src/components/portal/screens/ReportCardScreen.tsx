@@ -75,7 +75,7 @@ export default function ReportCardScreen({
             <SchoolLogo size={48} />
             <div>
               <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-                SUNRISE PUBLIC SCHOOL
+                ALPHA EDU HUB
               </h2>
               <p className="text-xs text-slate-500 font-medium">
                 Affiliated to CBSE, New Delhi • Affiliation No. 1030482 • School Code: 20491
