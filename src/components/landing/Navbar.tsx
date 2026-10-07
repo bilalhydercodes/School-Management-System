@@ -25,12 +25,12 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-[68px]">
           {/* Logo Brand */}
           <Link href="/" className="flex items-center gap-3 group">
-            <span className="w-10 h-10 rounded-xl bg-blue-50/80 border border-blue-100/80 flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform duration-200 shadow-xs shrink-0 overflow-hidden">
+            <span className="w-10 h-10 rounded-2xl bg-[#EEF6FF] border border-blue-100 flex items-center justify-center p-1 group-hover:scale-105 transition-transform duration-200 shadow-xs shrink-0 overflow-hidden">
               <Image
                 src="/images/dashboard/logo_transparent_bg.png"
                 alt="Alpha Edu Hub Logo"
-                width={36}
-                height={36}
+                width={38}
+                height={38}
                 className="w-full h-full object-contain"
                 priority
               />

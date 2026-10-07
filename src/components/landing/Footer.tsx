@@ -99,12 +99,12 @@ export default function Footer() {
           {/* Brand Col: Span 3 */}
           <div className="lg:col-span-3 space-y-5 text-left">
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center p-1.5 group-hover:border-blue-500/50 transition-colors duration-200 shadow-sm shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-700/60 flex items-center justify-center p-1 group-hover:border-blue-500/50 transition-colors duration-200 shadow-sm shrink-0 overflow-hidden">
                 <Image
                   src="/images/dashboard/logo_transparent_bg.png"
                   alt="Alpha Edu Hub Logo"
-                  width={36}
-                  height={36}
+                  width={38}
+                  height={38}
                   className="w-full h-full object-contain"
                 />
               </div>

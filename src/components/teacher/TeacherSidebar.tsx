@@ -118,12 +118,12 @@ export function TeacherSidebar({
               className="flex items-center gap-3 group transition-opacity hover:opacity-90"
               title="Return to Public Dashboard"
             >
-              <div className="w-10 h-10 rounded-xl bg-blue-50/80 border border-blue-100/80 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs group-hover:scale-105 transition-transform duration-200">
+              <div className="w-10 h-10 rounded-2xl bg-[#EEF6FF] border border-blue-100 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs group-hover:scale-105 transition-transform duration-200">
                 <Image
                   src="/images/dashboard/logo_transparent_bg.png"
                   alt="Alpha Edu Hub"
-                  width={36}
-                  height={36}
+                  width={38}
+                  height={38}
                   className="w-full h-full object-contain"
                   priority
                 />

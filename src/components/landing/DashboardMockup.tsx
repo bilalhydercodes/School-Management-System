@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -44,8 +45,14 @@ export default function DashboardMockup() {
           <div>
             {/* School Branding */}
             <div className="flex items-center gap-2 px-1 py-1.5 mb-3 border-b border-slate-100 pb-3">
-              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white flex-shrink-0 shadow-xs">
-                <BookOpen className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-[#EEF6FF] border border-blue-100 flex items-center justify-center p-0.5 flex-shrink-0 shadow-xs overflow-hidden">
+                <Image
+                  src="/images/dashboard/logo_transparent_bg.png"
+                  alt="Alpha Edu Hub Logo"
+                  width={24}
+                  height={24}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="overflow-hidden">
                 <div className="text-[11px] font-bold text-slate-900 truncate leading-tight">
