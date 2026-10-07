@@ -75,7 +75,7 @@ export default function ApplicationStatusClient({ application }: Props) {
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-9 h-9 rounded-2xl bg-[#EEF6FF] border border-blue-100 flex items-center justify-center p-0.5 shadow-2xs group-hover:bg-blue-100/70 transition-colors overflow-hidden">
             <Image
-              src="/images/dashboard/logo_transparent_bg.png"
+              src="/images/dashboard/logo_crest.png"
               alt="Alpha Edu Hub"
               width={32}
               height={32}

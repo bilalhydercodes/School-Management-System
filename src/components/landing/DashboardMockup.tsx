@@ -47,7 +47,7 @@ export default function DashboardMockup() {
             <div className="flex items-center gap-2 px-1 py-1.5 mb-3 border-b border-slate-100 pb-3">
               <div className="w-7 h-7 rounded-lg bg-[#EEF6FF] border border-blue-100 flex items-center justify-center p-0.5 flex-shrink-0 shadow-xs overflow-hidden">
                 <Image
-                  src="/images/dashboard/logo_transparent_bg.png"
+                  src="/images/dashboard/logo_crest.png"
                   alt="Alpha Edu Hub Logo"
                   width={24}
                   height={24}

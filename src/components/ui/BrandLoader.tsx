@@ -103,7 +103,7 @@ export default function BrandLoader({
             className={`relative ${config.container} rounded-full bg-white border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.08)] flex items-center justify-center p-3.5 sm:p-4 overflow-hidden transform transition-transform duration-300 hover:scale-105`}
           >
             <Image
-              src="/images/dashboard/logo_transparent_bg.png"
+              src="/images/dashboard/logo_crest.png"
               alt="Alpha Edu Hub Logo"
               width={config.logo}
               height={config.logo}

@@ -255,7 +255,7 @@ function LoginForm() {
           <Link href="/" className="flex items-center gap-3 mb-2 group inline-flex transition-opacity hover:opacity-90" title="Return to Public Dashboard">
             <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-xs group-hover:scale-105 transition-transform">
               <Image
-                src="/images/dashboard/logo_transparent_bg.png"
+                src="/images/dashboard/logo_crest.png"
                 alt="Alpha Edu Hub"
                 width={36}
                 height={36}

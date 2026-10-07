@@ -101,7 +101,7 @@ export default function Footer() {
             <Link href="/" className="inline-flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-2xl bg-white border border-slate-700/60 flex items-center justify-center p-1 group-hover:border-blue-500/50 transition-colors duration-200 shadow-sm shrink-0 overflow-hidden">
                 <Image
-                  src="/images/dashboard/logo_transparent_bg.png"
+                  src="/images/dashboard/logo_crest.png"
                   alt="Alpha Edu Hub Logo"
                   width={38}
                   height={38}

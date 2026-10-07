@@ -48,7 +48,7 @@ const jsonLd = {
     name: 'Alpha Edu Hub',
     logo: {
       '@type': 'ImageObject',
-      url: 'https://alphaeduhub.in/images/dashboard/logo_transparent_bg.png',
+      url: 'https://alphaeduhub.in/images/dashboard/logo_crest.png',
     },
   },
   mainEntityOfPage: {

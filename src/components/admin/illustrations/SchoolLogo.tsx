@@ -16,7 +16,7 @@ export default function SchoolLogo({ className = '', size = 42 }: SchoolLogoProp
       aria-label="Alpha Edu Hub Logo"
     >
       <Image
-        src="/images/dashboard/logo_transparent_bg.png"
+        src="/images/dashboard/logo_crest.png"
         alt="Alpha Edu Hub"
         width={size}
         height={size}

@@ -108,7 +108,7 @@ export default function SuperAdminSidebar({
           >
             <div className="w-10 h-10 rounded-2xl bg-white border border-slate-700/60 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-xs group-hover:scale-105 transition-transform duration-200">
               <Image
-                src="/images/dashboard/logo_transparent_bg.png"
+                src="/images/dashboard/logo_crest.png"
                 alt="Alpha Edu Hub"
                 width={38}
                 height={38}
