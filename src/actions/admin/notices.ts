@@ -4,6 +4,7 @@ import { safeRevalidatePath as revalidatePath } from '@/lib/revalidate';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAuthGuard } from '@/lib/auth-guard';
+import { invalidateTenantCache } from '@/lib/tenant-cache';
 import { NoticePriority, NoticeAudience } from '@prisma/client';
 import { Role } from '@/types';
 
@@ -58,6 +59,7 @@ export async function publishNoticeAction(rawInput: PublishNoticeInput) {
 
     revalidatePath('/admin');
     revalidatePath('/');
+    invalidateTenantCache(context.tenantId, 'notices');
     return { success: true, notice };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Failed to publish notice.';
@@ -96,6 +98,7 @@ export async function deleteNoticeAction(noticeId: string) {
     revalidatePath('/admin/notices');
     revalidatePath('/admin');
     revalidatePath('/');
+    invalidateTenantCache(context.tenantId, 'notices');
     return { success: true };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Failed to delete circular.';

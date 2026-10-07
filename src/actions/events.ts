@@ -3,6 +3,7 @@
 import { safeRevalidatePath as revalidatePath } from '@/lib/revalidate';
 import { prisma } from '@/lib/db';
 import { requireAuthGuard } from '@/lib/auth-guard';
+import { invalidateTenantCache } from '@/lib/tenant-cache';
 import { Role } from '@/types';
 import {
   CreateEventSchema,
@@ -116,6 +117,7 @@ export async function createEventAction(rawInput: CreateEventInput) {
 
     revalidatePath('/admin/events');
     revalidatePath('/');
+    invalidateTenantCache(tenantId, 'events');
     return { success: true, event };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to create event.';
@@ -205,6 +207,7 @@ export async function updateEventAction(rawInput: UpdateEventInput) {
 
     revalidatePath('/admin/events');
     revalidatePath('/');
+    invalidateTenantCache(tenantId, 'events');
     return { success: true, event: updated };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to update event.';
@@ -271,6 +274,7 @@ export async function togglePublishEventAction(id: string, isPublished: boolean)
 
     revalidatePath('/admin/events');
     revalidatePath('/');
+    invalidateTenantCache(tenantId, 'events');
     return { success: true, event: updated };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to toggle event publish status.';
@@ -320,6 +324,7 @@ export async function deleteEventAction(id: string) {
 
     revalidatePath('/admin/events');
     revalidatePath('/');
+    invalidateTenantCache(tenantId, 'events');
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to delete event.';

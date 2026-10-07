@@ -110,23 +110,25 @@ export function getTenantDb(tenantId: string) {
         },
         async upsert({ model, args }) {
           if (isGlobalModel(model)) return (prisma as any)[model].upsert(args);
-          const existing = await (prisma as any)[model].findFirst({
-            where: { ...(args.where || {}), tenantId },
+          return prisma.$transaction(async (tx) => {
+            const existing = await (tx as any)[model].findFirst({
+              where: { ...(args.where || {}), tenantId },
+            });
+            if (existing) {
+              return (tx as any)[model].update({
+                where: { id: existing.id },
+                data: args.update,
+                select: args.select,
+                include: args.include,
+              });
+            } else {
+              return (tx as any)[model].create({
+                data: { ...(args.create || {}), tenantId },
+                select: args.select,
+                include: args.include,
+              });
+            }
           });
-          if (existing) {
-            return (prisma as any)[model].update({
-              where: { id: existing.id, tenantId },
-              data: args.update,
-              select: args.select,
-              include: args.include,
-            });
-          } else {
-            return (prisma as any)[model].create({
-              data: { ...(args.create || {}), tenantId },
-              select: args.select,
-              include: args.include,
-            });
-          }
         },
         async delete({ model, args, query }) {
           if (isGlobalModel(model)) return query(args);

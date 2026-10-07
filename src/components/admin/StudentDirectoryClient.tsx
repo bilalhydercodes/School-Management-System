@@ -2,11 +2,13 @@
 
 import React, { useState, useMemo, useTransition } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Search,
   Filter,
   Users,
   ChevronRight,
+  ChevronLeft,
   Eye,
   Phone,
   Mail,
@@ -88,13 +90,21 @@ interface StudentDirectoryClientProps {
   students: StudentItem[];
   classList: string[];
   sections?: Array<{ id: string; name: string }>;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+    pageSize: number;
+  };
 }
 
 export default function StudentDirectoryClient({
   students: initialStudents,
   classList,
   sections = [],
+  pagination,
 }: StudentDirectoryClientProps) {
+  const router = useRouter();
   const [students, setStudents] = useState<StudentItem[]>(initialStudents);
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE');
   const [searchTerm, setSearchTerm] = useState('');
@@ -724,6 +734,39 @@ export default function StudentDirectoryClient({
           )}
         </AdminTableBody>
       </AdminTable>
+
+      {/* Pagination Controls */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-3 bg-white rounded-xl border border-slate-200 text-xs">
+          <span className="text-slate-500 font-medium">
+            Showing Page <span className="font-bold text-slate-800">{pagination.currentPage}</span> of{' '}
+            <span className="font-bold text-slate-800">{pagination.totalPages}</span> ({pagination.totalCount} total students)
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={pagination.currentPage <= 1}
+              onClick={() => router.push(`/admin/students?page=${pagination.currentPage - 1}`)}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-colors"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span>Previous</span>
+            </button>
+            <span className="px-2 font-semibold text-slate-700">
+              {pagination.currentPage} / {pagination.totalPages}
+            </span>
+            <button
+              type="button"
+              disabled={pagination.currentPage >= pagination.totalPages}
+              onClick={() => router.push(`/admin/students?page=${pagination.currentPage + 1}`)}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-colors"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 6. STUDENT PROFILE DOSSIER SLIDE-OVER DRAWER */}
       {activeStudent && (

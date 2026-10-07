@@ -26,7 +26,7 @@ export default async function AdminFeesPage() {
 
   const now = new Date();
 
-  // Parallel database fetch for high performance
+  // Parallel database fetch with selective projection and bounded result sets
   const [invoicesRaw, paymentsRaw, studentsRaw, academicYears, classGrades, feeTerms] =
     await Promise.all([
       prisma.feeInvoice.findMany({
@@ -56,7 +56,7 @@ export default async function AdminFeesPage() {
           },
         },
         orderBy: { generatedAt: 'desc' },
-        take: 300,
+        take: 50,
       }),
 
       prisma.feePayment.findMany({
@@ -90,23 +90,27 @@ export default async function AdminFeesPage() {
 
       prisma.studentProfile.findMany({
         where: { tenantId, user: { isActive: true } },
-        include: {
+        select: {
+          id: true,
+          admissionNumber: true,
           user: {
             select: {
-              id: true,
               firstName: true,
               lastName: true,
-              email: true,
-              phone: true,
             },
           },
           section: {
-            include: { classGrade: { select: { id: true, name: true } } },
+            select: {
+              name: true,
+              classGrade: { select: { name: true } },
+            },
           },
           parents: {
-            include: {
+            take: 1,
+            orderBy: { isPrimary: 'desc' },
+            select: {
               parent: {
-                include: {
+                select: {
                   user: {
                     select: {
                       firstName: true,
@@ -120,7 +124,7 @@ export default async function AdminFeesPage() {
           },
         },
         orderBy: { admissionNumber: 'asc' },
-        take: 300,
+        take: 100,
       }),
 
       prisma.academicYear.findMany({

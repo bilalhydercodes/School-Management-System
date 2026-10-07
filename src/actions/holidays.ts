@@ -3,6 +3,7 @@
 import { safeRevalidatePath as revalidatePath } from '@/lib/revalidate';
 import { prisma } from '@/lib/db';
 import { requireAuthGuard } from '@/lib/auth-guard';
+import { invalidateTenantCache } from '@/lib/tenant-cache';
 import { Role } from '@/types';
 import {
   CreateHolidaySchema,
@@ -119,6 +120,7 @@ export async function createHolidayAction(rawInput: CreateHolidayInput) {
 
     revalidatePath('/admin/holidays');
     revalidatePath('/');
+    invalidateTenantCache(tenantId, 'holidays');
     return { success: true, holiday };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to create holiday.';
@@ -168,6 +170,7 @@ export async function deleteHolidayAction(id: string) {
 
     revalidatePath('/admin/holidays');
     revalidatePath('/');
+    invalidateTenantCache(tenantId, 'holidays');
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to delete holiday.';

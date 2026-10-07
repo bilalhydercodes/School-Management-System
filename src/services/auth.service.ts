@@ -205,15 +205,20 @@ export class AuthService {
       };
     }
 
-    // 7. Successful password verification - reset failed attempts and update lastLoginAt in a SINGLE query
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        failedLoginAttempts: 0,
-        lockedUntil: null,
-        lastLoginAt: new Date(),
-      },
-    });
+    // 7. Successful password verification - reset failed attempts and update lastLoginAt asynchronously
+    // Fire-and-forget to remove write lock and database roundtrip latency from the critical auth path
+    prisma.user
+      .update({
+        where: { id: user.id },
+        data: {
+          failedLoginAttempts: 0,
+          lockedUntil: null,
+          lastLoginAt: new Date(),
+        },
+      })
+      .catch((updateErr) => {
+        console.warn('[AUTH] Non-blocking user login timestamp update failed:', updateErr?.message || updateErr);
+      });
 
     // 8. Record audit log asynchronously without blocking user response
     prisma.auditLog

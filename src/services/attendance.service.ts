@@ -102,33 +102,66 @@ export class AttendanceService {
       throw new Error(`Today is a scheduled holiday (${holiday.name}). Attendance marking is restricted unless holiday override is enabled.`);
     }
 
-    // ACID Transaction: Atomic replace of daily attendance records for this section & date
+    // ACID Transaction: Concurrency-safe atomic update/create of daily attendance records
     await prisma.$transaction(async (tx) => {
-      // 1. Clear existing attendance for this specific section, date, and daily period (period = null)
-      await tx.studentAttendance.deleteMany({
+      // 1. Fetch existing attendance records for this section, date, and student list
+      const existingAttendances = await tx.studentAttendance.findMany({
         where: {
           tenantId,
           sectionId: input.sectionId,
           date: targetDate,
           period: null,
+          studentId: { in: input.records.map((r) => r.studentId) },
         },
+        select: { id: true, studentId: true },
       });
 
-      // 2. Batch create new attendance records
-      await tx.studentAttendance.createMany({
-        data: input.records.map((record) => ({
-          tenantId,
-          studentId: record.studentId,
-          sectionId: input.sectionId,
-          date: targetDate,
-          period: null,
-          status: record.status as AttendanceStatus,
-          remarks: record.remarks?.trim() || null,
-          markedBy: markedByUserId || null,
-        })),
-      });
+      const existingMap = new Map(existingAttendances.map((ea) => [ea.studentId, ea.id]));
+      const toCreate: Array<{
+        tenantId: string;
+        studentId: string;
+        sectionId: string;
+        date: Date;
+        period: null;
+        status: AttendanceStatus;
+        remarks: string | null;
+        markedBy: string | null;
+      }> = [];
 
-      // 3. Write structured audit log
+      // 2. Concurrently update existing records or prepare new inserts
+      for (const record of input.records) {
+        const existingId = existingMap.get(record.studentId);
+        if (existingId) {
+          await tx.studentAttendance.update({
+            where: { id: existingId },
+            data: {
+              status: record.status as AttendanceStatus,
+              remarks: record.remarks?.trim() || null,
+              markedBy: markedByUserId || null,
+            },
+          });
+        } else {
+          toCreate.push({
+            tenantId,
+            studentId: record.studentId,
+            sectionId: input.sectionId,
+            date: targetDate,
+            period: null,
+            status: record.status as AttendanceStatus,
+            remarks: record.remarks?.trim() || null,
+            markedBy: markedByUserId || null,
+          });
+        }
+      }
+
+      // 3. Batch create any new student attendance records
+      if (toCreate.length > 0) {
+        await tx.studentAttendance.createMany({
+          data: toCreate,
+        });
+      }
+
+      // 4. Write structured audit log
       try {
         await tx.auditLog.create({
           data: {

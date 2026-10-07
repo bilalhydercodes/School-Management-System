@@ -3,6 +3,7 @@
 import { safeRevalidatePath as revalidatePath } from '@/lib/revalidate';
 import { prisma } from '@/lib/db';
 import { requireAuthGuard } from '@/lib/auth-guard';
+import { invalidateTenantCache } from '@/lib/tenant-cache';
 import { Role } from '@/types';
 import {
   CreateEmergencyContactSchema,
@@ -81,6 +82,7 @@ export async function createEmergencyContactAction(rawInput: CreateEmergencyCont
 
     revalidatePath('/admin/emergency');
     revalidatePath('/');
+    invalidateTenantCache(guard.context.tenantId, 'contacts');
     return { success: true, contact };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to create emergency contact.';
@@ -147,6 +149,7 @@ export async function updateEmergencyContactAction(rawInput: UpdateEmergencyCont
 
     revalidatePath('/admin/emergency');
     revalidatePath('/');
+    invalidateTenantCache(tenantId, 'contacts');
     return { success: true, contact: updated };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to update emergency contact.';
@@ -196,6 +199,7 @@ export async function deleteEmergencyContactAction(id: string) {
 
     revalidatePath('/admin/emergency');
     revalidatePath('/');
+    invalidateTenantCache(tenantId, 'contacts');
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to delete emergency contact.';

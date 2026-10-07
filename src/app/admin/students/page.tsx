@@ -7,7 +7,13 @@ import StudentDirectoryClient, {
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminStudentsPage() {
+interface PageProps {
+  searchParams?: {
+    page?: string;
+  };
+}
+
+export default async function AdminStudentsPage({ searchParams }: PageProps) {
   const authContext = await getAuthenticatedContext();
   if (!authContext || (authContext.role !== 'ADMIN' && authContext.role !== 'SUPER_ADMIN')) {
     redirect('/login?redirect=/admin/students');
@@ -18,8 +24,13 @@ export default async function AdminStudentsPage() {
     return <div>Platform context required.</div>;
   }
 
-  // Fetch students and class grades in parallel
-  const [studentsRaw, sectionsRaw] = await Promise.all([
+  const page = Math.max(1, parseInt(searchParams?.page || '1', 10));
+  const pageSize = 50;
+  const skip = (page - 1) * pageSize;
+
+  // Fetch count, paginated students and class grades in parallel
+  const [totalCount, studentsRaw, sectionsRaw] = await Promise.all([
+    prisma.studentProfile.count({ where: { tenantId } }),
     prisma.studentProfile.findMany({
       where: { tenantId },
       include: {
@@ -56,10 +67,11 @@ export default async function AdminStudentsPage() {
             },
           },
           orderBy: { isPrimary: 'desc' },
+          take: 1,
         },
         attendances: {
           select: { status: true },
-          take: 60,
+          take: 30,
           orderBy: { date: 'desc' },
         },
         feeInvoices: {
@@ -69,10 +81,12 @@ export default async function AdminStudentsPage() {
             balanceAmount: true,
             status: true,
           },
-          take: 20,
+          take: 10,
         },
       },
       orderBy: { rollNumber: 'asc' },
+      take: pageSize,
+      skip,
     }),
     prisma.section.findMany({
       where: { tenantId },
@@ -166,6 +180,12 @@ export default async function AdminStudentsPage() {
       students={students}
       classList={classList}
       sections={sectionOptions}
+      pagination={{
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / pageSize),
+        totalCount,
+        pageSize,
+      }}
     />
   );
 }

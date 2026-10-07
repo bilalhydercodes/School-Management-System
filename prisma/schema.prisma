@@ -155,6 +155,7 @@ model User {
 
   @@unique([tenantId, email])
   @@index([tenantId, role])
+  @@index([email])
 }
 
 model RefreshToken {
@@ -234,6 +235,7 @@ model StudentProfile {
 
   @@unique([tenantId, admissionNumber])
   @@index([tenantId, sectionId])
+  @@index([tenantId, rollNumber])
 }
 
 model ParentProfile {
@@ -387,6 +389,8 @@ model StudentAttendance {
   @@unique([tenantId, studentId, date, period])
   @@index([tenantId, sectionId, date])
   @@index([tenantId, markedBy])
+  @@index([tenantId, date])
+  @@index([tenantId, studentId, date(sort: Desc)])
 }
 
 model StaffAttendance {
@@ -486,6 +490,8 @@ model FeeInvoice {
   @@unique([tenantId, invoiceNumber])
   @@index([tenantId, studentId, status])
   @@index([tenantId, status, dueDate])
+  @@index([tenantId, studentId, dueDate(sort: Asc)])
+  @@index([tenantId, dueDate, balanceAmount])
 }
 
 model FeeInvoiceItem {
@@ -528,6 +534,7 @@ model FeePayment {
   @@unique([tenantId, receiptNumber])
   @@index([tenantId, feeInvoiceId])
   @@index([tenantId, collectedById])
+  @@index([tenantId, createdAt(sort: Desc)])
 }
 
 model ExamTerm {
@@ -647,6 +654,7 @@ model TimetableEntry {
 
   @@unique([sectionId, periodTimeSlotId, dayOfWeek])
   @@index([tenantId, teacherId, dayOfWeek])
+  @@index([tenantId, sectionId, dayOfWeek])
 }
 
 model Notice {

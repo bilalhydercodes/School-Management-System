@@ -40,27 +40,21 @@ export default async function TeacherDashboardPage() {
         });
 
         if (activeCycle) {
-          const submissions = await prisma.feedbackSubmission.findMany({
+          const agg = await prisma.feedbackSubmission.aggregate({
             where: {
               tenantId: context.tenantId,
               teacherId: teacherProfile.id,
               feedbackCycleId: activeCycle.id,
+              overallRating: { not: null },
             },
-            select: { overallRating: true },
+            _count: { overallRating: true },
+            _avg: { overallRating: true },
           });
 
-          if (submissions.length > 0) {
-            let sum = 0;
-            let count = 0;
-            for (const s of submissions) {
-              if (s.overallRating) {
-                sum += Number(s.overallRating);
-                count++;
-              }
-            }
+          if (agg._count.overallRating > 0) {
             feedbackSummary = {
-              responseCount: submissions.length,
-              overallRating: count > 0 ? Number((sum / count).toFixed(1)) : 0,
+              responseCount: agg._count.overallRating,
+              overallRating: Number((agg._avg.overallRating || 0).toFixed(1)),
               cycleTitle: activeCycle.title,
             };
           }

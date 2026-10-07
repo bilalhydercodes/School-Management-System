@@ -93,7 +93,9 @@ export function setTestSessionOverride(session: JWTPayload | null) {
  * Extracts and verifies the current session from incoming request cookies,
  * checking whether the token has been revoked. Deduplicated per request lifecycle via React cache.
  */
-export const getSessionFromCookies = cache(async function getSessionFromCookies(): Promise<JWTPayload | null> {
+const safeCache = typeof cache === 'function' ? cache : (<T extends (...args: any[]) => any>(fn: T): T => fn);
+
+export const getSessionFromCookies = safeCache(async function getSessionFromCookies(): Promise<JWTPayload | null> {
   let token: string | undefined;
 
   try {

@@ -1,6 +1,13 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/session';
+import {
+  getCachedTenantSubjects,
+  getCachedTenantNotices,
+  getCachedTenantHolidays,
+  getCachedTenantEvents,
+  getCachedTenantEmergencyContacts,
+} from '@/lib/tenant-cache';
 import { DayOfWeek } from '@prisma/client';
 import StudentParentDashboardClient, {
   type StudentDashboardProps,
@@ -155,11 +162,8 @@ export default async function PortalPage({ searchParams }: PageProps) {
       include: { examSchedule: { include: { subject: true } } },
     }),
 
-    // All Subjects
-    prisma.subject.findMany({
-      where: { tenantId },
-      orderBy: { code: 'asc' },
-    }),
+    // All Subjects (Cached per tenant)
+    getCachedTenantSubjects(tenantId),
 
     // Timetable (only if sectionId exists)
     targetStudent.sectionId
@@ -184,34 +188,16 @@ export default async function PortalPage({ searchParams }: PageProps) {
         })()
       : Promise.resolve([]),
 
-    // Notices
-    prisma.notice.findMany({
-      where: { tenantId },
-      orderBy: { publishedAt: 'desc' },
-      take: 12,
-    }),
+    // Notices (Cached per tenant)
+    getCachedTenantNotices(tenantId, 12),
 
-    // Emergency Contacts (may not exist on all schemas)
-    (async () => {
-      try {
-        return prisma.emergencyContact
-          ? await prisma.emergencyContact.findMany({
-              where: { tenantId },
-              orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
-              take: 8,
-            })
-          : [];
-      } catch { return []; }
-    })(),
+    // Emergency Contacts (Cached per tenant)
+    getCachedTenantEmergencyContacts(tenantId, 8),
 
-    // Events, Holidays, Notification count — already parallel
+    // Events, Holidays, Notification count (Holidays & Events cached per tenant)
     Promise.all([
-      prisma.event
-        ? prisma.event.findMany({ where: { tenantId, isPublished: true }, orderBy: { eventDate: 'asc' }, take: 6 })
-        : Promise.resolve([]),
-      prisma.holiday
-        ? prisma.holiday.findMany({ where: { tenantId }, orderBy: { date: 'asc' }, take: 6 })
-        : Promise.resolve([]),
+      getCachedTenantEvents(tenantId, 6),
+      getCachedTenantHolidays(tenantId, 6),
       prisma.notification
         ? prisma.notification.count({ where: { tenantId, recipientId: currentUser.id, isRead: false } })
         : Promise.resolve(0),
