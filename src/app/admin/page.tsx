@@ -1,9 +1,12 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
+import { unstable_cache } from 'next/cache';
 import { getAuthenticatedContext } from '@/lib/auth-context';
 import AdminDashboardClient from '@/components/admin/AdminDashboardClient';
 
 export const dynamic = 'force-dynamic';
+// Allow Next.js to revalidate cached dashboard data every 60 seconds
+export const revalidate = 60;
 
 export default async function AdminDashboardPage() {
   const authContext = await getAuthenticatedContext();
@@ -23,16 +26,69 @@ export default async function AdminDashboardPage() {
     );
   }
 
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+  // Cache the heavy parallel DB queries for 60s per tenant to avoid re-fetching on every nav
+  const fetchDashboardData = unstable_cache(
+    async (tId: string) => {
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-  // Run all independent queries in parallel for high performance
+      return Promise.all([
+        prisma.studentProfile.count({ where: { tenantId: tId } }),
+        prisma.teacherProfile.count({ where: { tenantId: tId } }),
+        // Today's attendance records (for attendance rate)
+        prisma.studentAttendance.findMany({
+          where: { tenantId: tId, date: { gte: todayStart, lte: todayEnd } },
+          select: { status: true, sectionId: true },
+        }),
+        // Fee aggregates
+        prisma.feeInvoice.aggregate({
+          where: { tenantId: tId },
+          _sum: { netAmount: true, paidAmount: true, balanceAmount: true },
+        }),
+        prisma.feeInvoice.aggregate({
+          where: { tenantId: tId, balanceAmount: { gt: 0 }, dueDate: { lt: todayStart } },
+          _sum: { balanceAmount: true },
+          _count: { _all: true },
+        }),
+        prisma.teacherSubstitution.count({
+          where: { tenantId: tId, status: 'ASSIGNED', date: { gte: todayStart, lte: todayEnd } },
+        }),
+        prisma.notice.findMany({
+          where: { tenantId: tId },
+          orderBy: { publishedAt: 'desc' },
+          take: 6,
+          select: { id: true, title: true, content: true, publishedAt: true, priority: true, targetAudience: true },
+        }),
+        // Filter out USER_LOGIN spam at DB level rather than in memory
+        prisma.auditLog.findMany({
+          where: { tenantId: tId, action: { not: 'USER_LOGIN' } },
+          orderBy: { createdAt: 'desc' },
+          take: 8,
+          include: { user: { select: { firstName: true, lastName: true } } },
+        }),
+        // Use _count instead of loading all student IDs per section (much cheaper)
+        prisma.section.findMany({
+          where: { tenantId: tId },
+          include: {
+            classGrade: { select: { id: true, name: true } },
+            classTeacher: { include: { user: { select: { firstName: true, lastName: true } } } },
+            _count: { select: { students: true } },
+          },
+        }),
+        prisma.admissionApplication.count({
+          where: { tenantId: tId, status: 'SUBMITTED' },
+        }),
+      ]);
+    },
+    [`admin-dashboard-${tenantId}`],
+    { revalidate: 60, tags: [`tenant-${tenantId}-dashboard`] }
+  );
+
   const [
     totalStudents,
     totalTeachers,
     todayAttendanceRecords,
-    allAttendanceRecords,
     feeAggregates,
     overdueFeeAggregates,
     activeSubstitutions,
@@ -40,80 +96,10 @@ export default async function AdminDashboardPage() {
     auditLogs,
     sections,
     pendingAdmissionsCount,
-  ] = await Promise.all([
-    prisma.studentProfile.count({ where: { tenantId } }),
-    prisma.teacherProfile.count({ where: { tenantId } }),
-    prisma.studentAttendance.findMany({
-      where: {
-        tenantId,
-        date: { gte: todayStart, lte: todayEnd },
-      },
-      select: { status: true, sectionId: true },
-    }),
-    prisma.studentAttendance.findMany({
-      where: { tenantId },
-      select: { status: true },
-      take: 100,
-    }),
-    prisma.feeInvoice.aggregate({
-      where: { tenantId },
-      _sum: {
-        netAmount: true,
-        paidAmount: true,
-        balanceAmount: true,
-      },
-    }),
-    prisma.feeInvoice.aggregate({
-      where: {
-        tenantId,
-        balanceAmount: { gt: 0 },
-        dueDate: { lt: todayStart },
-      },
-      _sum: { balanceAmount: true },
-      _count: { _all: true },
-    }),
-    prisma.teacherSubstitution.count({
-      where: { tenantId, status: 'ASSIGNED', date: { gte: todayStart, lte: todayEnd } },
-    }),
-    prisma.notice.findMany({
-      where: { tenantId },
-      orderBy: { publishedAt: 'desc' },
-      take: 6,
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        publishedAt: true,
-        priority: true,
-        targetAudience: true,
-      },
-    }),
-    prisma.auditLog.findMany({
-      where: { tenantId },
-      orderBy: { createdAt: 'desc' },
-      take: 8,
-      include: {
-        user: {
-          select: { firstName: true, lastName: true },
-        },
-      },
-    }),
-    prisma.section.findMany({
-      where: { tenantId },
-      include: {
-        classGrade: { select: { id: true, name: true } },
-        classTeacher: {
-          include: {
-            user: { select: { firstName: true, lastName: true } },
-          },
-        },
-        students: { select: { id: true } },
-      },
-    }),
-    prisma.admissionApplication.count({
-      where: { tenantId, status: 'SUBMITTED' },
-    }),
-  ]);
+  ] = await fetchDashboardData(tenantId);
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
 
   // Attendance metrics calculation (Today's actual attendance)
   const submittedSectionIds = new Set(todayAttendanceRecords.map((r) => r.sectionId));
@@ -123,11 +109,10 @@ export default async function AdminDashboardPage() {
 
   const todayPresentCount = todayAttendanceRecords.filter((r) => r.status === 'PRESENT').length;
   const todayTotalAttendance = todayAttendanceRecords.length;
+  // When today has no attendance records yet, default to 100% (no data = full day ahead)
   const todayAttendanceRate =
     todayTotalAttendance > 0
       ? Math.round((todayPresentCount / todayTotalAttendance) * 100)
-      : allAttendanceRecords.length > 0
-      ? Math.round((allAttendanceRecords.filter((r) => r.status === 'PRESENT').length / allAttendanceRecords.length) * 100)
       : 100;
 
   // Fee metrics calculation via DB aggregates
@@ -152,9 +137,8 @@ export default async function AdminDashboardPage() {
     targetAudience: n.targetAudience,
   }));
 
-  // Filter out routine USER_LOGIN spam from primary audit view
-  const sensitiveAudit = auditLogs.filter((l) => l.action !== 'USER_LOGIN');
-  const logsToRender = sensitiveAudit.length > 0 ? sensitiveAudit : auditLogs.slice(0, 4);
+  // Filter out routine USER_LOGIN spam from primary audit view (already filtered at DB level)
+  const logsToRender = auditLogs.length > 0 ? auditLogs : [];
 
   const formattedAuditLogs = logsToRender.map((log) => {
     let cleanAction = log.action;
@@ -188,7 +172,8 @@ export default async function AdminDashboardPage() {
       id: sec.id,
       className: sec.classGrade.name,
       sectionName: sec.name,
-      studentCount: sec.students.length,
+      // Use _count.students (aggregate) instead of sec.students.length
+      studentCount: (sec as any)._count?.students ?? 0,
       classTeacherName: sec.classTeacher?.user
         ? `${sec.classTeacher.user.firstName} ${sec.classTeacher.user.lastName}`
         : 'Unassigned',

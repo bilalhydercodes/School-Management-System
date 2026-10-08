@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { LoginSchema } from '@/lib/validations/auth';
 import { getRoleDefaultPath, getSessionCookieOptions, SESSION_COOKIE_NAME } from '@/lib/session';
+import { AuthService } from '@/services/auth.service';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -21,7 +22,6 @@ export async function POST(request: Request) {
     const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || undefined;
     const userAgent = request.headers.get('user-agent') || undefined;
 
-    const { AuthService } = await import('@/services/auth.service');
     const result = await AuthService.login({ email, password }, tenantId || null, { ipAddress, userAgent });
 
     if (!result.success || !result.token || !result.user) {

@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useTransition, Suspense } from 'react';
+import React, { useState, useTransition, Suspense, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Sparkles, GraduationCap, Users, ShieldCheck } from 'lucide-react';
-import { loginAction, verifyLoginOtpAction } from '@/actions/auth';
 import BrandLoader from '@/components/ui/BrandLoader';
 
 function EyeIcon({ className = 'w-4 h-4' }: { className?: string }) {
@@ -75,6 +74,19 @@ function LoginForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Redirect to target after successful login — hard-navigate if router.push is slow
+  const navigateTo = useCallback((target: string) => {
+    setIsNavigating(true);
+    router.push(target);
+    // Hard fallback after 300ms in case Next.js router is slow
+    setTimeout(() => {
+      if (typeof window !== 'undefined' && window.location.pathname !== target) {
+        window.location.href = target;
+      }
+    }, 300);
+  }, [router]);
 
   const executeLogin = (emailToUse: string, passwordToUse: string) => {
     setErrorMessage(null);
@@ -83,6 +95,7 @@ function LoginForm() {
 
     startTransition(async () => {
       try {
+        // Primary fast-path: use the REST API route (no server-action overhead)
         const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -92,48 +105,26 @@ function LoginForm() {
           }),
         });
 
+        if (!response.ok && response.status !== 401) {
+          // Non-auth server error: throw to trigger fallback
+          throw new Error(`Server error: ${response.status}`);
+        }
+
         const result = await response.json();
 
         if (result.success && result.redirectUrl) {
-          setIsNavigating(true);
-          const target = redirectParam || result.redirectUrl;
-          router.push(target);
-          router.refresh();
-          setTimeout(() => {
-            if (typeof window !== 'undefined' && window.location.pathname !== target) {
-              window.location.href = target;
-            }
-          }, 800);
+          navigateTo(redirectParam || result.redirectUrl);
+        } else if (result.requiresOtp && result.challengeId) {
+          setChallengeId(result.challengeId);
+          setEmailHint(result.emailHint || null);
+          setUserRole(result.role || null);
+          setIs2FaStep(true);
         } else {
-          setIsNavigating(false);
           setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
         }
       } catch {
-        // Fallback to Server Action
-        try {
-          const result = await loginAction({
-            email: emailToUse.trim(),
-            password: passwordToUse.trim(),
-          });
-
-          if (result.success && result.redirectUrl) {
-            setIsNavigating(true);
-            const target = redirectParam || result.redirectUrl;
-            router.push(target);
-            router.refresh();
-            setTimeout(() => {
-              if (typeof window !== 'undefined' && window.location.pathname !== target) {
-                window.location.href = target;
-              }
-            }, 800);
-          } else {
-            setIsNavigating(false);
-            setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
-          }
-        } catch {
-          setIsNavigating(false);
-          setErrorMessage('Unable to reach server. Please check your network connection.');
-        }
+        // Network-level failure only: server is unreachable
+        setErrorMessage('Unable to reach server. Please check your network connection.');
       }
     });
   };
@@ -172,27 +163,19 @@ function LoginForm() {
 
     startTransition(async () => {
       try {
+        // Import server action lazily so it doesn't bloat the initial bundle
+        const { verifyLoginOtpAction } = await import('@/actions/auth');
         const result = await verifyLoginOtpAction({
           challengeId,
           otp: otpCode.trim(),
         });
 
         if (result.success && result.redirectUrl) {
-          setIsNavigating(true);
-          const target = redirectParam || result.redirectUrl;
-          router.push(target);
-          router.refresh();
-          setTimeout(() => {
-            if (typeof window !== 'undefined' && window.location.pathname !== target) {
-              window.location.href = target;
-            }
-          }, 800);
+          navigateTo(redirectParam || result.redirectUrl);
         } else {
-          setIsNavigating(false);
           setErrorMessage(result.error || 'Invalid or expired OTP code.');
         }
       } catch {
-        setIsNavigating(false);
         setErrorMessage('A network error occurred during verification.');
       }
     });
@@ -306,7 +289,7 @@ function LoginForm() {
                   </div>
                 )}
 
-                <form onSubmit={handleCredentialsSubmit} className="mt-7">
+                <form ref={formRef} onSubmit={handleCredentialsSubmit} className="mt-7">
                   {/* Field 1: Roll Number / Admission ID / Email */}
                   <div>
                     <label
@@ -406,61 +389,43 @@ function LoginForm() {
                     </p>
                   </div>
 
-                  {/* DEMO ACCOUNTS QUICK-FILL */}
-                  <div className="mt-5 pt-4 border-t border-slate-100">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                      Demo Accounts Quick-Fill:
-                    </p>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        id="demo-admin-pill"
-                        onClick={() => {
-                          setUserId('admin@dps.edu.in');
-                          setPassword('Admin@123');
-                          setErrorMessage(null);
-                        }}
-                        className={`py-2 px-3 rounded-[10px] text-[12px] font-semibold transition-all text-center border cursor-pointer ${
-                          userId === 'admin@dps.edu.in'
-                            ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-2xs font-bold'
-                            : 'bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border-transparent text-slate-600'
-                        }`}
-                      >
-                        Admin
-                      </button>
-                      <button
-                        type="button"
-                        id="demo-teacher-pill"
-                        onClick={() => {
-                          setUserId('teacher@dps.edu.in');
-                          setPassword('Teacher@123');
-                          setErrorMessage(null);
-                        }}
-                        className={`py-2 px-3 rounded-[10px] text-[12px] font-semibold transition-all text-center border cursor-pointer ${
-                          userId === 'teacher@dps.edu.in'
-                            ? 'bg-emerald-50 border-emerald-200 text-emerald-700 shadow-2xs font-bold'
-                            : 'bg-slate-100 hover:bg-emerald-50 hover:text-emerald-600 border-transparent text-slate-600'
-                        }`}
-                      >
-                        Teacher
-                      </button>
-                      <button
-                        type="button"
-                        id="demo-student-pill"
-                        onClick={() => {
-                          setUserId('student@dps.edu.in');
-                          setPassword('Student@123');
-                          setErrorMessage(null);
-                        }}
-                        className={`py-2 px-3 rounded-[10px] text-[12px] font-semibold transition-all text-center border cursor-pointer ${
-                          userId === 'student@dps.edu.in'
-                            ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-2xs font-bold'
-                            : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-600 border-transparent text-slate-600'
-                        }`}
-                      >
-                        Student
-                      </button>
-                    </div>
+                  {/* Quick Demo Logins Pill Selector (Development only) */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="mt-4 pt-3 border-t border-slate-100">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                        Demo Accounts Quick-Fill (Dev Mode):
+                      </p>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => executeLogin('admin@dps.edu.in', 'Admin@123')}
+                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                        >
+                          Admin
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => executeLogin('teacher@dps.edu.in', 'Teacher@123')}
+                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                        >
+                          Teacher
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => executeLogin('student@dps.edu.in', 'Student@123')}
+                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                        >
+                          Student
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => executeLogin('superadmin@schoolerp.in', 'SuperAdmin@123')}
+                          className="py-1 px-1.5 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-[11px] font-medium text-slate-600 transition-colors text-center"
+                        >
+                          Super
+                        </button>
+                      </div>
+                  </div>
                   </div>
                 </form>
               </>

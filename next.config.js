@@ -57,6 +57,8 @@ const nextConfig = {
       'bullmq',
       'razorpay',
     ],
+    // Tree-shake icon libraries so only used icons are bundled
+    optimizePackageImports: ['lucide-react'],
   },
   poweredByHeader: false,
   webpack: (config) => {

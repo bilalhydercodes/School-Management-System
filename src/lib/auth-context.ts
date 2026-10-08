@@ -151,10 +151,19 @@ export async function getCachedUserProfile(userId: string) {
  * Request-memoized session resolution.
  * Calling this multiple times in the same request (e.g. layout + page + guards)
  * executes the cookie/JWT validation EXACTLY ONCE.
+ * Short-circuits Clerk check when Clerk is not configured to save latency.
  */
 export const getEffectiveSession = serverCache(async () => {
-  const clerkSession = await getAuthoritativeUserFromClerk();
-  const session = await getSessionFromCookies();
+  const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const isClerkConfigured = Boolean(
+    clerkKey && clerkKey.startsWith('pk_') && !clerkKey.includes('placeholder')
+  );
+
+  // Fast-path: skip the entire Clerk round-trip when not configured
+  const [clerkSession, session] = await Promise.all([
+    isClerkConfigured ? getAuthoritativeUserFromClerk() : Promise.resolve(null),
+    getSessionFromCookies(),
+  ]);
 
   const effectiveRole = (clerkSession?.role || session?.role) as RoleType | undefined;
   const effectiveUserId = clerkSession?.appUser.userId || session?.sub;
@@ -183,6 +192,7 @@ export interface AuthenticatedContext {
     fullName: string;
     email: string;
     avatarUrl: string | null;
+    role: RoleType;
   };
   tenant: {
     name: string;
@@ -227,6 +237,7 @@ export const getAuthenticatedContext = serverCache(async (): Promise<Authenticat
       fullName,
       email,
       avatarUrl,
+      role: auth.role,
     },
     tenant: tenantMeta
       ? {
