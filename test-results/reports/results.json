@@ -1,0 +1,820 @@
+{
+  "config": {
+    "argv": [
+      "/Users/viveksantoshkumarsingaraddi/.nvm/versions/node/v24.11.1/bin/node",
+      "/Users/viveksantoshkumarsingaraddi/School-Management-System/node_modules/.bin/playwright",
+      "test",
+      "tests/smoke/auth-and-routing.spec.ts",
+      "--project=chromium-desktop"
+    ],
+    "configFile": "/Users/viveksantoshkumarsingaraddi/School-Management-System/playwright.config.ts",
+    "rootDir": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox-desktop",
+        "name": "firefox-desktop",
+        "testDir": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-safari",
+        "name": "mobile-safari",
+        "testDir": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/reports/results.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "test-results/reports/html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "smoke/auth-and-routing.spec.ts",
+      "file": "smoke/auth-and-routing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Alpha Edu Hub — Smoke Test Suite (Phase 1)",
+          "file": "smoke/auth-and-routing.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-SMOKE-01: Public Landing Page loads without fatal errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1816,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-08T10:08:09.782Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "79605197db0e68487c1a-c1100443145858387401",
+              "file": "smoke/auth-and-routing.spec.ts",
+              "line": 8,
+              "column": 7
+            },
+            {
+              "title": "TC-SMOKE-02: Login Page displays input fields and credentials form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 721,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-08T10:08:12.229Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "79605197db0e68487c1a-1cddb12b61545c1b6f4f",
+              "file": "smoke/auth-and-routing.spec.ts",
+              "line": 60,
+              "column": 7
+            },
+            {
+              "title": "TC-SMOKE-03: Super Admin authentication and dashboard routing (/superadmin)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 35242,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:122:18",
+                        "location": {
+                          "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                          "column": 18,
+                          "line": 122
+                        },
+                        "snippet": "  120 |       await page.locator('button[type=\"submit\"]').click();\n  121 |\n> 122 |       await page.waitForURL((url) => url.pathname.startsWith('/superadmin') || url.pathname.startsWith('/admin'), {\n      |                  ^\n  123 |         timeout: 30000,\n  124 |       });\n  125 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                            "column": 18,
+                            "line": 122
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  120 |       await page.locator('button[type=\"submit\"]').click();\n  121 |\n> 122 |       await page.waitForURL((url) => url.pathname.startsWith('/superadmin') || url.pathname.startsWith('/admin'), {\n      |                  ^\n  123 |         timeout: 30000,\n  124 |       });\n  125 |\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:122:18"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-08T10:08:12.961Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-0853d-shboard-routing-superadmin--chromium-desktop/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-0853d-shboard-routing-superadmin--chromium-desktop/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-0853d-shboard-routing-superadmin--chromium-desktop/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-0853d-shboard-routing-superadmin--chromium-desktop/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                        "column": 18,
+                        "line": 122
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 32509,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:122:18",
+                        "location": {
+                          "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                          "column": 18,
+                          "line": 122
+                        },
+                        "snippet": "  120 |       await page.locator('button[type=\"submit\"]').click();\n  121 |\n> 122 |       await page.waitForURL((url) => url.pathname.startsWith('/superadmin') || url.pathname.startsWith('/admin'), {\n      |                  ^\n  123 |         timeout: 30000,\n  124 |       });\n  125 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                            "column": 18,
+                            "line": 122
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  120 |       await page.locator('button[type=\"submit\"]').click();\n  121 |\n> 122 |       await page.waitForURL((url) => url.pathname.startsWith('/superadmin') || url.pathname.startsWith('/admin'), {\n      |                  ^\n  123 |         timeout: 30000,\n  124 |       });\n  125 |\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:122:18"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-08T10:08:49.920Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-0853d-shboard-routing-superadmin--chromium-desktop-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-0853d-shboard-routing-superadmin--chromium-desktop-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-0853d-shboard-routing-superadmin--chromium-desktop-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-0853d-shboard-routing-superadmin--chromium-desktop-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                        "column": 18,
+                        "line": 122
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "79605197db0e68487c1a-0fa5b4c3c2dfac7aafb3",
+              "file": "smoke/auth-and-routing.spec.ts",
+              "line": 101,
+              "column": 7
+            },
+            {
+              "title": "TC-SMOKE-04: Tenant Admin authentication and dashboard routing (/admin)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12269,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-08T10:09:24.440Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "79605197db0e68487c1a-13654e225e078b2874a4",
+              "file": "smoke/auth-and-routing.spec.ts",
+              "line": 154,
+              "column": 7
+            },
+            {
+              "title": "TC-SMOKE-05: Teacher authentication and dashboard routing (/teacher)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 37083,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:211:18",
+                        "location": {
+                          "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                          "column": 18,
+                          "line": 211
+                        },
+                        "snippet": "  209 |       await page.locator('button[type=\"submit\"]').click();\n  210 |\n> 211 |       await page.waitForURL((url) => url.pathname.startsWith('/teacher'), { timeout: 30000 });\n      |                  ^\n  212 |       expect(page.url()).toContain('/teacher');\n  213 |\n  214 |       logger.record({"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                            "column": 18,
+                            "line": 211
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  209 |       await page.locator('button[type=\"submit\"]').click();\n  210 |\n> 211 |       await page.waitForURL((url) => url.pathname.startsWith('/teacher'), { timeout: 30000 });\n      |                  ^\n  212 |       expect(page.url()).toContain('/teacher');\n  213 |\n  214 |       logger.record({\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:211:18"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-08T10:09:37.124Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-d137e--dashboard-routing-teacher--chromium-desktop/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-d137e--dashboard-routing-teacher--chromium-desktop/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-d137e--dashboard-routing-teacher--chromium-desktop/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-d137e--dashboard-routing-teacher--chromium-desktop/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                        "column": 18,
+                        "line": 211
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 37390,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:211:18",
+                        "location": {
+                          "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                          "column": 18,
+                          "line": 211
+                        },
+                        "snippet": "  209 |       await page.locator('button[type=\"submit\"]').click();\n  210 |\n> 211 |       await page.waitForURL((url) => url.pathname.startsWith('/teacher'), { timeout: 30000 });\n      |                  ^\n  212 |       expect(page.url()).toContain('/teacher');\n  213 |\n  214 |       logger.record({"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                            "column": 18,
+                            "line": 211
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  209 |       await page.locator('button[type=\"submit\"]').click();\n  210 |\n> 211 |       await page.waitForURL((url) => url.pathname.startsWith('/teacher'), { timeout: 30000 });\n      |                  ^\n  212 |       expect(page.url()).toContain('/teacher');\n  213 |\n  214 |       logger.record({\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:211:18"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-08T10:10:16.249Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-d137e--dashboard-routing-teacher--chromium-desktop-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-d137e--dashboard-routing-teacher--chromium-desktop-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-d137e--dashboard-routing-teacher--chromium-desktop-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-d137e--dashboard-routing-teacher--chromium-desktop-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                        "column": 18,
+                        "line": 211
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "79605197db0e68487c1a-b7dba90655d2b89bc3a3",
+              "file": "smoke/auth-and-routing.spec.ts",
+              "line": 200,
+              "column": 7
+            },
+            {
+              "title": "TC-SMOKE-06: Student authentication and portal routing (/portal/student)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 34147,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:253:18",
+                        "location": {
+                          "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                          "column": 18,
+                          "line": 253
+                        },
+                        "snippet": "  251 |       await page.locator('button[type=\"submit\"]').click();\n  252 |\n> 253 |       await page.waitForURL((url) => url.pathname.startsWith('/portal'), { timeout: 30000 });\n      |                  ^\n  254 |       expect(page.url()).toContain('/portal');\n  255 |\n  256 |       logger.record({"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                            "column": 18,
+                            "line": 253
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  251 |       await page.locator('button[type=\"submit\"]').click();\n  252 |\n> 253 |       await page.waitForURL((url) => url.pathname.startsWith('/portal'), { timeout: 30000 });\n      |                  ^\n  254 |       expect(page.url()).toContain('/portal');\n  255 |\n  256 |       logger.record({\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:253:18"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-08T10:10:58.293Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-21aab-tal-routing-portal-student--chromium-desktop/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-21aab-tal-routing-portal-student--chromium-desktop/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-21aab-tal-routing-portal-student--chromium-desktop/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-21aab-tal-routing-portal-student--chromium-desktop/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                        "column": 18,
+                        "line": 253
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 23543,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-08T10:11:35.373Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "flaky"
+                }
+              ],
+              "id": "79605197db0e68487c1a-c216bfea0e8d4da2adca",
+              "file": "smoke/auth-and-routing.spec.ts",
+              "line": 242,
+              "column": 7
+            },
+            {
+              "title": "TC-SMOKE-07: Authorization Guard — Student cannot access /admin and gets redirected or blocked",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 34303,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n  navigated to \"http://localhost:3000/login\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n  navigated to \"http://localhost:3000/login\"\n============================================================\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:295:18",
+                        "location": {
+                          "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                          "column": 18,
+                          "line": 295
+                        },
+                        "snippet": "  293 |       await page.locator('#password-input').fill(TEST_ACCOUNTS.institutionA.student.password);\n  294 |       await page.locator('button[type=\"submit\"]').click();\n> 295 |       await page.waitForURL((url) => url.pathname.startsWith('/portal'), { timeout: 30000 });\n      |                  ^\n  296 |\n  297 |       // Attempt forbidden navigation\n  298 |       await page.goto('/admin', { waitUntil: 'domcontentloaded', timeout: 15000 });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                            "column": 18,
+                            "line": 295
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n  navigated to \"http://localhost:3000/login\"\n============================================================\n\n  293 |       await page.locator('#password-input').fill(TEST_ACCOUNTS.institutionA.student.password);\n  294 |       await page.locator('button[type=\"submit\"]').click();\n> 295 |       await page.waitForURL((url) => url.pathname.startsWith('/portal'), { timeout: 30000 });\n      |                  ^\n  296 |\n  297 |       // Attempt forbidden navigation\n  298 |       await page.goto('/admin', { waitUntil: 'domcontentloaded', timeout: 15000 });\n    at /Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts:295:18"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-08T10:12:00.113Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-3cbf1--gets-redirected-or-blocked-chromium-desktop/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-3cbf1--gets-redirected-or-blocked-chromium-desktop/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-3cbf1--gets-redirected-or-blocked-chromium-desktop/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-3cbf1--gets-redirected-or-blocked-chromium-desktop/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/viveksantoshkumarsingaraddi/School-Management-System/tests/smoke/auth-and-routing.spec.ts",
+                        "column": 18,
+                        "line": 295
+                      }
+                    },
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1,
+                      "error": {
+                        "message": "Error: browserType.launch: Executable doesn't exist at /Users/viveksantoshkumarsingaraddi/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: Executable doesn't exist at /Users/viveksantoshkumarsingaraddi/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Executable doesn't exist at /Users/viveksantoshkumarsingaraddi/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-08T10:12:36.235Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-3cbf1--gets-redirected-or-blocked-chromium-desktop-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-3cbf1--gets-redirected-or-blocked-chromium-desktop-retry1/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "79605197db0e68487c1a-a67881734f7eda9e2676",
+              "file": "smoke/auth-and-routing.spec.ts",
+              "line": 284,
+              "column": 7
+            },
+            {
+              "title": "TC-SMOKE-08: Logout terminates session and redirects to /login",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1,
+                      "error": {
+                        "message": "Error: browserType.launch: Executable doesn't exist at /Users/viveksantoshkumarsingaraddi/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: Executable doesn't exist at /Users/viveksantoshkumarsingaraddi/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Executable doesn't exist at /Users/viveksantoshkumarsingaraddi/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-08T10:12:36.782Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-5cdbb-sion-and-redirects-to-login-chromium-desktop/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-5cdbb-sion-and-redirects-to-login-chromium-desktop/trace.zip"
+                        }
+                      ]
+                    },
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1,
+                      "error": {
+                        "message": "Error: browserType.launch: Executable doesn't exist at /Users/viveksantoshkumarsingaraddi/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: Executable doesn't exist at /Users/viveksantoshkumarsingaraddi/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Executable doesn't exist at /Users/viveksantoshkumarsingaraddi/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-08T10:12:37.319Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-5cdbb-sion-and-redirects-to-login-chromium-desktop-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/viveksantoshkumarsingaraddi/School-Management-System/test-results/traces/smoke-auth-and-routing-Alp-5cdbb-sion-and-redirects-to-login-chromium-desktop-retry1/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "79605197db0e68487c1a-f9dcc3a41bb4ec4dd87c",
+              "file": "smoke/auth-and-routing.spec.ts",
+              "line": 338,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-08T10:08:06.648Z",
+    "duration": 270728.708,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 1
+  }
+}

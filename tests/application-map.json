@@ -1,0 +1,431 @@
+{
+  "version": "1.0.0",
+  "name": "Alpha Edu Hub Machine-Readable Application Map",
+  "generatedAt": "2026-10-07T23:36:00Z",
+  "roles": [
+    "SUPER_ADMIN",
+    "ADMIN",
+    "ACCOUNTANT",
+    "TEACHER",
+    "STUDENT",
+    "PARENT"
+  ],
+  "tenants": [
+    {
+      "code": "TEST_INST_A",
+      "name": "St. Xavier International School (Test A)",
+      "slug": "test-inst-a"
+    },
+    {
+      "code": "TEST_INST_B",
+      "name": "Delhi World Academy (Test B)",
+      "slug": "test-inst-b"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/",
+      "type": "PUBLIC_MARKETING",
+      "allowedRoles": ["*"],
+      "authRequired": false,
+      "tenantRequired": false,
+      "actions": ["view_landing", "click_login_cta", "click_register_cta"],
+      "apiDependencies": [],
+      "riskLevel": "LOW"
+    },
+    {
+      "path": "/pricing",
+      "type": "PUBLIC_MARKETING",
+      "allowedRoles": ["*"],
+      "authRequired": false,
+      "tenantRequired": false,
+      "actions": ["view_plans", "select_plan"],
+      "apiDependencies": [],
+      "riskLevel": "MEDIUM"
+    },
+    {
+      "path": "/login",
+      "type": "AUTHENTICATION",
+      "allowedRoles": ["*"],
+      "authRequired": false,
+      "tenantRequired": false,
+      "actions": ["submit_credentials", "navigate_forgot_password"],
+      "apiDependencies": ["/api/auth/login"],
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/change-password",
+      "type": "AUTHENTICATION",
+      "allowedRoles": ["SUPER_ADMIN", "ADMIN", "ACCOUNTANT", "TEACHER", "STUDENT", "PARENT"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["submit_password_change"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/register/institution",
+      "type": "ONBOARDING",
+      "allowedRoles": ["*"],
+      "authRequired": false,
+      "tenantRequired": false,
+      "actions": ["submit_institution_application"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/register/activate",
+      "type": "ONBOARDING",
+      "allowedRoles": ["*"],
+      "authRequired": false,
+      "tenantRequired": false,
+      "actions": ["activate_institution_token"],
+      "apiDependencies": [],
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/superadmin",
+      "type": "DASHBOARD",
+      "allowedRoles": ["SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": false,
+      "actions": ["view_global_kpis", "review_institution_applications"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/superadmin/institution-requests",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": false,
+      "actions": ["approve_application", "reject_application", "inspect_documents"],
+      "apiDependencies": [],
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/superadmin/tenants",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": false,
+      "actions": ["view_tenants", "suspend_tenant", "activate_tenant"],
+      "apiDependencies": [],
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/superadmin/subscriptions",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": false,
+      "actions": ["modify_subscription_tier", "view_revenue"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/superadmin/domains",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": false,
+      "actions": ["verify_domain", "bind_custom_domain"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin",
+      "type": "DASHBOARD",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["view_school_kpis", "review_quick_actions"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/students",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["create_student", "edit_student", "filter_students", "archive_student"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/teachers",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["onboard_teacher", "assign_subject_teacher", "edit_teacher"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/parents",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["create_parent", "link_student_parent", "edit_parent"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/academics",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["create_class", "create_section", "create_subject"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/attendance",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["view_attendance_register", "export_attendance_report"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/fees",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "ACCOUNTANT", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["create_fee_structure", "generate_invoices", "record_offline_payment"],
+      "apiDependencies": ["/api/webhooks/razorpay"],
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/admin/timetable",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["create_time_slot", "assign_period", "detect_conflicts"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/substitutions",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["assign_substitute", "view_active_substitutions"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/exams",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["create_exam_term", "schedule_exam", "publish_results"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/feedback",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["view_teacher_feedback_anonymized", "filter_feedback", "configure_cycle"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/bulk-import",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["download_template", "upload_excel_students", "upload_excel_marks"],
+      "apiDependencies": [],
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/admin/reports",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["generate_board_report", "export_pdf_report"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/audit",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["inspect_audit_trail", "filter_audit_logs"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/admin/settings",
+      "type": "MANAGEMENT",
+      "allowedRoles": ["ADMIN", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["update_branding", "set_affiliation_board"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/teacher",
+      "type": "DASHBOARD",
+      "allowedRoles": ["TEACHER", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["view_daily_schedule", "view_pending_tasks"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/teacher/class-attendance",
+      "type": "OPERATION",
+      "allowedRoles": ["TEACHER", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["mark_section_attendance", "sync_offline_attendance"],
+      "apiDependencies": [],
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/teacher/marks",
+      "type": "OPERATION",
+      "allowedRoles": ["TEACHER", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["enter_exam_scores", "save_marks_draft", "submit_marks"],
+      "apiDependencies": [],
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/teacher/marks/import",
+      "type": "OPERATION",
+      "allowedRoles": ["TEACHER", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["upload_marks_spreadsheet"],
+      "apiDependencies": [],
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/teacher/leave/apply",
+      "type": "OPERATION",
+      "allowedRoles": ["TEACHER", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["submit_leave_request"],
+      "apiDependencies": [],
+      "riskLevel": "MEDIUM"
+    },
+    {
+      "path": "/teacher/feedback",
+      "type": "OPERATION",
+      "allowedRoles": ["TEACHER", "SUPER_ADMIN"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": ["view_aggregated_feedback"],
+      "apiDependencies": [],
+      "riskLevel": "MEDIUM"
+    },
+    {
+      "path": "/portal",
+      "type": "DASHBOARD",
+      "allowedRoles": ["STUDENT", "PARENT"],
+      "authRequired": true,
+      "tenantRequired": true,
+      "actions": [
+        "switch_child_context",
+        "view_attendance_calendar",
+        "view_exam_scores",
+        "pay_fees_online",
+        "submit_teacher_feedback",
+        "chat_with_ai"
+      ],
+      "apiDependencies": [
+        "/api/ai/chat",
+        "/api/ai/actions/execute",
+        "/api/webhooks/razorpay"
+      ],
+      "riskLevel": "CRITICAL"
+    }
+  ],
+  "apiEndpoints": [
+    {
+      "path": "/api/auth/login",
+      "methods": ["POST"],
+      "authRequired": false,
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/api/auth/logout",
+      "methods": ["POST"],
+      "authRequired": true,
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/api/health",
+      "methods": ["GET"],
+      "authRequired": false,
+      "riskLevel": "LOW"
+    },
+    {
+      "path": "/api/health/ready",
+      "methods": ["GET"],
+      "authRequired": false,
+      "riskLevel": "MEDIUM"
+    },
+    {
+      "path": "/api/webhooks/razorpay",
+      "methods": ["POST"],
+      "authRequired": false,
+      "signatureRequired": true,
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/api/ai/chat",
+      "methods": ["POST"],
+      "authRequired": true,
+      "riskLevel": "HIGH"
+    },
+    {
+      "path": "/api/ai/actions/execute",
+      "methods": ["POST"],
+      "authRequired": true,
+      "riskLevel": "CRITICAL"
+    },
+    {
+      "path": "/api/ai/conversations",
+      "methods": ["GET", "POST"],
+      "authRequired": true,
+      "riskLevel": "MEDIUM"
+    },
+    {
+      "path": "/api/ai/conversations/[id]",
+      "methods": ["GET", "DELETE"],
+      "authRequired": true,
+      "riskLevel": "MEDIUM"
+    },
+    {
+      "path": "/api/ai/insights",
+      "methods": ["GET"],
+      "authRequired": true,
+      "riskLevel": "MEDIUM"
+    }
+  ]
+}

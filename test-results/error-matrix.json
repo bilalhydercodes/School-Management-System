@@ -1,0 +1,41 @@
+[
+  {
+    "id": "ERR-M-001",
+    "severity": "CRITICAL",
+    "category": "UNKNOWN",
+    "route": "Global",
+    "component": "All Server Actions",
+    "api": "N/A",
+    "failureScenario": "Unhandled exception inside server action",
+    "currentBehavior": "Returns raw error message or crashes page",
+    "expectedBehavior": "Returns { success: false, error: { message: '...' } } with safe message",
+    "recovery": "Action wrapper implementation",
+    "status": "open"
+  },
+  {
+    "id": "ERR-M-002",
+    "severity": "CRITICAL",
+    "category": "DATABASE",
+    "route": "Global",
+    "component": "Prisma Operations",
+    "api": "N/A",
+    "failureScenario": "Unique constraint or not found error",
+    "currentBehavior": "Throws raw Prisma error",
+    "expectedBehavior": "Mapped to AppError with 404/409 category",
+    "recovery": "Safe error handler mapping",
+    "status": "open"
+  },
+  {
+    "id": "ERR-M-003",
+    "severity": "HIGH",
+    "category": "SYSTEM",
+    "route": "Global",
+    "component": "React Trees",
+    "api": "N/A",
+    "failureScenario": "Component rendering failure due to null data",
+    "currentBehavior": "White screen / Next.js red screen",
+    "expectedBehavior": "Renders local ErrorBoundary with Retry button",
+    "recovery": "Implement global-error.tsx and local error boundaries",
+    "status": "open"
+  }
+]
