@@ -393,11 +393,13 @@ export default async function PortalPage({ searchParams }: PageProps) {
           return {
             id: n.id,
             title: n.title,
-            date: n.publishedAt.toLocaleDateString('en-IN', {
-              day: 'numeric',
-              month: 'short',
-              year: 'numeric',
-            }),
+            date: n.publishedAt
+              ? new Date(n.publishedAt).toLocaleDateString('en-IN', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })
+              : '',
             category,
             priority: n.priority,
           };
@@ -487,11 +489,13 @@ export default async function PortalPage({ searchParams }: PageProps) {
     id: e.id,
     title: e.title,
     description: e.description,
-    eventDate: e.eventDate.toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    }),
+    eventDate: e.eventDate
+      ? new Date(e.eventDate).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        })
+      : '',
     eventTime: e.eventTime,
     location: e.location,
     category: e.category,
@@ -501,11 +505,13 @@ export default async function PortalPage({ searchParams }: PageProps) {
   const holidays = dbHolidays.map((h) => ({
     id: h.id,
     name: h.name,
-    date: h.date.toLocaleDateString('en-IN', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-    }),
+    date: h.date
+      ? new Date(h.date).toLocaleDateString('en-IN', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+        })
+      : '',
     type: h.type,
   }));
 

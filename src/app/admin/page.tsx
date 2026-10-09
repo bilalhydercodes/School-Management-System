@@ -128,11 +128,13 @@ export default async function AdminDashboardPage() {
     id: n.id,
     title: n.title,
     content: n.content,
-    date: n.publishedAt.toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    }),
+    date: n.publishedAt
+      ? new Date(n.publishedAt).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        })
+      : 'Recent',
     priority: n.priority,
     targetAudience: n.targetAudience,
   }));
@@ -156,10 +158,12 @@ export default async function AdminDashboardPage() {
       id: log.id,
       action: cleanAction,
       entityType: log.entityType,
-      timestamp: log.createdAt.toLocaleTimeString('en-IN', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      timestamp: log.createdAt
+        ? new Date(log.createdAt).toLocaleTimeString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+        : 'Just now',
       ipAddress: safeIp,
       userName: log.user ? `${log.user.firstName} ${log.user.lastName}` : 'Administrator',
     };
