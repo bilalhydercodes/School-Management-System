@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getAuthenticatedContext } from '@/lib/auth-context';
-import { prisma } from '@/lib/db';
+import { getCachedTeacherDashboard } from '@/lib/tenant-cache';
 import { TeacherDashboardView } from '@/components/teacher/TeacherDashboardView';
 
 export default async function TeacherDashboardPage() {
@@ -9,57 +9,18 @@ export default async function TeacherDashboardPage() {
     redirect('/login?redirect=/teacher');
   }
 
-  const today = new Date();
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const teacherName = context.user.fullName || 'Faculty Member';
+  const teacherAvatarUrl = context.user.avatarUrl;
 
   let todayAttendance = null;
   let feedbackSummary: { responseCount: number; overallRating: number; cycleTitle?: string } | null = null;
-  const teacherName = context.user.fullName || 'Faculty Member';
-  const teacherAvatarUrl = context.user.avatarUrl;
 
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (context.tenantId && context.userId && isUuid.test(context.userId) && isUuid.test(context.tenantId)) {
     try {
-      todayAttendance = await prisma.staffAttendance.findFirst({
-        where: {
-          tenantId: context.tenantId,
-          userId: context.userId,
-          date: todayStart,
-        },
-      });
-
-      const teacherProfile = await prisma.teacherProfile.findFirst({
-        where: { tenantId: context.tenantId, userId: context.userId },
-        select: { id: true },
-      });
-
-      if (teacherProfile) {
-        const activeCycle = await prisma.feedbackCycle.findFirst({
-          where: { tenantId: context.tenantId, status: 'ACTIVE' },
-          select: { id: true, title: true },
-        });
-
-        if (activeCycle) {
-          const agg = await prisma.feedbackSubmission.aggregate({
-            where: {
-              tenantId: context.tenantId,
-              teacherId: teacherProfile.id,
-              feedbackCycleId: activeCycle.id,
-              overallRating: { not: null },
-            },
-            _count: { overallRating: true },
-            _avg: { overallRating: true },
-          });
-
-          if (agg._count.overallRating > 0) {
-            feedbackSummary = {
-              responseCount: agg._count.overallRating,
-              overallRating: Number((agg._avg.overallRating || 0).toFixed(1)),
-              cycleTitle: activeCycle.title,
-            };
-          }
-        }
-      }
+      const cached = await getCachedTeacherDashboard(context.tenantId, context.userId);
+      todayAttendance = cached.todayAttendance;
+      feedbackSummary = cached.feedbackSummary;
     } catch {
       // Graceful fallback
     }
@@ -71,8 +32,8 @@ export default async function TeacherDashboardPage() {
       roleTitle="Teacher"
       gender={null}
       avatarUrl={teacherAvatarUrl}
-      initialCheckInTime={todayAttendance?.checkInTime?.toISOString() ?? null}
-      initialCheckOutTime={todayAttendance?.checkOutTime?.toISOString() ?? null}
+      initialCheckInTime={todayAttendance?.checkInTime ? new Date(todayAttendance.checkInTime).toISOString() : null}
+      initialCheckOutTime={todayAttendance?.checkOutTime ? new Date(todayAttendance.checkOutTime).toISOString() : null}
       feedbackSummary={feedbackSummary}
     />
   );

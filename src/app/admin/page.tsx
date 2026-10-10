@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
-import { unstable_cache } from 'next/cache';
 import { getAuthenticatedContext } from '@/lib/auth-context';
+import { getCachedAdminDashboardData } from '@/lib/tenant-cache';
 import AdminDashboardClient from '@/components/admin/AdminDashboardClient';
 
 export const dynamic = 'force-dynamic';
@@ -26,65 +25,7 @@ export default async function AdminDashboardPage() {
     );
   }
 
-  // Cache the heavy parallel DB queries for 60s per tenant to avoid re-fetching on every nav
-  const fetchDashboardData = unstable_cache(
-    async (tId: string) => {
-      const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-
-      return Promise.all([
-        prisma.studentProfile.count({ where: { tenantId: tId } }),
-        prisma.teacherProfile.count({ where: { tenantId: tId } }),
-        // Today's attendance records (for attendance rate)
-        prisma.studentAttendance.findMany({
-          where: { tenantId: tId, date: { gte: todayStart, lte: todayEnd } },
-          select: { status: true, sectionId: true },
-        }),
-        // Fee aggregates
-        prisma.feeInvoice.aggregate({
-          where: { tenantId: tId },
-          _sum: { netAmount: true, paidAmount: true, balanceAmount: true },
-        }),
-        prisma.feeInvoice.aggregate({
-          where: { tenantId: tId, balanceAmount: { gt: 0 }, dueDate: { lt: todayStart } },
-          _sum: { balanceAmount: true },
-          _count: { _all: true },
-        }),
-        prisma.teacherSubstitution.count({
-          where: { tenantId: tId, status: 'ASSIGNED', date: { gte: todayStart, lte: todayEnd } },
-        }),
-        prisma.notice.findMany({
-          where: { tenantId: tId },
-          orderBy: { publishedAt: 'desc' },
-          take: 6,
-          select: { id: true, title: true, content: true, publishedAt: true, priority: true, targetAudience: true },
-        }),
-        // Filter out USER_LOGIN spam at DB level rather than in memory
-        prisma.auditLog.findMany({
-          where: { tenantId: tId, action: { not: 'USER_LOGIN' } },
-          orderBy: { createdAt: 'desc' },
-          take: 8,
-          include: { user: { select: { firstName: true, lastName: true } } },
-        }),
-        // Use _count instead of loading all student IDs per section (much cheaper)
-        prisma.section.findMany({
-          where: { tenantId: tId },
-          include: {
-            classGrade: { select: { id: true, name: true } },
-            classTeacher: { include: { user: { select: { firstName: true, lastName: true } } } },
-            _count: { select: { students: true } },
-          },
-        }),
-        prisma.admissionApplication.count({
-          where: { tenantId: tId, status: 'SUBMITTED' },
-        }),
-      ]);
-    },
-    [`admin-dashboard-${tenantId}`],
-    { revalidate: 60, tags: [`tenant-${tenantId}-dashboard`] }
-  );
-
+  // Instant SWR-cached dashboard data (sub-millisecond L1 memory hit + background revalidation)
   const [
     totalStudents,
     totalTeachers,
@@ -96,7 +37,7 @@ export default async function AdminDashboardPage() {
     auditLogs,
     sections,
     pendingAdmissionsCount,
-  ] = await fetchDashboardData(tenantId);
+  ] = await getCachedAdminDashboardData(tenantId);
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
 import { getAuthenticatedContext } from '@/lib/auth-context';
+import { getCachedAdminFees } from '@/lib/tenant-cache';
 import FeeCounterClient, {
   InvoiceItem,
   PaymentItem,
@@ -26,125 +26,9 @@ export default async function AdminFeesPage() {
 
   const now = new Date();
 
-  // Parallel database fetch with selective projection and bounded result sets
+  // Ultra-fast cached fees fetch (SWR cache with sub-ms retrieval)
   const [invoicesRaw, paymentsRaw, studentsRaw, academicYears, classGrades, feeTerms] =
-    await Promise.all([
-      prisma.feeInvoice.findMany({
-        where: { tenantId },
-        include: {
-          student: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true,
-                  phone: true,
-                },
-              },
-              section: {
-                include: { classGrade: { select: { id: true, name: true } } },
-              },
-            },
-          },
-          feeTerm: {
-            select: { id: true, name: true },
-          },
-          items: {
-            include: { feeCategory: { select: { id: true, name: true } } },
-          },
-        },
-        orderBy: { generatedAt: 'desc' },
-        take: 50,
-      }),
-
-      prisma.feePayment.findMany({
-        where: { tenantId },
-        include: {
-          collector: {
-            select: { firstName: true, lastName: true },
-          },
-          feeInvoice: {
-            include: {
-              student: {
-                include: {
-                  user: {
-                    select: {
-                      id: true,
-                      firstName: true,
-                      lastName: true,
-                    },
-                  },
-                  section: {
-                    include: { classGrade: { select: { id: true, name: true } } },
-                  },
-                },
-              },
-            },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 50,
-      }),
-
-      prisma.studentProfile.findMany({
-        where: { tenantId, user: { isActive: true } },
-        select: {
-          id: true,
-          admissionNumber: true,
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
-          section: {
-            select: {
-              name: true,
-              classGrade: { select: { name: true } },
-            },
-          },
-          parents: {
-            take: 1,
-            orderBy: { isPrimary: 'desc' },
-            select: {
-              parent: {
-                select: {
-                  user: {
-                    select: {
-                      firstName: true,
-                      lastName: true,
-                      phone: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        orderBy: { admissionNumber: 'asc' },
-        take: 100,
-      }),
-
-      prisma.academicYear.findMany({
-        where: { tenantId },
-        select: { id: true, name: true },
-        orderBy: { startDate: 'desc' },
-      }),
-
-      prisma.classGrade.findMany({
-        where: { tenantId },
-        select: { id: true, name: true },
-        orderBy: { numericOrder: 'asc' },
-      }),
-
-      prisma.feeTerm.findMany({
-        where: { tenantId },
-        select: { id: true, name: true, termNumber: true, academicYearId: true },
-        orderBy: { termNumber: 'asc' },
-      }),
-    ]);
+    await getCachedAdminFees(tenantId);
 
   // Map invoices into clean serializable objects
   const invoices: InvoiceItem[] = invoicesRaw.map((inv: any) => {
@@ -160,7 +44,7 @@ export default async function AdminFeesPage() {
       admissionNumber: inv.student.admissionNumber,
       className: `${inv.student.section.classGrade.name}-${inv.student.section.name}`,
       termName: inv.feeTerm?.name || 'General Term',
-      dueDate: inv.dueDate.toISOString(),
+      dueDate: new Date(inv.dueDate).toISOString(),
       totalAmount: Number(inv.totalAmount),
       paidAmount: Number(inv.paidAmount),
       balanceAmount: Number(inv.balanceAmount),
@@ -188,7 +72,7 @@ export default async function AdminFeesPage() {
       amount: Number(p.amount),
       paymentMethod: p.paymentMethod,
       remarks: p.remarks,
-      date: p.createdAt.toISOString(),
+      date: new Date(p.createdAt).toISOString(),
       collectorName: p.collector ? `${p.collector.firstName} ${p.collector.lastName}` : (p.collectedById ? 'Admin' : 'System'),
     };
   });

@@ -7,6 +7,7 @@ import {
   getCachedTenantHolidays,
   getCachedTenantEvents,
   getCachedTenantEmergencyContacts,
+  getCachedUserProfileWithProfiles,
 } from '@/lib/tenant-cache';
 import { DayOfWeek } from '@prisma/client';
 import StudentParentDashboardClient, {
@@ -35,41 +36,8 @@ export default async function PortalPage({ searchParams }: PageProps) {
   if (session.role === 'SUPER_ADMIN') redirect('/superadmin');
   if (session.role === 'ACCOUNTANT') redirect('/admin/fees');
 
-  // 2. Fetch authenticated user with profiles
-  const currentUser = await prisma.user.findUnique({
-    where: { id: session.sub },
-    include: {
-      studentProfile: {
-        include: {
-          user: true,
-          section: {
-            include: {
-              classGrade: true,
-            },
-          },
-        },
-      },
-      parentProfile: {
-        include: {
-          students: {
-            include: {
-              student: {
-                include: {
-                  user: true,
-                  section: {
-                    include: {
-                      classGrade: true,
-                    },
-                  },
-                },
-              },
-            },
-            orderBy: { isPrimary: 'desc' },
-          },
-        },
-      },
-    },
-  });
+  // 2. Fetch authenticated user with profiles (cached with SWR)
+  const currentUser = await getCachedUserProfileWithProfiles(session.sub);
 
   if (!currentUser) {
     redirect('/login');

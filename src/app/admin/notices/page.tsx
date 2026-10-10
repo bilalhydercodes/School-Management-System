@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/session';
+import { getCachedTenantNotices } from '@/lib/tenant-cache';
 import NoticesManagerClient, { NoticeItem } from '@/components/admin/NoticesManagerClient';
 
 export const dynamic = 'force-dynamic';
@@ -16,18 +16,8 @@ export default async function AdminNoticesPage() {
     redirect('/unauthorized');
   }
 
-  const noticesRaw = await prisma.notice.findMany({
-    where: { tenantId },
-    include: {
-      author: {
-        select: {
-          firstName: true,
-          lastName: true,
-        },
-      },
-    },
-    orderBy: { publishedAt: 'desc' },
-  });
+  // Ultra-fast cached notices fetch (SWR cache with sub-ms retrieval)
+  const noticesRaw = await getCachedTenantNotices(tenantId);
 
   const notices: NoticeItem[] = noticesRaw.map((n) => ({
     id: n.id,
@@ -35,7 +25,7 @@ export default async function AdminNoticesPage() {
     content: n.content,
     priority: n.priority,
     targetAudience: n.targetAudience,
-    publishedAt: n.publishedAt.toISOString(),
+    publishedAt: new Date(n.publishedAt).toISOString(),
     authorName: `${n.author.firstName} ${n.author.lastName}`,
   }));
 

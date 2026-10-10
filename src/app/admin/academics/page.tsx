@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
 import { getAuthenticatedContext } from '@/lib/auth-context';
+import { getCachedAdminAcademics } from '@/lib/tenant-cache';
 import AcademicsManagerClient, {
   TimetableSlotItem,
   TeacherLookupItem,
@@ -20,96 +20,9 @@ export default async function AdminAcademicsPage() {
     redirect('/unauthorized');
   }
 
-  const today = new Date();
-  const todayDateOnly = new Date(`${today.toISOString().split('T')[0]}T00:00:00.000Z`);
-
-  // Parallel database fetch
-  const [timetableRaw, teachersRaw, sectionsRaw, substitutionsRaw] = await Promise.all([
-    prisma.timetableEntry.findMany({
-      where: { tenantId },
-      include: {
-        section: {
-          include: {
-            classGrade: true,
-          },
-        },
-        periodTimeSlot: true,
-        subject: true,
-        teacher: {
-          include: {
-            user: { select: { firstName: true, lastName: true } },
-          },
-        },
-        substitutions: {
-          where: {
-            status: 'ASSIGNED',
-            date: {
-              gte: todayDateOnly,
-            },
-          },
-          include: {
-            substituteTeacher: {
-              include: {
-                user: { select: { firstName: true, lastName: true } },
-              },
-            },
-          },
-          take: 1,
-        },
-      },
-      orderBy: [
-        { sectionId: 'asc' },
-        { periodTimeSlot: { order: 'asc' } },
-      ],
-    }),
-
-    prisma.teacherProfile.findMany({
-      where: { tenantId },
-      include: {
-        user: { select: { firstName: true, lastName: true } },
-      },
-      orderBy: {
-        user: {
-          firstName: 'asc',
-        },
-      },
-    }),
-
-    prisma.section.findMany({
-      where: { tenantId },
-      include: {
-        classGrade: true,
-      },
-      orderBy: [
-        { classGrade: { numericOrder: 'asc' } },
-        { name: 'asc' },
-      ],
-    }),
-
-    prisma.teacherSubstitution.findMany({
-      where: { tenantId },
-      include: {
-        timetableEntry: {
-          include: {
-            section: {
-              include: {
-                classGrade: true,
-              },
-            },
-            periodTimeSlot: true,
-            subject: true,
-          },
-        },
-        substituteTeacher: {
-          include: {
-            user: { select: { firstName: true, lastName: true } },
-          },
-        },
-      },
-      orderBy: { date: 'desc' },
-      take: 50,
-    }),
-  ]);
+  // Ultra-fast cached academics fetch (SWR cache with sub-ms retrieval)
+  const [timetableRaw, teachersRaw, sectionsRaw, substitutionsRaw] =
+    await getCachedAdminAcademics(tenantId);
 
   // Teacher name lookup map
   const teacherNameMap = new Map(
@@ -141,7 +54,7 @@ export default async function AdminAcademicsPage() {
             substituteTeacherName: `${sub.substituteTeacher.user.firstName} ${sub.substituteTeacher.user.lastName}`,
             reason: sub.reason,
             status: sub.status,
-            date: sub.date.toISOString(),
+            date: new Date(sub.date).toISOString(),
           }
         : null,
     };
@@ -164,7 +77,7 @@ export default async function AdminAcademicsPage() {
   // Map recent substitutions
   const recentSubstitutions: SubstitutionItem[] = substitutionsRaw.map((sub) => ({
     id: sub.id,
-    date: sub.date.toISOString(),
+    date: new Date(sub.date).toISOString(),
     timetableEntryId: sub.timetableEntryId,
     periodName: sub.timetableEntry.periodTimeSlot.name,
     timeRange: `${sub.timetableEntry.periodTimeSlot.startTime} - ${sub.timetableEntry.periodTimeSlot.endTime}`,

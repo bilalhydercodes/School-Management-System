@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
 import { getAuthenticatedContext } from '@/lib/auth-context';
+import { getCachedAdminTeachers } from '@/lib/tenant-cache';
 import TeacherDirectoryClient, {
   type TeacherItem,
 } from '@/components/admin/TeacherDirectoryClient';
@@ -18,46 +18,8 @@ export default async function AdminTeachersPage() {
     return <div>Platform context required.</div>;
   }
 
-  const today = new Date();
-  const todayDateOnly = new Date(`${today.toISOString().split('T')[0]}T00:00:00.000Z`);
-
-  const [teachersRaw, sectionsRaw] = await Promise.all([
-    prisma.teacherProfile.findMany({
-      where: { tenantId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            phone: true,
-            avatarUrl: true,
-            isActive: true,
-            deletedAt: true,
-          },
-        },
-        assignedSubstitutions: {
-          where: {
-            status: 'ASSIGNED',
-            date: todayDateOnly,
-          },
-          include: {
-            originalTeacher: {
-              include: {
-                user: { select: { firstName: true, lastName: true } },
-              },
-            },
-          },
-        },
-      },
-      orderBy: { employeeId: 'asc' },
-    }),
-    prisma.section.findMany({
-      where: { tenantId },
-      include: { classGrade: { select: { id: true, name: true } } },
-    }),
-  ]);
+  // Ultra-fast cached teachers fetch (SWR cache with sub-ms retrieval)
+  const [teachersRaw, sectionsRaw] = await getCachedAdminTeachers(tenantId);
 
   const classTeacherSectionMap = new Map<string, string>();
   for (const sec of sectionsRaw) {
@@ -79,16 +41,16 @@ export default async function AdminTeachersPage() {
       department: t.department,
       qualification: t.qualification,
       specialization: t.specialization,
-      joiningDate: t.joiningDate.toLocaleDateString('en-IN', {
+      joiningDate: new Date(t.joiningDate).toLocaleDateString('en-IN', {
         month: 'short',
         year: 'numeric',
       }),
       isActive: t.user.isActive,
-      deletedAt: (t.user as any).deletedAt ? (t.user as any).deletedAt.toISOString() : null,
+      deletedAt: (t.user as any).deletedAt ? new Date((t.user as any).deletedAt).toISOString() : null,
       classTeacherSection: classTeacherSectionMap.get(t.id) || null,
       activeSubstitution: activeSub
         ? {
-            date: activeSub.date.toLocaleDateString('en-IN', {
+            date: new Date(activeSub.date).toLocaleDateString('en-IN', {
               day: 'numeric',
               month: 'short',
             }),

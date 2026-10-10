@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
 import { getAuthenticatedContext } from '@/lib/auth-context';
+import { getCachedAdminStudents } from '@/lib/tenant-cache';
 import StudentDirectoryClient, {
   type StudentItem,
 } from '@/components/admin/StudentDirectoryClient';
@@ -26,73 +26,9 @@ export default async function AdminStudentsPage({ searchParams }: PageProps) {
 
   const page = Math.max(1, parseInt(searchParams?.page || '1', 10));
   const pageSize = 50;
-  const skip = (page - 1) * pageSize;
 
-  // Fetch count, paginated students and class grades in parallel
-  const [totalCount, studentsRaw, sectionsRaw] = await Promise.all([
-    prisma.studentProfile.count({ where: { tenantId } }),
-    prisma.studentProfile.findMany({
-      where: { tenantId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            phone: true,
-            avatarUrl: true,
-            isActive: true,
-            deletedAt: true,
-          },
-        },
-        section: {
-          include: {
-            classGrade: { select: { id: true, name: true } },
-          },
-        },
-        parents: {
-          include: {
-            parent: {
-              include: {
-                user: {
-                  select: {
-                    firstName: true,
-                    lastName: true,
-                    email: true,
-                    phone: true,
-                  },
-                },
-              },
-            },
-          },
-          orderBy: { isPrimary: 'desc' },
-          take: 1,
-        },
-        attendances: {
-          select: { status: true },
-          take: 30,
-          orderBy: { date: 'desc' },
-        },
-        feeInvoices: {
-          select: {
-            netAmount: true,
-            paidAmount: true,
-            balanceAmount: true,
-            status: true,
-          },
-          take: 10,
-        },
-      },
-      orderBy: { rollNumber: 'asc' },
-      take: pageSize,
-      skip,
-    }),
-    prisma.section.findMany({
-      where: { tenantId },
-      include: { classGrade: { select: { id: true, name: true } } },
-    }),
-  ]);
+  // Ultra-fast cached students fetch (SWR cache with sub-ms retrieval)
+  const [totalCount, studentsRaw, sectionsRaw] = await getCachedAdminStudents(tenantId, page, pageSize);
 
   const classList = Array.from(
     new Set(sectionsRaw.map((s) => `${s.classGrade.name}-${s.name}`))
@@ -148,7 +84,7 @@ export default async function AdminStudentsPage({ searchParams }: PageProps) {
       sectionName: s.section.name,
       classSection: `${s.section.classGrade.name}-${s.section.name}`,
       gender: s.gender,
-      dateOfBirth: s.dateOfBirth.toLocaleDateString('en-IN', {
+      dateOfBirth: new Date(s.dateOfBirth).toLocaleDateString('en-IN', {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
@@ -158,7 +94,7 @@ export default async function AdminStudentsPage({ searchParams }: PageProps) {
       emergencyContact: s.emergencyContact,
       attendancePercentage,
       isActive: s.user.isActive,
-      deletedAt: (s.user as any).deletedAt ? (s.user as any).deletedAt.toISOString() : null,
+      deletedAt: (s.user as any).deletedAt ? new Date((s.user as any).deletedAt).toISOString() : null,
       sectionId: s.sectionId,
       feeStatus: {
         totalInvoiced,
