@@ -116,17 +116,22 @@ function LoginForm() {
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Redirect to target after successful login — hard-navigate if router.push is slow
+  // Prefetch target dashboards so demo transitions are instantaneous
+  useEffect(() => {
+    try {
+      router.prefetch('/admin');
+      router.prefetch('/teacher');
+      router.prefetch('/portal');
+    } catch {
+      // Non-blocking prefetch failure ignored
+    }
+  }, [router]);
+
+  // Redirect cleanly after successful login
   const navigateTo = useCallback((target: string) => {
     setIsNavigating(true);
-    router.push(target);
-    // Hard fallback after 300ms in case Next.js router is slow
-    setTimeout(() => {
-      if (typeof window !== 'undefined' && window.location.pathname !== target) {
-        window.location.href = target;
-      }
-    }, 300);
-  }, [router]);
+    window.location.replace(target);
+  }, []);
 
   const executeLogin = (emailToUse: string, passwordToUse: string, roleKey?: string) => {
     setErrorMessage(null);
