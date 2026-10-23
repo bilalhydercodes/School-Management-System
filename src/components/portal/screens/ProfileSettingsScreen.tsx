@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { User, Lock, Save, CheckCircle2, ShieldCheck, Mail, Phone, MapPin } from 'lucide-react';
+import { User, Lock, Save, CheckCircle2, ShieldCheck, Mail, Phone, MapPin, AlertCircle, Loader2 } from 'lucide-react';
 import PortalPageHeader from '../PortalPageHeader';
+import { changePasswordAction } from '@/actions/auth';
 
 interface ProfileSettingsScreenProps {
   student: {
@@ -27,16 +28,50 @@ export default function ProfileSettingsScreen({
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentPassword || !newPassword) return;
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    if (!currentPassword.trim()) {
+      setErrorMessage('Current password is required.');
+      return;
+    }
+    if (newPassword.length < 8) {
+      setErrorMessage('New password must be at least 8 characters long.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setErrorMessage('New password and confirmation do not match.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await changePasswordAction({
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      if (res.success) {
+        setSuccessMessage(res.message || 'Password successfully updated!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        setErrorMessage(res.error || 'Failed to update password.');
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred while changing password.';
+      setErrorMessage(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -207,10 +242,17 @@ export default function ProfileSettingsScreen({
             </p>
           </div>
 
-          {isSaved && (
-            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2">
+          {successMessage && (
+            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2.5 animate-in fade-in duration-200">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Password successfully updated!</span>
+              <span className="font-medium">{successMessage}</span>
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5 animate-in fade-in duration-200">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span className="font-medium">{errorMessage}</span>
             </div>
           )}
 
@@ -220,21 +262,26 @@ export default function ProfileSettingsScreen({
               <input
                 type="password"
                 required
+                disabled={isSubmitting}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter current password"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 outline-none"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 outline-none disabled:bg-slate-50 disabled:text-slate-400"
               />
             </div>
             <div>
-              <label className="text-[11px] font-semibold text-slate-600 block mb-1">New Password</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-semibold text-slate-600">New Password</label>
+                <span className="text-[10px] text-slate-400">Min 8 chars, 1 uppercase, 1 number, 1 special</span>
+              </div>
               <input
                 type="password"
                 required
+                disabled={isSubmitting}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Enter new strong password"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 outline-none"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 outline-none disabled:bg-slate-50 disabled:text-slate-400"
               />
             </div>
             <div>
@@ -242,18 +289,29 @@ export default function ProfileSettingsScreen({
               <input
                 type="password"
                 required
+                disabled={isSubmitting}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Re-type new password"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 outline-none"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 outline-none disabled:bg-slate-50 disabled:text-slate-400"
               />
             </div>
             <button
               type="submit"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold shadow-xs transition-colors"
+              disabled={isSubmitting}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-blue-300 text-white font-semibold shadow-xs transition-colors cursor-pointer disabled:cursor-not-allowed"
             >
-              <Save className="w-4 h-4" />
-              <span>Update Password</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Updating Password...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Update Password</span>
+                </>
+              )}
             </button>
           </form>
 
