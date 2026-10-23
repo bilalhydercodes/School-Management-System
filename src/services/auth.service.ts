@@ -134,85 +134,111 @@ export class AuthService {
       }
     };
 
-    const rollCandidate = /^\d{1,6}$/.test(rawIdentifier) ? parseInt(rawIdentifier, 10) : null;
+    const isEmail = rawIdentifier.includes('@');
+    const rollCandidate = !isEmail && /^\d{1,6}$/.test(rawIdentifier) ? parseInt(rawIdentifier, 10) : null;
 
     if (tenantId) {
-      // 2a. Tenant-scoped candidate lookup
-      const directUsers = await prisma.user.findMany({
-        where: {
-          tenantId,
-          OR: [
-            { email: { equals: email, mode: 'insensitive' } },
-            ...(phoneVariants.length > 0 ? [{ phone: { in: phoneVariants } }] : []),
-          ],
-        },
-      });
-      addCandidates(directUsers);
-
-      const students = await prisma.studentProfile.findMany({
-        where: {
-          tenantId,
-          OR: [
-            { admissionNumber: { equals: rawIdentifier, mode: 'insensitive' } },
-            ...(rollCandidate !== null ? [{ rollNumber: rollCandidate }] : []),
-            ...(phoneVariants.length > 0 ? [{ emergencyContact: { in: phoneVariants } }] : []),
-          ],
-        },
-        include: { user: true },
-        take: 5,
-      });
-      addCandidates(students.map((s) => s.user));
-
-      const teachers = await prisma.teacherProfile.findMany({
-        where: {
-          tenantId,
-          OR: [
-            { employeeId: { equals: rawIdentifier, mode: 'insensitive' } },
-            ...(phoneVariants.length > 0 ? [{ alternatePhone: { in: phoneVariants } }] : []),
-          ],
-        },
-        include: { user: true },
-        take: 5,
-      });
-      addCandidates(teachers.map((t) => t.user));
+      if (isEmail) {
+        // Fast-path: Email lookup is direct on User table (skips unnecessary profile queries)
+        const directUsers = await prisma.user.findMany({
+          where: {
+            tenantId,
+            email: { equals: email, mode: 'insensitive' },
+          },
+          take: 5,
+        });
+        addCandidates(directUsers);
+      } else {
+        // Parallel lookup across direct users, students, and teachers
+        const [directUsers, students, teachers] = await Promise.all([
+          prisma.user.findMany({
+            where: {
+              tenantId,
+              OR: [
+                { email: { equals: email, mode: 'insensitive' } },
+                ...(phoneVariants.length > 0 ? [{ phone: { in: phoneVariants } }] : []),
+              ],
+            },
+            take: 5,
+          }),
+          prisma.studentProfile.findMany({
+            where: {
+              tenantId,
+              OR: [
+                { admissionNumber: { equals: rawIdentifier, mode: 'insensitive' } },
+                ...(rollCandidate !== null ? [{ rollNumber: rollCandidate }] : []),
+                ...(phoneVariants.length > 0 ? [{ emergencyContact: { in: phoneVariants } }] : []),
+              ],
+            },
+            include: { user: true },
+            take: 5,
+          }),
+          prisma.teacherProfile.findMany({
+            where: {
+              tenantId,
+              OR: [
+                { employeeId: { equals: rawIdentifier, mode: 'insensitive' } },
+                ...(phoneVariants.length > 0 ? [{ alternatePhone: { in: phoneVariants } }] : []),
+              ],
+            },
+            include: { user: true },
+            take: 5,
+          }),
+        ]);
+        addCandidates(directUsers);
+        addCandidates(students.map((s) => s.user));
+        addCandidates(teachers.map((t) => t.user));
+      }
     } else {
-      // 2b. Unscoped / Central domain / localhost login: resolve active candidates
-      const directUsers = await prisma.user.findMany({
-        where: {
-          OR: [
-            { email: { equals: email, mode: 'insensitive' } },
-            ...(phoneVariants.length > 0 ? [{ phone: { in: phoneVariants } }] : []),
-          ],
-          isActive: true,
-        },
-        take: 10,
-      });
-      addCandidates(directUsers);
-
-      const students = await prisma.studentProfile.findMany({
-        where: {
-          OR: [
-            { admissionNumber: { equals: rawIdentifier, mode: 'insensitive' } },
-            ...(rollCandidate !== null ? [{ rollNumber: rollCandidate }] : []),
-            ...(phoneVariants.length > 0 ? [{ emergencyContact: { in: phoneVariants } }] : []),
-          ],
-        },
-        include: { user: true },
-        take: 5,
-      });
-      addCandidates(students.map((s) => s.user));
-
-      const teachers = await prisma.teacherProfile.findMany({
-        where: {
-          OR: [
-            { employeeId: { equals: rawIdentifier, mode: 'insensitive' } },
-            ...(phoneVariants.length > 0 ? [{ alternatePhone: { in: phoneVariants } }] : []),
-          ],
-        },
-        include: { user: true },
-        take: 5,
-      });
-      addCandidates(teachers.map((t) => t.user));
+      if (isEmail) {
+        // Fast-path for central / demo / unscoped email login: direct User table query
+        const directUsers = await prisma.user.findMany({
+          where: {
+            email: { equals: email, mode: 'insensitive' },
+            isActive: true,
+          },
+          take: 5,
+        });
+        addCandidates(directUsers);
+      } else {
+        // Parallel lookup across direct users, students, and teachers
+        const [directUsers, students, teachers] = await Promise.all([
+          prisma.user.findMany({
+            where: {
+              OR: [
+                { email: { equals: email, mode: 'insensitive' } },
+                ...(phoneVariants.length > 0 ? [{ phone: { in: phoneVariants } }] : []),
+              ],
+              isActive: true,
+            },
+            take: 10,
+          }),
+          prisma.studentProfile.findMany({
+            where: {
+              OR: [
+                { admissionNumber: { equals: rawIdentifier, mode: 'insensitive' } },
+                ...(rollCandidate !== null ? [{ rollNumber: rollCandidate }] : []),
+                ...(phoneVariants.length > 0 ? [{ emergencyContact: { in: phoneVariants } }] : []),
+              ],
+            },
+            include: { user: true },
+            take: 5,
+          }),
+          prisma.teacherProfile.findMany({
+            where: {
+              OR: [
+                { employeeId: { equals: rawIdentifier, mode: 'insensitive' } },
+                ...(phoneVariants.length > 0 ? [{ alternatePhone: { in: phoneVariants } }] : []),
+              ],
+            },
+            include: { user: true },
+            take: 5,
+          }),
+        ]);
+        addCandidates(directUsers);
+        addCandidates(students.map((s) => s.user));
+        addCandidates(teachers.map((t) => t.user));
+      }
     }
 
     // 3. Constant-time dummy comparison if no candidate user exists (Prevent timing enumeration)
@@ -309,31 +335,33 @@ export class AuthService {
       };
     }
 
-    // 7. Parallelize: DB update (reset counters + lastLoginAt) AND JWT token creation simultaneously
-    const [, token] = await Promise.all([
-      prisma.user.update({
+    // 7. Reset login counters and update timestamp asynchronously (non-blocking fire-and-forget)
+    prisma.user
+      .update({
         where: { id: user.id },
         data: {
           failedLoginAttempts: 0,
           lockedUntil: null,
           lastLoginAt: new Date(),
         },
-      }).catch((updateErr) => {
+      })
+      .catch((updateErr) => {
         console.warn('[AUTH] Non-blocking user login timestamp update failed:', updateErr?.message || updateErr);
-      }),
-      createSessionToken(
-        {
-          sub: user.id,
-          tenantId: user.tenantId,
-          role: user.role as RoleType,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          mustChangePassword: user.mustChangePassword,
-        },
-        '7d'
-      ),
-    ]);
+      });
+
+    // 8. Generate JWT session token instantly (pure crypto, ~1ms)
+    const token = await createSessionToken(
+      {
+        sub: user.id,
+        tenantId: user.tenantId,
+        role: user.role as RoleType,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mustChangePassword: user.mustChangePassword,
+      },
+      '7d'
+    );
 
     // 8. Record audit log fully async (fire-and-forget — never blocks login response)
     prisma.auditLog
