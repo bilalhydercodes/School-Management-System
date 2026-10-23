@@ -9,16 +9,20 @@ import {
   HeartHandshake,
   BookOpen,
   Calendar,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { TeacherCard } from '@/components/teacher/TeacherComponents';
+import { saveStudentRemarkAction } from '@/actions/teacher-portal';
 
 export default function StudentRemarksPage() {
   const [selectedStudent, setSelectedStudent] = useState('1');
   const [academicRemark, setAcademicRemark] = useState('Demonstrates exceptional grasp of algebraic formulas and active class participation.');
   const [behavioralRemark, setBehavioralRemark] = useState('Polite, respectful, and collaborates effectively in team group projects.');
   const [generalNote, setGeneralNote] = useState('Recommended for regional inter-school mathematics olympiad preparation.');
-  const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const studentsList = [
     { id: '1', name: 'Aarav Sharma', roll: '01', classSec: 'Grade 8-A' },
@@ -28,9 +32,38 @@ export default function StudentRemarksPage() {
     { id: '5', name: 'Kavya Singh', roll: '05', classSec: 'Grade 8-A' },
   ];
 
-  const handleSave = () => {
-    setSavedMessage('Student remarks recorded and visible to parents in portal.');
-    setTimeout(() => setSavedMessage(null), 4000);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setFeedback(null);
+
+    try {
+      const res = await saveStudentRemarkAction({
+        studentId: selectedStudent,
+        academicRemark: academicRemark.trim(),
+        behavioralRemark: behavioralRemark.trim(),
+        generalNote: generalNote.trim() || undefined,
+      });
+
+      if (res.success) {
+        setFeedback({
+          type: 'success',
+          message: res.message || 'Student remarks recorded and visible to parents in portal.',
+        });
+      } else {
+        setFeedback({
+          type: 'error',
+          message: res.error || 'Failed to save remarks.',
+        });
+      }
+    } catch {
+      setFeedback({
+        type: 'error',
+        message: 'A network error occurred while saving student remarks.',
+      });
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setFeedback(null), 4000);
+    }
   };
 
   return (
@@ -45,18 +78,30 @@ export default function StudentRemarksPage() {
         action={
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            disabled={isSaving}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-60"
           >
-            <Save className="w-3.5 h-3.5" />
-            <span>Save Remarks</span>
+            {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            <span>{isSaving ? 'Saving...' : 'Save Remarks'}</span>
           </button>
         }
       />
 
-      {savedMessage && (
-        <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-xs font-semibold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>{savedMessage}</span>
+      {feedback && (
+        <div
+          role="alert"
+          className={`p-3.5 border rounded-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in ${
+            feedback.type === 'success'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              : 'bg-rose-50 text-rose-800 border-rose-200'
+          }`}
+        >
+          {feedback.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          )}
+          <span>{feedback.message}</span>
         </div>
       )}
 

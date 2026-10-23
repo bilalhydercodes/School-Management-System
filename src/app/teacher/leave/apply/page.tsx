@@ -13,9 +13,11 @@ import {
   HeartPulse,
   SunMedium,
   Upload,
+  AlertCircle,
 } from 'lucide-react';
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { StatCard, TeacherCard } from '@/components/teacher/TeacherComponents';
+import { submitTeacherLeaveAction } from '@/actions/teacher-portal';
 
 export default function ApplyLeavePage() {
   const router = useRouter();
@@ -24,22 +26,53 @@ export default function ApplyLeavePage() {
   const [endDate, setEndDate] = useState('2026-01-16');
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string; ref?: string } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reason.trim()) {
-      setFeedback('Please provide a reason for the leave request.');
+      setFeedback({ type: 'error', message: 'Please provide a reason for the leave request.' });
       return;
     }
+    if (new Date(endDate) < new Date(startDate)) {
+      setFeedback({ type: 'error', message: 'End date cannot be earlier than start date.' });
+      return;
+    }
+
     setIsSubmitting(true);
-    setTimeout(() => {
+    setFeedback(null);
+
+    try {
+      const res = await submitTeacherLeaveAction({
+        leaveType: leaveType as any,
+        startDate,
+        endDate,
+        reason: reason.trim(),
+      });
+
+      if (res.success) {
+        setFeedback({
+          type: 'success',
+          message: res.message || 'Leave request submitted successfully.',
+          ref: res.referenceNo,
+        });
+        setTimeout(() => {
+          router.push('/teacher/leave/status');
+        }, 1600);
+      } else {
+        setFeedback({
+          type: 'error',
+          message: res.error || 'Failed to submit leave request.',
+        });
+      }
+    } catch {
+      setFeedback({
+        type: 'error',
+        message: 'A network error occurred while submitting your leave request.',
+      });
+    } finally {
       setIsSubmitting(false);
-      setFeedback('Leave request submitted to Academic Head for approval.');
-      setTimeout(() => {
-        router.push('/teacher/leave/status');
-      }, 1500);
-    }, 700);
+    }
   };
 
   return (
@@ -62,9 +95,26 @@ export default function ApplyLeavePage() {
       />
 
       {feedback && (
-        <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-xs font-semibold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>{feedback}</span>
+        <div
+          className={`p-3.5 border rounded-2xl text-xs font-semibold flex items-center justify-between gap-2 animate-in fade-in ${
+            feedback.type === 'success'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              : 'bg-rose-50 text-rose-800 border-rose-200'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {feedback.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            )}
+            <span>{feedback.message}</span>
+          </div>
+          {feedback.ref && (
+            <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-900 font-mono text-[11px]">
+              {feedback.ref}
+            </span>
+          )}
         </div>
       )}
 
@@ -143,27 +193,17 @@ export default function ApplyLeavePage() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-1.5">
+            <label htmlFor="leave-reason" className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-1.5">
               Reason for Absence
             </label>
             <textarea
-              rows={4}
+              id="leave-reason"
+              rows={3}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="State the reason for leave (e.g. family function, medical appointment)..."
               className="w-full p-3.5 rounded-[14px] bg-slate-50 border border-slate-200 text-xs text-[#102A56] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 leading-relaxed"
             />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-1.5">
-              Supporting Document (Optional for Sick Leave)
-            </label>
-            <div className="border border-dashed border-slate-200 rounded-[14px] p-4 text-center bg-slate-50/50 hover:bg-slate-50 transition-colors cursor-pointer">
-              <Upload className="w-5 h-5 text-[#64748B] mx-auto mb-1" />
-              <p className="text-xs font-semibold text-[#102A56]">Upload medical slip / note</p>
-              <p className="text-[11px] text-[#64748B]">PDF, PNG, JPG up to 5MB</p>
-            </div>
           </div>
 
           <div className="pt-3 border-t border-[#EEF2F6] flex justify-end gap-3">
@@ -174,6 +214,7 @@ export default function ApplyLeavePage() {
               Cancel
             </Link>
             <button
+              id="submit-leave-btn"
               type="submit"
               disabled={isSubmitting}
               className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
