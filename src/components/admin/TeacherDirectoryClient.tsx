@@ -395,12 +395,12 @@ export default function TeacherDirectoryClient({
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                    title="View & Manage Password"
+                    title="Reset Password"
                     onClick={() => setSelectedTeacher(t)}
                     className="inline-flex items-center gap-1 text-amber-600 hover:text-amber-700 font-semibold px-2 py-1 rounded-lg hover:bg-amber-50 transition-colors cursor-pointer"
                   >
                     <KeyRound className="w-3 h-3" />
-                    <span>Password</span>
+                    <span>Reset Password</span>
                   </button>
                   <AdminButton
                     variant="ghost"
@@ -519,7 +519,7 @@ export default function TeacherDirectoryClient({
                   isLoading={resettingPasswordForTeacher === selectedTeacher.id}
                   icon={<KeyRound className="w-3.5 h-3.5 text-[#0B72E7]" />}
                 >
-                  Generate New Temporary Password
+                  Reset Password
                 </AdminButton>
               )}
             </div>

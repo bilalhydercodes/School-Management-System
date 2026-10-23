@@ -828,7 +828,7 @@ Login URL: ${origin}/login`;
                       type="button"
                       onClick={() => setActiveStudent(s)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
-                      title="Portal Password & Credentials"
+                      title="Reset Password"
                     >
                       <KeyRound className="w-4 h-4 text-amber-600" />
                     </button>
@@ -1051,7 +1051,7 @@ Login URL: ${origin}/login`;
                   isLoading={resettingPasswordForStudent === activeStudent.id}
                   icon={<KeyRound className="w-3.5 h-3.5 text-[#0B72E7]" />}
                 >
-                  Generate New Temporary Password
+                  Reset Password
                 </AdminButton>
               )}
             </div>
