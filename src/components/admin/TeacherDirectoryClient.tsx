@@ -71,6 +71,7 @@ export default function TeacherDirectoryClient({
   const [isAddTeacherModalOpen, setIsAddTeacherModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDept, setSelectedDept] = useState('ALL');
   const [selectedTeacher, setSelectedTeacher] = useState<TeacherItem | null>(null);
   const [resettingPasswordForTeacher, setResettingPasswordForTeacher] = useState<string | null>(null);
   const [resetTeacherCredsResult, setResetTeacherCredsResult] = useState<{
