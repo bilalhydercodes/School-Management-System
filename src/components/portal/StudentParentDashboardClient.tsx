@@ -11,6 +11,7 @@ import PortalHeader from './PortalHeader';
 import ScreenSkeleton from './ScreenSkeleton';
 import DashboardScreen from './screens/DashboardScreen';
 import AIChat from '@/components/ai/AIChat';
+import { LanguageProvider } from '@/lib/i18n/LanguageContext';
 
 // ─── Lazy-loaded secondary screen chunks ──────────────────────────────────────
 // Secondary tabs are code-split and fetched on demand when clicked.
@@ -238,16 +239,17 @@ export default function StudentParentDashboardClient({
   const backToDashboard = useCallback(() => handleSelectNav('dashboard'), [handleSelectNav]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#22B8FD] via-[#D3EEFD]/60 to-[#EBF6FD] text-slate-900 font-sans antialiased relative">
-      <div className="flex min-h-screen p-3 sm:p-4 gap-4 sm:gap-5">
-        {/* Left Sidebar */}
-        <PortalSidebar
-          activeNav={activeNav}
-          onSelectNav={handleSelectNav}
-          isOpenMobile={mobileMenuOpen}
-          onCloseMobile={() => setMobileMenuOpen(false)}
-          unreadCount={stats.counts.messages}
-        />
+    <LanguageProvider>
+      <div className="min-h-screen bg-gradient-to-b from-[#22B8FD] via-[#D3EEFD]/60 to-[#EBF6FD] text-slate-900 font-sans antialiased relative">
+        <div className="flex min-h-screen p-3 sm:p-4 gap-4 sm:gap-5">
+          {/* Left Sidebar */}
+          <PortalSidebar
+            activeNav={activeNav}
+            onSelectNav={handleSelectNav}
+            isOpenMobile={mobileMenuOpen}
+            onCloseMobile={() => setMobileMenuOpen(false)}
+            unreadCount={stats.counts.messages}
+          />
 
         {/* Main Content */}
         <div className="flex-1 lg:pl-64 flex flex-col min-w-0 space-y-4 sm:space-y-5">
@@ -462,5 +464,6 @@ export default function StudentParentDashboardClient({
         initialUserName={parentContext?.isParentView ? parentContext.parentName : student.name}
       />
     </div>
+    </LanguageProvider>
   );
 }

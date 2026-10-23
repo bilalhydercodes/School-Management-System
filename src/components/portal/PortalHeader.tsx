@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { Search, Bell, ChevronDown, Menu, User, Settings, LogOut, Check } from 'lucide-react';
 import type { ChildOption } from './StudentParentDashboardClient';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 interface PortalHeaderProps {
   studentName: string;
@@ -43,13 +45,14 @@ export default function PortalHeader({
   searchQuery = '',
   onSearchChange,
 }: PortalHeaderProps) {
+  const { t, isKannada } = useTranslation();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [childDropdownOpen, setChildDropdownOpen] = useState(false);
 
   return (
-    <header className="bg-transparent flex items-center justify-between gap-3 relative z-30">
+    <header className="bg-transparent flex items-center justify-between gap-2.5 sm:gap-3 relative z-30">
       {/* Left: Mobile Menu + Search Bar */}
-      <div className="flex items-center gap-3 flex-1 max-w-lg">
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 max-w-lg">
         <button
           type="button"
           onClick={onOpenMobileMenu}
@@ -60,30 +63,30 @@ export default function PortalHeader({
         </button>
 
         {/* Search Bar Input (Floating White Card) */}
-        <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-slate-100/80 hover:border-slate-200 focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-blue-100 w-full transition-all">
+        <div className="flex items-center gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-slate-100/80 hover:border-slate-200 focus-within:border-[#2563EB] focus-within:ring-2 focus-within:ring-blue-100 w-full transition-all">
           <Search className="w-4 h-4 text-slate-400 shrink-0" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-            placeholder="Search classes, assignments, teachers..."
+            placeholder={isKannada ? t.common.searchClasses : t.common.searchPlaceholder}
             className="w-full text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 outline-none bg-transparent"
           />
         </div>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Parent Multi-Child Switcher */}
         {parentContext?.isParentView && parentContext.children.length > 0 && (
           <div className="relative">
             <button
               type="button"
               onClick={() => setChildDropdownOpen(!childDropdownOpen)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50/70 border border-blue-200 text-blue-700 hover:bg-blue-100/70 transition-colors text-xs font-semibold"
+              className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-blue-50/70 border border-blue-200 text-blue-700 hover:bg-blue-100/70 transition-colors text-xs font-semibold"
             >
-              <span className="hidden sm:inline text-slate-600">Child:</span>
-              <span className="max-w-[100px] truncate">{studentName}</span>
+              <span className="hidden sm:inline text-slate-600">{t.common.child}:</span>
+              <span className="max-w-[90px] sm:max-w-[100px] truncate">{studentName}</span>
               <span className="text-[10px] px-1.5 py-0.5 bg-[#2563EB] text-white rounded font-medium">
                 {className}-{sectionName}
               </span>
@@ -96,7 +99,7 @@ export default function PortalHeader({
               <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50">
                 <div className="px-4 py-2 border-b border-slate-100">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Linked Children ({parentContext.children.length})
+                    {t.common.linkedChildren} ({parentContext.children.length})
                   </p>
                   <p className="text-xs text-slate-800 font-semibold mt-0.5">
                     {parentContext.parentName} ({parentContext.relationship})
@@ -122,12 +125,12 @@ export default function PortalHeader({
                             <span>{child.name}</span>
                             {child.isPrimary && (
                               <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-medium">
-                                Primary
+                                {t.common.primary}
                               </span>
                             )}
                           </div>
                           <p className="text-[11px] text-slate-400 mt-0.5">
-                            Class {child.className}-{child.sectionName} • Roll {child.rollNumber || '-'}
+                            {t.common.class} {child.className}-{child.sectionName} • {t.common.rollNo} {child.rollNumber || '-'}
                           </p>
                         </div>
                         {isCurrent && <Check className="w-4 h-4 text-[#2563EB] shrink-0" />}
@@ -144,24 +147,27 @@ export default function PortalHeader({
         <button
           type="button"
           onClick={() => onSelectNav('notifications')}
-          className="relative p-2.5 rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-slate-100/80 text-slate-600 hover:text-slate-900 hover:shadow-md transition-all"
-          title="Notifications"
+          className="relative p-2 sm:p-2.5 rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-slate-100/80 text-slate-600 hover:text-slate-900 hover:shadow-md transition-all"
+          title={t.common.notifications}
         >
-          <Bell className="w-5 h-5 text-slate-500" />
+          <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" />
           {unreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#EF4444] rounded-full ring-2 ring-white" />
+            <span className="absolute top-1 sm:top-1.5 right-1 sm:right-1.5 w-2 sm:w-2.5 h-2 sm:h-2.5 bg-[#EF4444] rounded-full ring-2 ring-white" />
           )}
         </button>
+
+        {/* Language Switcher (English ↔ ಕನ್ನಡ) */}
+        <LanguageSwitcher />
 
         {/* Student Profile Widget */}
         <div className="relative">
           <button
             type="button"
             onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-            className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-slate-100/80 hover:shadow-md transition-all text-left"
+            className="flex items-center gap-2 sm:gap-2.5 px-2 sm:px-3 py-1.5 rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-slate-100/80 hover:shadow-md transition-all text-left"
           >
             {/* Circular Avatar */}
-            <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-200/90 bg-sky-50 shrink-0 relative">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-slate-200/90 bg-sky-50 shrink-0 relative">
               <Image
                 src={avatarUrl || '/images/dashboard/ref_avatar.png'}
                 alt={studentName}
@@ -177,7 +183,7 @@ export default function PortalHeader({
                 {studentName}
               </span>
               <span className="text-[11px] font-medium text-slate-400 leading-tight">
-                Class {className} - {sectionName}
+                {t.common.class} {className} - {sectionName}
               </span>
             </div>
             {/* Down Chevron */}
@@ -193,7 +199,7 @@ export default function PortalHeader({
             <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in duration-150">
               <div className="px-4 py-2 border-b border-slate-100">
                 <p className="text-xs font-bold text-slate-900">{studentName}</p>
-                <p className="text-[11px] text-slate-400">Class {className}-{sectionName}</p>
+                <p className="text-[11px] text-slate-400">{t.common.class} {className}-{sectionName}</p>
               </div>
               <div className="py-1">
                 <button
@@ -205,7 +211,7 @@ export default function PortalHeader({
                   className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                 >
                   <User className="w-4 h-4 text-slate-400" />
-                  <span>Student ID Card</span>
+                  <span>{t.common.studentIdCard}</span>
                 </button>
                 <button
                   type="button"
@@ -216,7 +222,7 @@ export default function PortalHeader({
                   className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                 >
                   <Settings className="w-4 h-4 text-slate-400" />
-                  <span>Profile & Settings</span>
+                  <span>{t.common.profileSettings}</span>
                 </button>
                 <div className="border-t border-slate-100 my-1" />
                 <button
@@ -229,7 +235,7 @@ export default function PortalHeader({
                   className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 disabled:opacity-50"
                 >
                   <LogOut className="w-4 h-4 text-red-500" />
-                  <span>{isSigningOut ? 'Signing out...' : 'Sign Out'}</span>
+                  <span>{isSigningOut ? t.common.signingOut : t.common.signOut}</span>
                 </button>
               </div>
             </div>

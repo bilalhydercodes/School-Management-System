@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 interface PortalPageHeaderProps {
   title: string;
@@ -14,10 +15,13 @@ interface PortalPageHeaderProps {
 export default function PortalPageHeader({
   title,
   subtitle,
-  category = 'Student Portal',
+  category,
   onBackToDashboard,
   children,
 }: PortalPageHeaderProps) {
+  const { t } = useTranslation();
+  const defaultCategory = category || t.common.studentPortal;
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
       <div>
@@ -30,10 +34,10 @@ export default function PortalPageHeader({
               className="hover:text-blue-600 transition-colors flex items-center gap-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Dashboard</span>
+              <span>{t.common.dashboard}</span>
             </button>
           ) : (
-            <span>{category}</span>
+            <span>{defaultCategory}</span>
           )}
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
           <span className="text-blue-600 font-semibold">{title}</span>
