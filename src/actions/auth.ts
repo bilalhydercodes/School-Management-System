@@ -166,11 +166,11 @@ export async function getCurrentUserAction() {
 }
 
 /**
- * Server Action to request an OTP code for password reset.
+ * Server Action to request an OTP code for password reset via Resend.
  */
 export async function forgotPasswordAction(
   input: ForgotPasswordInput
-): Promise<{ success: boolean; message: string; error?: string }> {
+): Promise<{ success: boolean; message: string; cooldownSeconds?: number; error?: string }> {
   const validation = ForgotPasswordSchema.safeParse(input);
   if (!validation.success) {
     return {
@@ -191,6 +191,15 @@ export async function forgotPasswordAction(
   }
 
   return AuthService.requestPasswordResetOtp(validation.data.email, tenantId);
+}
+
+/**
+ * Server Action to resend an OTP code for password reset with rate-limiting & cooldown enforcement.
+ */
+export async function resendPasswordResetOtpAction(
+  input: ForgotPasswordInput
+): Promise<{ success: boolean; message: string; cooldownSeconds?: number; error?: string }> {
+  return forgotPasswordAction(input);
 }
 
 /**

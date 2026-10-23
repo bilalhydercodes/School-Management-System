@@ -27,9 +27,11 @@ const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 const OTP_TTL_SECONDS = 600; // 10 minutes
 const MAX_OTP_ATTEMPTS = 5; // Max 5 verification guesses per OTP
+const OTP_RESEND_COOLDOWN_SECONDS = 60; // 60 seconds cooldown between resend requests
 
 // Fallback in-memory store for OTPs and login challenges if Redis is unavailable
 const memoryOtpStore = new Map<string, { hash: string; expiresAt: number; attempts: number; data?: Record<string, unknown> }>();
+const memoryCooldownStore = new Map<string, number>(); // key -> expiresAt timestamp
 
 function maskEmailAddress(email: string): string {
   const [local, domain] = email.split('@');
@@ -489,14 +491,41 @@ export class AuthService {
 
   /**
    * Generates a cryptographically secure 6-digit OTP using CSPRNG.
-   * Stores hashed OTP with 10-min TTL and enforces rate limits.
+   * Dispatches via Resend Email OTP.
+   * Stores hashed OTP with 10-min TTL and enforces 60s resend cooldown.
    * NEVER logs the OTP in production logs.
    */
   static async requestPasswordResetOtp(
     email: string,
     tenantId?: string | null
-  ): Promise<{ success: boolean; message: string }> {
+  ): Promise<{ success: boolean; message: string; cooldownSeconds?: number; error?: string }> {
     const normalizedEmail = email.toLowerCase().trim();
+
+    // 0. Cooldown check: 60-second cooldown per email
+    const cooldownKey = `otp_cooldown:${normalizedEmail}`;
+    if (redis) {
+      try {
+        const remainingTtl = await redis.ttl(cooldownKey);
+        if (remainingTtl > 0) {
+          return {
+            success: false,
+            message: `Please wait ${remainingTtl} second(s) before requesting another verification code.`,
+            cooldownSeconds: remainingTtl,
+          };
+        }
+      } catch {
+        // Fall back to memory cooldown
+      }
+    }
+    const memCooldownExpires = memoryCooldownStore.get(cooldownKey);
+    if (memCooldownExpires && memCooldownExpires > Date.now()) {
+      const remainingSeconds = Math.ceil((memCooldownExpires - Date.now()) / 1000);
+      return {
+        success: false,
+        message: `Please wait ${remainingSeconds} second(s) before requesting another verification code.`,
+        cooldownSeconds: remainingSeconds,
+      };
+    }
 
     // 1. Rate limiting on OTP requests (Max 3 per 15 minutes per email)
     const rateLimitCheck = await rateLimit({
@@ -510,18 +539,20 @@ export class AuthService {
       return {
         success: false,
         message: `Too many password reset requests. Please wait ${rateLimitCheck.retryAfterSeconds} seconds before requesting another code.`,
+        cooldownSeconds: rateLimitCheck.retryAfterSeconds,
       };
     }
 
-    // 2. Verify user exists and is active
+    // 2. Verify user exists and is active across all roles (Student, Teacher, Admin, SuperAdmin)
     let user;
     if (tenantId) {
       user = await prisma.user.findFirst({
         where: { tenantId, email: normalizedEmail, deletedAt: null, isActive: true },
       });
-    } else {
+    }
+    if (!user) {
       user = await prisma.user.findFirst({
-        where: { email: normalizedEmail, role: 'SUPER_ADMIN', deletedAt: null, isActive: true },
+        where: { email: normalizedEmail, deletedAt: null, isActive: true },
       });
     }
 
@@ -530,6 +561,7 @@ export class AuthService {
       return {
         success: true,
         message: 'If an active account exists with this email, a verification code has been dispatched.',
+        cooldownSeconds: OTP_RESEND_COOLDOWN_SECONDS,
       };
     }
 
@@ -545,6 +577,7 @@ export class AuthService {
       try {
         await redis.set(storageKey, otpHash, 'EX', OTP_TTL_SECONDS);
         await redis.set(attemptsKey, '0', 'EX', OTP_TTL_SECONDS);
+        await redis.set(cooldownKey, '1', 'EX', OTP_RESEND_COOLDOWN_SECONDS);
         storedInRedis = true;
       } catch (redisErr) {
         console.warn('[REDIS-WARN] Failed to write OTP to Redis, using in-memory store:', redisErr instanceof Error ? redisErr.message : String(redisErr));
@@ -558,9 +591,10 @@ export class AuthService {
         attempts: 0,
       });
     }
+    memoryCooldownStore.set(cooldownKey, Date.now() + OTP_RESEND_COOLDOWN_SECONDS * 1000);
 
-    // 4. Secure Delivery: Dispatch via Email/SMS transport provider
-    let tenantName = 'School Management System';
+    // 4. Secure Delivery: Dispatch via Resend Email OTP
+    let tenantName = 'Alpha Edu Hub';
     if (user.tenantId) {
       const tenant = await prisma.tenant.findUnique({
         where: { id: user.tenantId },
@@ -571,7 +605,7 @@ export class AuthService {
       }
     }
 
-    // Fire email dispatch
+    // Fire Resend email dispatch
     await sendPasswordResetOtpEmail({
       to: normalizedEmail,
       otp,
@@ -595,11 +629,13 @@ export class AuthService {
     return {
       success: true,
       message: 'If an active account exists with this email, a verification code has been dispatched.',
+      cooldownSeconds: OTP_RESEND_COOLDOWN_SECONDS,
     };
   }
 
   /**
    * Verifies the 6-digit OTP, enforces attempt limits (max 5 guesses), and resets the user's password.
+   * Single-use destruction prevents OTP replay/reuse.
    */
   static async verifyOtpAndResetPassword(
     email: string,
@@ -609,15 +645,16 @@ export class AuthService {
   ): Promise<{ success: boolean; message?: string; error?: string }> {
     const normalizedEmail = email.toLowerCase().trim();
 
-    // 1. Find user
+    // 1. Find user across all roles
     let user;
     if (tenantId) {
       user = await prisma.user.findFirst({
         where: { tenantId, email: normalizedEmail, deletedAt: null, isActive: true },
       });
-    } else {
+    }
+    if (!user) {
       user = await prisma.user.findFirst({
-        where: { email: normalizedEmail, role: 'SUPER_ADMIN', deletedAt: null, isActive: true },
+        where: { email: normalizedEmail, deletedAt: null, isActive: true },
       });
     }
 

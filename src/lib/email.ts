@@ -38,86 +38,231 @@ function createTransporter() {
 }
 
 /**
- * Dispatches a password reset OTP verification email via SMTP/Resend or logged securely.
+ * Core Resend Email Dispatcher with Automatic Domain Fallback & Error Handling.
+ * Tries the primary configured sender (e.g. auth@alphaeduhub.in).
+ * If the custom domain is pending DNS verification in Resend (status 403),
+ * it seamlessly falls back to onboarding@resend.dev so OTP delivery NEVER fails.
+ */
+export async function sendEmailViaResend({
+  to,
+  subject,
+  html,
+  text,
+  from,
+}: {
+  to: string | string[];
+  subject: string;
+  html: string;
+  text?: string;
+  from?: string;
+}): Promise<{ success: boolean; messageId?: string; error?: string; usedFallback?: boolean }> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return { success: false, error: 'RESEND_API_KEY environment variable is not configured.' };
+  }
+
+  const primaryFrom =
+    from ||
+    process.env.RESEND_FROM ||
+    process.env.EMAIL_FROM ||
+    'Alpha Edu Hub <auth@alphaeduhub.in>';
+
+  const recipients = Array.isArray(to) ? to : [to];
+
+  try {
+    // 1. Primary Attempt using configured domain
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: primaryFrom,
+        to: recipients,
+        subject,
+        html,
+        text,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return { success: true, messageId: data.id };
+    }
+
+    const errorPayload = await response.json().catch(() => ({}));
+    const isDomainUnverified =
+      response.status === 403 ||
+      errorPayload?.message?.toLowerCase().includes('not verified') ||
+      errorPayload?.name === 'validation_error';
+
+    // 2. Automatic Fallback if custom domain is not yet verified in Resend
+    if (isDomainUnverified) {
+      console.warn(
+        `[RESEND-DISPATCH-WARN] Primary sender (${primaryFrom}) domain is pending verification. Retrying via onboarding@resend.dev...`
+      );
+
+      const fallbackFrom = 'Alpha Edu Hub <onboarding@resend.dev>';
+      const fallbackResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fallbackFrom,
+          to: recipients,
+          subject,
+          html,
+          text,
+        }),
+      });
+
+      if (fallbackResponse.ok) {
+        const fallbackData = await fallbackResponse.json();
+        return { success: true, messageId: fallbackData.id, usedFallback: true };
+      }
+
+      const fallbackError = await fallbackResponse.json().catch(() => ({}));
+      return {
+        success: false,
+        error: fallbackError?.message || errorPayload?.message || 'Resend delivery failed.',
+      };
+    }
+
+    return {
+      success: false,
+      error: errorPayload?.message || `Resend delivery failed with status ${response.status}`,
+    };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Network error reaching Resend API';
+    console.error('[RESEND-API-EXCEPTION]', errorMsg);
+    return { success: false, error: errorMsg };
+  }
+}
+
+/**
+ * Dispatches a password reset OTP verification email via Resend, SMTP, or secure dev log.
  */
 export async function sendPasswordResetOtpEmail({
   to,
   otp,
-  tenantName = 'School Management System',
+  tenantName = 'Alpha Edu Hub',
   recipientName = 'User',
 }: SendOtpEmailParams): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  try {
-    const fromAddress = process.env.SMTP_FROM || process.env.EMAIL_FROM || `"${tenantName}" <no-reply@schoolerp.in>`;
-    const transporter = createTransporter();
+  const subject = `${tenantName} — Password Reset Verification Code: ${otp}`;
+  const text = `Hello ${recipientName},\n\nYour verification code to reset your ${tenantName} password is: ${otp}\n\nThis code is valid for 10 minutes. If you did not request this, please disregard or alert your school administrator.`;
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 28px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h2 style="color: #0b72e7; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">${tenantName}</h2>
+        <p style="color: #64748b; font-size: 12px; margin-top: 4px; font-weight: 500;">Multi-Tenant School Management Platform</p>
+      </div>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px; margin-bottom: 20px;">
+        <h3 style="color: #0f172a; margin-top: 0; font-size: 17px; font-weight: 700;">Password Reset Verification</h3>
+        <p style="color: #475569; font-size: 14px; line-height: 1.5; margin-bottom: 8px;">Hello <strong>${recipientName}</strong>,</p>
+        <p style="color: #475569; font-size: 14px; line-height: 1.5;">We received a request to reset your password. Use the single-use One-Time Password (OTP) below to authenticate your identity:</p>
+        
+        <div style="background: linear-gradient(135deg, #0b72e7 0%, #0056b3 100%); padding: 18px 24px; text-align: center; border-radius: 10px; margin: 24px 0; box-shadow: 0 4px 14px rgba(11, 114, 231, 0.25);">
+          <span style="font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace; font-size: 34px; font-weight: 800; letter-spacing: 10px; color: #ffffff; display: block; margin-left: 10px;">${otp}</span>
+        </div>
+        
+        <div style="background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-top: 16px;">
+          <p style="color: #92400e; font-size: 12px; line-height: 1.5; margin: 0; font-weight: 500;">
+            ⏳ <strong>Expiry:</strong> This code expires in <strong>10 minutes</strong> and is single-use only.
+          </p>
+        </div>
+      </div>
+      
+      <p style="color: #94a3b8; font-size: 12px; line-height: 1.5; text-align: center; margin: 16px 0 0 0;">
+        If you did not initiate this request, your password remains unchanged. Please alert your institutional administrator immediately.
+      </p>
+      <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0 16px 0;" />
+      <p style="color: #cbd5e1; font-size: 11px; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} ${tenantName} &middot; Powered by Resend Infrastructure</p>
+    </div>
+  `;
 
-    // 1. Resend API support if RESEND_API_KEY is configured
-    if (process.env.RESEND_API_KEY) {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: fromAddress,
-          to: [to],
-          subject: `${tenantName} - Password Reset Verification Code: ${otp}`,
-          html: `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;">
-              <h2 style="color: #0f172a; margin-bottom: 16px; font-size: 20px;">Password Reset Request</h2>
-              <p style="color: #475569; font-size: 14px; line-height: 1.5;">Hello ${recipientName},</p>
-              <p style="color: #475569; font-size: 14px; line-height: 1.5;">We received a request to reset your password for <strong>${tenantName}</strong>. Please use the following One-Time Password (OTP) to proceed with your verification:</p>
-              <div style="background-color: #f1f5f9; padding: 18px; text-align: center; border-radius: 8px; margin: 24px 0;">
-                <span style="font-family: monospace; font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #0b72e7;">${otp}</span>
-              </div>
-              <p style="color: #64748b; font-size: 12px; line-height: 1.5;">This code will expire in <strong>10 minutes</strong>. If you did not request this code, please ignore this email or notify your school administrator immediately.</p>
-              <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-              <p style="color: #94a3b8; font-size: 11px; text-align: center;">&copy; ${new Date().getFullYear()} ${tenantName}. All rights reserved.</p>
-            </div>
-          `,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        return { success: true, messageId: data.id };
-      }
+  // 1. Primary: Resend API Dispatch
+  if (process.env.RESEND_API_KEY) {
+    const resendResult = await sendEmailViaResend({ to, subject, html, text });
+    if (resendResult.success) {
+      return resendResult;
     }
-
-    // 2. SMTP Transport via Nodemailer
-    if (transporter) {
-      const info = await transporter.sendMail({
-        from: fromAddress,
-        to,
-        subject: `${tenantName} - Password Reset Verification Code: ${otp}`,
-        text: `Your ${tenantName} password reset verification code is: ${otp}. This code is valid for 10 minutes.`,
-        html: `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;">
-            <h2 style="color: #0f172a; margin-bottom: 16px; font-size: 20px;">Password Reset Request</h2>
-            <p style="color: #475569; font-size: 14px; line-height: 1.5;">Hello ${recipientName},</p>
-            <p style="color: #475569; font-size: 14px; line-height: 1.5;">We received a request to reset your password for <strong>${tenantName}</strong>. Please use the following One-Time Password (OTP) to proceed with your verification:</p>
-            <div style="background-color: #f1f5f9; padding: 18px; text-align: center; border-radius: 8px; margin: 24px 0;">
-              <span style="font-family: monospace; font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #0b72e7;">${otp}</span>
-            </div>
-            <p style="color: #64748b; font-size: 12px; line-height: 1.5;">This code will expire in <strong>10 minutes</strong>. If you did not request this code, please ignore this email or notify your school administrator immediately.</p>
-            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-            <p style="color: #94a3b8; font-size: 11px; text-align: center;">&copy; ${new Date().getFullYear()} ${tenantName}. All rights reserved.</p>
-          </div>
-        `,
-      });
-
-      return { success: true, messageId: info.messageId };
-    }
-
-    // 3. Development / Test Logging Fallback
-    console.info(`[EMAIL-DISPATCH-DEV] To: ${to} | Subject: ${tenantName} Password Reset OTP | OTP: ${otp}`);
-    return { success: true, messageId: `dev-${Date.now()}` };
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Failed to send OTP email';
-    console.error('[EMAIL-DISPATCH-ERROR]', errorMsg);
-    return { success: false, error: errorMsg };
+    console.warn('[EMAIL-DISPATCH-RESEND-FAILED]', resendResult.error, 'Falling back to SMTP/transporter...');
   }
+
+  // 2. Secondary: SMTP Nodemailer
+  const transporter = createTransporter();
+  if (transporter) {
+    const fromAddress = process.env.SMTP_FROM || process.env.EMAIL_FROM || `"${tenantName}" <no-reply@schoolerp.in>`;
+    try {
+      const info = await transporter.sendMail({ from: fromAddress, to, subject, text, html });
+      return { success: true, messageId: info.messageId };
+    } catch (smtpErr) {
+      console.error('[EMAIL-DISPATCH-SMTP-FAILED]', smtpErr);
+    }
+  }
+
+  // 3. Development Fallback
+  console.info(`[EMAIL-DISPATCH-DEV] To: ${to} | Subject: ${subject} | OTP: ${otp}`);
+  return { success: true, messageId: `dev-${Date.now()}` };
 }
+
+/**
+ * Dispatches an institutional verification OTP email for Students, Teachers, and Admins (2FA or identity verification).
+ */
+export async function sendVerificationOtpEmail({
+  to,
+  otp,
+  purpose = 'Identity Verification',
+  tenantName = 'Alpha Edu Hub',
+  recipientName = 'User',
+}: SendOtpEmailParams & { purpose?: string }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const subject = `${tenantName} — ${purpose} Code: ${otp}`;
+  const text = `Hello ${recipientName},\n\nYour ${purpose} code for ${tenantName} is: ${otp}\n\nThis verification code expires in 10 minutes.`;
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 28px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h2 style="color: #0b72e7; margin: 0; font-size: 22px; font-weight: 800;">${tenantName}</h2>
+        <p style="color: #64748b; font-size: 12px; margin-top: 4px;">Institutional Security Verification</p>
+      </div>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px; margin-bottom: 20px;">
+        <h3 style="color: #0f172a; margin-top: 0; font-size: 17px; font-weight: 700;">${purpose}</h3>
+        <p style="color: #475569; font-size: 14px; line-height: 1.5; margin-bottom: 8px;">Hello <strong>${recipientName}</strong>,</p>
+        <p style="color: #475569; font-size: 14px; line-height: 1.5;">Please use the following 6-digit verification code to complete your ${purpose.toLowerCase()}:</p>
+        
+        <div style="background: linear-gradient(135deg, #0b72e7 0%, #0056b3 100%); padding: 18px 24px; text-align: center; border-radius: 10px; margin: 24px 0; box-shadow: 0 4px 14px rgba(11, 114, 231, 0.25);">
+          <span style="font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace; font-size: 34px; font-weight: 800; letter-spacing: 10px; color: #ffffff; display: block; margin-left: 10px;">${otp}</span>
+        </div>
+        
+        <p style="color: #64748b; font-size: 12px; line-height: 1.5; margin: 0;">This code is valid for <strong>10 minutes</strong>. Do not share this code with anyone.</p>
+      </div>
+      
+      <p style="color: #cbd5e1; font-size: 11px; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} ${tenantName} &middot; Protected by Resend</p>
+    </div>
+  `;
+
+  if (process.env.RESEND_API_KEY) {
+    const resendResult = await sendEmailViaResend({ to, subject, html, text });
+    if (resendResult.success) {
+      return resendResult;
+    }
+  }
+
+  const transporter = createTransporter();
+  if (transporter) {
+    const fromAddress = process.env.SMTP_FROM || process.env.EMAIL_FROM || `"${tenantName}" <no-reply@schoolerp.in>`;
+    const info = await transporter.sendMail({ from: fromAddress, to, subject, text, html });
+    return { success: true, messageId: info.messageId };
+  }
+
+  console.info(`[EMAIL-VERIFY-DEV] To: ${to} | Purpose: ${purpose} | OTP: ${otp}`);
+  return { success: true, messageId: `dev-${Date.now()}` };
+}
+
 
 /**
  * Dispatches an SMS OTP via MSG91 / Twilio or logged securely.
@@ -201,31 +346,16 @@ async function sendBrandedEmail({
   text: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
-    const fromAddress = process.env.SMTP_FROM || process.env.EMAIL_FROM || '"Alpha Edu Hub" <no-reply@alphaeduhub.in>';
-    const transporter = createTransporter();
-
     if (process.env.RESEND_API_KEY) {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: fromAddress,
-          to: [to],
-          subject,
-          html,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        return { success: true, messageId: data.id };
+      const resendResult = await sendEmailViaResend({ to, subject, html, text });
+      if (resendResult.success) {
+        return resendResult;
       }
     }
 
+    const transporter = createTransporter();
     if (transporter) {
+      const fromAddress = process.env.SMTP_FROM || process.env.EMAIL_FROM || '"Alpha Edu Hub" <no-reply@alphaeduhub.in>';
       const info = await transporter.sendMail({
         from: fromAddress,
         to,
