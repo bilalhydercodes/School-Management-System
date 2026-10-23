@@ -13,6 +13,7 @@ import {
   MessageSquareHeart,
 } from 'lucide-react';
 import AIInsightsWidget from '@/components/ai/AIInsightsWidget';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 interface DashboardScreenProps {
   student: {
@@ -31,6 +32,8 @@ export default function DashboardScreen({
   onSelectNav,
   onRequestLeave,
 }: DashboardScreenProps) {
+  const { t, isKannada } = useTranslation();
+
   return (
     <div className="space-y-6">
       {/* ================================================================== */}
@@ -55,7 +58,7 @@ export default function DashboardScreen({
           {/* Student Info */}
           <div>
             <span className="text-sm sm:text-base font-normal text-[#64748B] block leading-tight">
-              Hello,
+              {t.dashboard.greeting}
             </span>
             <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A] tracking-tight mt-0.5 flex items-center gap-1.5 leading-tight">
               <span>{student.name || 'Subash Bhatta'}</span>
@@ -64,7 +67,7 @@ export default function DashboardScreen({
               </span>
             </h1>
             <p className="text-xs sm:text-sm font-medium text-[#64748B] mt-1 tracking-wide">
-              Class {student.className} - {student.sectionName} &nbsp;|&nbsp; Roll No:{' '}
+              {t.common.class} {student.className} - {student.sectionName} &nbsp;|&nbsp; {t.common.rollNo}:{' '}
               {student.rollNumber || 27}
             </p>
           </div>
@@ -73,9 +76,19 @@ export default function DashboardScreen({
         {/* Center: Motivational Quote */}
         <div className="hidden lg:flex flex-col text-left z-10 px-4">
           <p className="text-sm sm:text-base font-serif italic text-[#475569] font-medium leading-snug select-none">
-            “Keep learning
-            <br />
-            &nbsp;&nbsp;Keep growing!”
+            {isKannada ? (
+              <>
+                “ಕಲಿಯುತ್ತಿರಿ
+                <br />
+                &nbsp;&nbsp;ಬೆಳೆಯುತ್ತಿರಿ!”
+              </>
+            ) : (
+              <>
+                “Keep learning
+                <br />
+                &nbsp;&nbsp;Keep growing!”
+              </>
+            )}
           </p>
         </div>
 
@@ -93,10 +106,10 @@ export default function DashboardScreen({
       </div>
 
       {/* ================================================================== */}
-      {/* 2. QUICK ACTION SECTION (6 Circular Shortcuts)                     */}
+      {/* 2. QUICK ACTION SECTION (Circular Shortcuts)                       */}
       {/* ================================================================== */}
       <div className="bg-white rounded-[22px] shadow-[0_4px_20px_rgba(0,100,200,0.06)] border border-blue-50/80 px-6 py-6 sm:px-8">
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-6 text-center">
+        <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-7 gap-4 sm:gap-6 text-center">
           {/* Action 1: View Timetable */}
           <button
             type="button"
@@ -107,9 +120,19 @@ export default function DashboardScreen({
               <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
             </div>
             <span className="text-xs font-semibold text-slate-700 mt-2.5 leading-tight group-hover:text-blue-600 transition-colors">
-              View
-              <br />
-              Timetable
+              {isKannada ? (
+                <>
+                  ವೇಳಾಪಟ್ಟಿ
+                  <br />
+                  ನೋಡಿ
+                </>
+              ) : (
+                <>
+                  View
+                  <br />
+                  Timetable
+                </>
+              )}
             </span>
           </button>
 
@@ -123,7 +146,15 @@ export default function DashboardScreen({
               <FileText className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
             </div>
             <span className="text-xs font-semibold text-slate-700 mt-2.5 leading-tight group-hover:text-blue-600 transition-colors">
-              Assignments
+              {isKannada ? (
+                <>
+                  ಗೃಹಕಾರ್ಯಗಳು
+                  <br />
+                  <span className="text-[10px] text-slate-500 font-normal">(ಅಸೈನ್‌ಮೆಂಟ್‌ಗಳು)</span>
+                </>
+              ) : (
+                'Assignments'
+              )}
             </span>
           </button>
 
@@ -137,9 +168,19 @@ export default function DashboardScreen({
               <ClipboardCheck className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
             </div>
             <span className="text-xs font-semibold text-slate-700 mt-2.5 leading-tight group-hover:text-blue-600 transition-colors">
-              Exam
-              <br />
-              Schedule
+              {isKannada ? (
+                <>
+                  ಪರೀಕ್ಷಾ
+                  <br />
+                  ವೇಳಾಪಟ್ಟಿ
+                </>
+              ) : (
+                <>
+                  Exam
+                  <br />
+                  Schedule
+                </>
+              )}
             </span>
           </button>
 
@@ -153,9 +194,19 @@ export default function DashboardScreen({
               <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
             </div>
             <span className="text-xs font-semibold text-slate-700 mt-2.5 leading-tight group-hover:text-blue-600 transition-colors">
-              View
-              <br />
-              Results
+              {isKannada ? (
+                <>
+                  ಫಲಿತಾಂಶಗಳನ್ನು
+                  <br />
+                  ನೋಡಿ
+                </>
+              ) : (
+                <>
+                  View
+                  <br />
+                  Results
+                </>
+              )}
             </span>
           </button>
 
@@ -169,8 +220,18 @@ export default function DashboardScreen({
               <CreditCard className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
             </div>
             <span className="text-xs font-semibold text-slate-700 mt-2.5 leading-tight group-hover:text-blue-600 transition-colors">
-              Fees &<br />
-              Payments
+              {isKannada ? (
+                <>
+                  ಶುಲ್ಕ ಮತ್ತು
+                  <br />
+                  ಪಾವತಿಗಳು
+                </>
+              ) : (
+                <>
+                  Fees &<br />
+                  Payments
+                </>
+              )}
             </span>
           </button>
 
@@ -184,9 +245,19 @@ export default function DashboardScreen({
               <LeaveIcon className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
             </div>
             <span className="text-xs font-semibold text-slate-700 mt-2.5 leading-tight group-hover:text-blue-600 transition-colors">
-              Apply
-              <br />
-              Leave
+              {isKannada ? (
+                <>
+                  ರಜೆಗಾಗಿ
+                  <br />
+                  ಅರ್ಜಿಸಿ
+                </>
+              ) : (
+                <>
+                  Apply
+                  <br />
+                  Leave
+                </>
+              )}
             </span>
           </button>
 
@@ -200,9 +271,19 @@ export default function DashboardScreen({
               <MessageSquareHeart className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
             </div>
             <span className="text-xs font-semibold text-slate-700 mt-2.5 leading-tight group-hover:text-blue-600 transition-colors text-center">
-              Teacher
-              <br />
-              Feedback
+              {isKannada ? (
+                <>
+                  ಶಿಕ್ಷಕರ
+                  <br />
+                  ಪ್ರತಿಕ್ರಿಯೆ
+                </>
+              ) : (
+                <>
+                  Teacher
+                  <br />
+                  Feedback
+                </>
+              )}
             </span>
           </button>
         </div>
@@ -218,7 +299,7 @@ export default function DashboardScreen({
       {/* ================================================================== */}
       <div className="space-y-4">
         <h2 className="text-2xl sm:text-3xl font-bold text-[#0284C7] tracking-tight">
-          My Activities
+          {t.dashboard.myActivities}
         </h2>
 
         {/* 2-Column Activity Grid */}
@@ -230,18 +311,30 @@ export default function DashboardScreen({
           >
             {/* Left Title */}
             <div className="z-10 text-white select-none">
-              <span className="text-2xl sm:text-3xl font-bold leading-tight block">
-                Today&apos;s
-              </span>
-              <span className="text-2xl sm:text-3xl font-bold leading-tight block">
-                Classes
-              </span>
+              {isKannada ? (
+                <>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    ಇಂದಿನ
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    ತರಗತಿಗಳು
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    Today&apos;s
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    Classes
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Middle/Right: Illustration with translucent backdrop circle */}
             <div className="relative flex items-center gap-3 z-10">
               <div className="relative w-36 h-28 flex items-end justify-center">
-                {/* Lighter backdrop circle */}
                 <div className="absolute top-0 right-2 w-24 h-24 rounded-full bg-white/20 -z-10" />
                 <Image
                   src="/images/dashboard/card_classes_illust.png"
@@ -266,18 +359,30 @@ export default function DashboardScreen({
           >
             {/* Left Title */}
             <div className="z-10 text-white select-none">
-              <span className="text-2xl sm:text-3xl font-bold leading-tight block">
-                My
-              </span>
-              <span className="text-2xl sm:text-3xl font-bold leading-tight block">
-                Assignments
-              </span>
+              {isKannada ? (
+                <>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    ನನ್ನ
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    ಗೃಹಕಾರ್ಯಗಳು
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    My
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    Assignments
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Middle/Right: Illustration with translucent backdrop circle */}
             <div className="relative flex items-center gap-3 z-10">
               <div className="relative w-36 h-28 flex items-end justify-center">
-                {/* Lighter backdrop circle */}
                 <div className="absolute top-0 right-2 w-24 h-24 rounded-full bg-white/20 -z-10" />
                 <Image
                   src="/images/dashboard/card_assignments_illust.png"
@@ -302,18 +407,30 @@ export default function DashboardScreen({
           >
             {/* Left Title */}
             <div className="z-10 text-white select-none">
-              <span className="text-2xl sm:text-3xl font-bold leading-tight block">
-                Study
-              </span>
-              <span className="text-2xl sm:text-3xl font-bold leading-tight block">
-                Materials
-              </span>
+              {isKannada ? (
+                <>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    ಅಧ್ಯಯನ
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    ಸಾಮಗ್ರಿಗಳು
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    Study
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    Materials
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Middle/Right: Books stack illustration with translucent circle */}
             <div className="relative flex items-center gap-3 z-10">
               <div className="relative w-36 h-28 flex items-center justify-center">
-                {/* Lighter backdrop circle */}
                 <div className="absolute top-0 right-2 w-24 h-24 rounded-full bg-white/20 -z-10" />
                 <Image
                   src="/images/dashboard/illust_study_materials_clean.png"
@@ -338,18 +455,30 @@ export default function DashboardScreen({
           >
             {/* Left Title */}
             <div className="z-10 text-white select-none">
-              <span className="text-2xl sm:text-3xl font-bold leading-tight block">
-                My
-              </span>
-              <span className="text-2xl sm:text-3xl font-bold leading-tight block">
-                Results
-              </span>
+              {isKannada ? (
+                <>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    ನನ್ನ
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    ಫಲಿತಾಂಶಗಳು
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    My
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-bold leading-tight block">
+                    Results
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Middle/Right: A+ Student illustration with translucent circle */}
             <div className="relative flex items-center gap-3 z-10">
               <div className="relative w-36 h-28 flex items-center justify-center">
-                {/* Lighter backdrop circle */}
                 <div className="absolute top-0 right-2 w-24 h-24 rounded-full bg-white/20 -z-10" />
                 <Image
                   src="/images/dashboard/illust_results.png"

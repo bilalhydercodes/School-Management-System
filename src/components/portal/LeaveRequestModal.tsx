@@ -19,6 +19,7 @@ import {
   getStudentLeaveRequestsAction,
   type StudentLeaveRequestItem,
 } from '@/actions/portal-requests';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 interface LeaveRequestModalProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ export default function LeaveRequestModal({
   className,
   sectionName,
 }: LeaveRequestModalProps) {
+  const { t, isKannada } = useTranslation();
   const [activeTab, setActiveTab] = useState<'apply' | 'history'>('apply');
   const [leaveType, setLeaveType] = useState('Medical / Sick Leave');
   const [startDate, setStartDate] = useState(
@@ -129,9 +131,9 @@ export default function LeaveRequestModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
-            <h3 className="text-base font-bold text-slate-900">Student Leave Management</h3>
+            <h3 className="text-base font-bold text-slate-900">{t.leave.title}</h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              {studentName} (Class {className}-{sectionName})
+              {studentName} ({t.common.class} {className}-{sectionName})
             </p>
           </div>
           <button
@@ -155,7 +157,7 @@ export default function LeaveRequestModal({
             }`}
           >
             <FileText className="w-4 h-4" />
-            <span>Apply for Leave</span>
+            <span>{t.leave.applyLeave}</span>
           </button>
           <button
             type="button"
@@ -170,7 +172,7 @@ export default function LeaveRequestModal({
             }`}
           >
             <History className="w-4 h-4" />
-            <span>Leave History & Status ({requests.length})</span>
+            <span>{t.leave.leaveHistory} ({requests.length})</span>
           </button>
         </div>
 
@@ -180,9 +182,9 @@ export default function LeaveRequestModal({
               <div className="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2.5 animate-in fade-in duration-200">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                 <div className="flex-1">
-                  <span className="font-bold">Leave application successfully registered!</span>
+                  <span className="font-bold">{t.leave.applicationSuccess}</span>
                   <div className="text-[11px] text-emerald-600 mt-0.5">
-                    Reference ID: <strong>{successInfo.requestId}</strong>. Mentors and attendance staff have been notified.
+                    Reference ID: <strong>{successInfo.requestId}</strong>
                   </div>
                 </div>
                 <button
@@ -190,7 +192,7 @@ export default function LeaveRequestModal({
                   onClick={() => setActiveTab('history')}
                   className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold text-[10px] hover:bg-emerald-700"
                 >
-                  View Status
+                  {t.common.view}
                 </button>
               </div>
             )}
@@ -205,7 +207,7 @@ export default function LeaveRequestModal({
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="text-[11px] font-semibold text-slate-600 block mb-1">
-                  Category of Leave
+                  {t.leave.leaveType}
                 </label>
                 <select
                   disabled={isSubmitting}
@@ -213,18 +215,18 @@ export default function LeaveRequestModal({
                   onChange={(e) => setLeaveType(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:border-[#2563EB] outline-none disabled:bg-slate-50"
                 >
-                  <option>Medical / Sick Leave</option>
-                  <option>Family Emergency / Bereavement</option>
-                  <option>Sanctioned Academic / Sports Representation</option>
-                  <option>Religious / Festival Observance</option>
-                  <option>Prior Planned Absence</option>
+                  <option value="Medical / Sick Leave">{isKannada ? 'ವೈದ್ಯಕೀಯ / ಅನಾರೋಗ್ಯ ರಜೆ' : 'Medical / Sick Leave'}</option>
+                  <option value="Family Emergency / Bereavement">{isKannada ? 'ಕುಟುಂಬದ ತುರ್ತು ಪರಿಸ್ಥಿತಿ' : 'Family Emergency / Bereavement'}</option>
+                  <option value="Sanctioned Academic / Sports Representation">{isKannada ? 'ಶೈಕ್ಷಣಿಕ / ಕ್ರೀಡಾ ಪ್ರತಿನಿಧಿ ರಜೆ' : 'Sanctioned Academic / Sports Representation'}</option>
+                  <option value="Religious / Festival Observance">{isKannada ? 'ಧಾರ್ಮಿಕ / ಹಬ್ಬದ ರಜೆ' : 'Religious / Festival Observance'}</option>
+                  <option value="Prior Planned Absence">{isKannada ? 'ಮುಂಚಿತವಾಗಿ ಯೋಜಿಸಲಾದ ಗೈರುಹಾಜರಿ' : 'Prior Planned Absence'}</option>
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[11px] font-semibold text-slate-600 block mb-1">
-                    Start Date
+                    {t.leave.startDate}
                   </label>
                   <input
                     type="date"
@@ -237,7 +239,7 @@ export default function LeaveRequestModal({
                 </div>
                 <div>
                   <label className="text-[11px] font-semibold text-slate-600 block mb-1">
-                    End Date
+                    {t.leave.endDate}
                   </label>
                   <input
                     type="date"
@@ -252,7 +254,7 @@ export default function LeaveRequestModal({
 
               <div>
                 <label className="text-[11px] font-semibold text-slate-600 block mb-1">
-                  Reason / Detailed Explanation
+                  {t.leave.reason}
                 </label>
                 <textarea
                   required
@@ -260,14 +262,14 @@ export default function LeaveRequestModal({
                   disabled={isSubmitting}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="State the specific reason for absence (min 5 characters)..."
+                  placeholder={t.leave.reasonPlaceholder}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 outline-none resize-none disabled:bg-slate-50"
                 />
               </div>
 
               <div>
                 <label className="text-[11px] font-semibold text-slate-600 block mb-1">
-                  Parent / Guardian Contact Phone
+                  {t.leave.guardianPhone}
                 </label>
                 <input
                   type="tel"
@@ -285,7 +287,7 @@ export default function LeaveRequestModal({
                   onClick={onClose}
                   className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold transition-colors"
                 >
-                  Cancel
+                  {t.common.cancel}
                 </button>
                 <button
                   type="submit"
@@ -295,12 +297,12 @@ export default function LeaveRequestModal({
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Submitting...</span>
+                      <span>{t.common.submitting}</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      <span>Submit Leave Application</span>
+                      <span>{t.leave.submitApplication}</span>
                     </>
                   )}
                 </button>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronRight, HelpCircle } from 'lucide-react';
 import { PORTAL_NAV_SECTIONS, type PortalNavItem } from './navigationData';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 interface PortalSidebarProps {
   activeNav: string;
@@ -21,6 +22,45 @@ export default function PortalSidebar({
   onCloseMobile,
   unreadCount = 0,
 }: PortalSidebarProps) {
+  const { t, isKannada } = useTranslation();
+
+  const sectionTitleMap: Record<string, string> = {
+    'MAIN': t.nav.main,
+    'ACADEMIC': t.nav.academic,
+    'ATTENDANCE': t.nav.attendance,
+    'EXAMS & RESULTS': t.nav.examsResults,
+    'FEES & PAYMENTS': t.nav.feesPayments,
+    'COMMUNICATION & SUPPORT': t.nav.communicationSupport,
+  };
+
+  const navLabelMap: Record<string, string> = {
+    'dashboard': t.nav.dashboard,
+    'student-id-card': t.nav.studentIdCard,
+    'profile-settings': t.nav.profileSettings,
+    'academic-calendar': t.nav.academicCalendar,
+    'teacher-feedback': t.nav.teacherFeedback,
+    'today-timetable': t.nav.todayTimetable,
+    'weekly-timetable': t.nav.weeklyTimetable,
+    'syllabus-curriculum': t.nav.syllabusCurriculum,
+    'my-attendance': t.nav.myAttendance,
+    'attendance-calendar': t.nav.attendanceCalendar,
+    'exam-datesheet': t.nav.examDatesheet,
+    'results-marks': t.nav.resultsMarks,
+    'report-card': t.nav.reportCard,
+    'exam-guidelines': t.nav.examGuidelines,
+    'fee-summary': t.nav.feeSummary,
+    'fee-invoices': t.nav.feeInvoices,
+    'payment-history': t.nav.paymentHistory,
+    'online-payment': t.nav.onlinePayment,
+    'notifications': t.nav.notifications,
+    'circulars-notices': t.nav.circularsNotices,
+    'school-events': t.nav.schoolEvents,
+    'holiday-calendar': t.nav.holidayCalendar,
+    'know-authorities': t.nav.knowAuthorities,
+    'emergency-contacts': t.nav.emergencyContacts,
+    'grievance-feedback': t.nav.grievanceFeedback,
+  };
+
   return (
     <>
       {/* Mobile Backdrop */}
@@ -58,7 +98,7 @@ export default function PortalSidebar({
               Alpha Edu Hub
             </h1>
             <p className="text-[10px] font-medium text-slate-400 tracking-wide mt-0.5 truncate">
-              Learn &nbsp;·&nbsp; Grow &nbsp;·&nbsp; Excel
+              {isKannada ? 'ಕಲಿಯಿರಿ · ಬೆಳೆಯಿರಿ · ಗೆಲ್ಲಿರಿ' : 'Learn · Grow · Excel'}
             </p>
           </div>
         </Link>
@@ -68,7 +108,7 @@ export default function PortalSidebar({
           {PORTAL_NAV_SECTIONS.map((section) => (
             <div key={section.title}>
               <div className="text-[10px] font-bold text-slate-400/90 tracking-wider uppercase px-3 mb-1">
-                {section.title}
+                {sectionTitleMap[section.title] || section.title}
               </div>
               <div className="space-y-0.5">
                 {section.items.map((item: PortalNavItem) => {
@@ -76,6 +116,7 @@ export default function PortalSidebar({
                   const Icon = item.icon;
                   const badgeValue =
                     item.id === 'notifications' && unreadCount > 0 ? unreadCount : item.badge;
+                  const itemLabel = navLabelMap[item.id] || item.label;
 
                   return (
                     <button
@@ -97,7 +138,7 @@ export default function PortalSidebar({
                             isActive ? 'text-white' : 'text-slate-400'
                           }`}
                         />
-                        <span className="truncate">{item.label}</span>
+                        <span className="truncate">{itemLabel}</span>
                       </div>
                       {badgeValue !== undefined && (
                         <span
@@ -138,10 +179,10 @@ export default function PortalSidebar({
               </div>
               <div className="truncate">
                 <span className="text-xs font-semibold text-slate-800 block leading-tight">
-                  Help & Support
+                  {t.common.helpSupport}
                 </span>
                 <span className="text-[10px] text-slate-400 block leading-tight">
-                  FAQs & Assistance
+                  {isKannada ? 'ಪ್ರಶ್ನೋತ್ತರ ಮತ್ತು ಸಹಾಯ' : 'FAQs & Assistance'}
                 </span>
               </div>
             </div>

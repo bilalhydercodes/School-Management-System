@@ -30,6 +30,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import AIMessageContent from './AIMessageContent';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 export interface UICardMetric {
   label: string;
@@ -121,6 +122,7 @@ export default function AIChat({
   const [actionSuccessMessage, setActionSuccessMessage] = useState<string | null>(null);
 
   // Dynamic session details
+  const { t } = useTranslation();
   const [userName, setUserName] = useState<string>(initialUserName || '');
   const [userRole, setUserRole] = useState<string>(initialRole || '');
   const [greeting, setGreeting] = useState<string>('Hi there 👋\nHow can I help you today?');
@@ -445,7 +447,7 @@ export default function AIChat({
               <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400" />
             </span>
           </div>
-          <span className="font-semibold text-sm tracking-wide pr-1">Alpha Copilot</span>
+          <span className="font-semibold text-sm tracking-wide pr-1">{t.common.copilot}</span>
         </button>
       )}
 
@@ -901,8 +903,8 @@ export default function AIChat({
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   rows={1}
-                  placeholder="Ask Alpha Copilot anything..."
-                  aria-label="Ask Alpha Copilot anything..."
+                  placeholder={t.common.askCopilot}
+                  aria-label={t.common.askCopilot}
                   className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none resize-none max-h-24 py-1.5"
                 />
                 <button
