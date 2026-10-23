@@ -2,7 +2,7 @@ import LandingPage from '@/components/landing/LandingPage';
 import { prisma } from '@/lib/db';
 import { unstable_cache } from 'next/cache';
 
-export const revalidate = 60; // Revalidate live community statistics every 60s
+export const revalidate = 3600; // Cache landing page for 1 hour with ISR and SWR
 
 export const metadata = {
   title: 'Alpha Edu Hub | School Management System & School ERP',
@@ -56,35 +56,27 @@ export const metadata = {
 
 import type { PricingPlan } from '@/components/landing/PricingSection';
 
-export default async function HomePage() {
-  let stats = {
-    schools: 1,
-    students: 5,
-    attendance: 15,
-    uptime: '99.9%',
-  };
-  let customPlans: PricingPlan[] | undefined = undefined;
+const getCachedLandingData = unstable_cache(
+  async () => {
+    try {
+      const [schoolsCount, studentsCount, attendanceCount, dbPlans] = await Promise.all([
+        prisma.tenant.count({ where: { isActive: true } }),
+        prisma.studentProfile.count(),
+        prisma.studentAttendance.count(),
+        prisma.subscriptionPlan.findMany({
+          where: { isActive: true },
+          orderBy: { priceMonthly: 'asc' },
+        }),
+      ]);
 
-  try {
-    const [schoolsCount, studentsCount, attendanceCount, dbPlans] = await Promise.all([
-      prisma.tenant.count({ where: { isActive: true } }),
-      prisma.studentProfile.count(),
-      prisma.studentAttendance.count(),
-      prisma.subscriptionPlan.findMany({
-        where: { isActive: true },
-        orderBy: { priceMonthly: 'asc' },
-      }),
-    ]);
+      const stats = {
+        schools: schoolsCount,
+        students: studentsCount,
+        attendance: attendanceCount,
+        uptime: '99.9%',
+      };
 
-    stats = {
-      schools: schoolsCount,
-      students: studentsCount,
-      attendance: attendanceCount,
-      uptime: '99.9%',
-    };
-
-    if (dbPlans.length > 0) {
-      customPlans = dbPlans.map((p) => {
+      const customPlans = dbPlans.length > 0 ? dbPlans.map((p) => {
         const isWhiteLabel = p.name.toLowerCase().includes('white');
         const isPrime = p.name.toLowerCase().includes('prime');
         return {
@@ -122,11 +114,30 @@ export default async function HomePage() {
           ctaLabel: isWhiteLabel ? 'Request a Quote' : 'Request Early Access',
           isCustomQuote: true,
         };
-      });
-    }
-  } catch (error) {
-    console.error('Failed to query live landing stats & plans:', error);
-  }
+      }) : undefined;
 
+      return { stats, customPlans };
+    } catch (error) {
+      console.error('Failed to query live landing stats & plans:', error);
+      return {
+        stats: {
+          schools: 1,
+          students: 5,
+          attendance: 15,
+          uptime: '99.9%',
+        },
+        customPlans: undefined,
+      };
+    }
+  },
+  ['landing-stats-and-plans-v1'],
+  {
+    revalidate: 3600, // Cache for 1 hour; background revalidation
+    tags: ['landing-stats'],
+  }
+);
+
+export default async function HomePage() {
+  const { stats, customPlans } = await getCachedLandingData();
   return <LandingPage stats={stats} plans={customPlans} />;
 }
