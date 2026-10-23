@@ -32,6 +32,9 @@ import { AdminTabs } from './ui/AdminTabs';
 import AdminModal from './ui/AdminModal';
 import AdminDrawer from './ui/AdminDrawer';
 
+import AdminStudentLeaveDesk from './AdminStudentLeaveDesk';
+import { type AdminStudentLeaveItem } from '@/actions/admin/leaves';
+
 export type LeaveType = 'CASUAL' | 'SICK' | 'MATERNITY' | 'EARNED' | 'DUTY_LEAVE';
 export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
@@ -63,6 +66,7 @@ export interface TeacherLookup {
 interface AdminLeaveClientProps {
   initialRequests?: LeaveRequestItem[];
   teachers: TeacherLookup[];
+  initialStudentLeaves?: AdminStudentLeaveItem[];
 }
 
 const mockLeaveRequests: LeaveRequestItem[] = [
@@ -152,7 +156,9 @@ const mockLeaveRequests: LeaveRequestItem[] = [
 export default function AdminLeaveClient({
   initialRequests = mockLeaveRequests,
   teachers,
+  initialStudentLeaves = [],
 }: AdminLeaveClientProps) {
+  const [activeCategory, setActiveCategory] = useState<'STAFF_LEAVES' | 'STUDENT_LEAVES'>('STAFF_LEAVES');
   const [requests, setRequests] = useState<LeaveRequestItem[]>(initialRequests);
   const [activeTab, setActiveTab] = useState<'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL'>('PENDING');
   const [searchTerm, setSearchTerm] = useState('');
@@ -264,7 +270,48 @@ export default function AdminLeaveClient({
         }
       />
 
-      {/* 2. KPI Metrics Strip */}
+      {/* Primary Leave Scope Navigation */}
+      <div className="flex border-b border-slate-200">
+        <button
+          type="button"
+          onClick={() => setActiveCategory('STAFF_LEAVES')}
+          className={`flex items-center gap-2 px-5 py-3 text-xs font-bold border-b-2 transition-all ${
+            activeCategory === 'STAFF_LEAVES'
+              ? 'border-[#0B72E7] text-[#0B72E7]'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Building2 className="w-4 h-4" />
+          Faculty &amp; Staff Leaves
+          <span className="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-100 text-slate-600">
+            {requests.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveCategory('STUDENT_LEAVES')}
+          className={`flex items-center gap-2 px-5 py-3 text-xs font-bold border-b-2 transition-all ${
+            activeCategory === 'STUDENT_LEAVES'
+              ? 'border-[#0B72E7] text-[#0B72E7]'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <GraduationCap className="w-4 h-4" />
+          Student Leave Applications
+          {initialStudentLeaves && initialStudentLeaves.length > 0 && (
+            <span className="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-[#0B72E7]">
+              {initialStudentLeaves.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {activeCategory === 'STUDENT_LEAVES' ? (
+        <AdminStudentLeaveDesk initialLeaves={initialStudentLeaves} />
+      ) : (
+        <>
+          {/* 2. KPI Metrics Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <AdminCard className="p-5">
           <div className="flex items-center justify-between">
@@ -493,6 +540,8 @@ export default function AdminLeaveClient({
           </table>
         </div>
       </AdminCard>
+    </>
+  )}
 
       {/* 6. APPROVAL / REJECTION MODAL */}
       <AdminModal

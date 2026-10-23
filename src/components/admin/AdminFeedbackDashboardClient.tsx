@@ -30,17 +30,22 @@ import {
   getAdminTeacherFeedbackDetailAction,
   type AdminFeedbackOverview,
 } from '@/actions/feedback';
+import { type AdminStudentGrievanceItem } from '@/actions/admin/grievances';
+import AdminStudentGrievanceDesk from './AdminStudentGrievanceDesk';
 import { FeedbackCycleFrequency, FeedbackCycleStatus, GradeGroup } from '@prisma/client';
 
 interface AdminFeedbackDashboardClientProps {
   initialAnalytics: AdminFeedbackOverview;
   cycles: Array<{ id: string; title: string; status: string; startDate: Date; endDate: Date }>;
+  initialGrievances?: AdminStudentGrievanceItem[];
 }
 
 export default function AdminFeedbackDashboardClient({
   initialAnalytics,
   cycles,
+  initialGrievances = [],
 }: AdminFeedbackDashboardClientProps) {
+  const [activePrimaryTab, setActivePrimaryTab] = useState<'TEACHER_FEEDBACK' | 'STUDENT_GRIEVANCES'>('TEACHER_FEEDBACK');
   const [analytics, setAnalytics] = useState<AdminFeedbackOverview>(initialAnalytics);
   const [cycleList, setCycleList] = useState(cycles);
   const [selectedCycleId, setSelectedCycleId] = useState<string>(analytics.activeCycle?.id || (cycles[0]?.id || ''));
@@ -193,7 +198,45 @@ export default function AdminFeedbackDashboardClient({
         }
       />
 
-      {/* Institutional Privacy & Policy Banner */}
+      {/* Primary Tab Navigation */}
+      <div className="flex border-b border-slate-200">
+        <button
+          type="button"
+          onClick={() => setActivePrimaryTab('TEACHER_FEEDBACK')}
+          className={`flex items-center gap-2 px-5 py-3 text-xs font-bold border-b-2 transition-all ${
+            activePrimaryTab === 'TEACHER_FEEDBACK'
+              ? 'border-[#0B72E7] text-[#0B72E7]'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <BookOpen className="w-4 h-4" />
+          Teacher Feedback Analytics
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActivePrimaryTab('STUDENT_GRIEVANCES')}
+          className={`flex items-center gap-2 px-5 py-3 text-xs font-bold border-b-2 transition-all ${
+            activePrimaryTab === 'STUDENT_GRIEVANCES'
+              ? 'border-[#0B72E7] text-[#0B72E7]'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <MessageSquareHeart className="w-4 h-4" />
+          Student Grievance &amp; Welfare Desk
+          {initialGrievances && initialGrievances.length > 0 && (
+            <span className="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-[#0B72E7]">
+              {initialGrievances.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {activePrimaryTab === 'STUDENT_GRIEVANCES' ? (
+        <AdminStudentGrievanceDesk initialGrievances={initialGrievances} />
+      ) : (
+        <>
+          {/* Institutional Privacy & Policy Banner */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50/70 border border-blue-200/80 rounded-2xl p-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white shadow-2xs text-[#0B72E7] flex items-center justify-center shrink-0">
@@ -462,6 +505,8 @@ export default function AdminFeedbackDashboardClient({
           </div>
         )}
       </div>
+    </>
+  )}
 
       {/* Teacher Detail Drawer */}
       <AdminDrawer

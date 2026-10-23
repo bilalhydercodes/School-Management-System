@@ -438,6 +438,26 @@ async function main() {
         });
       }
     }
+
+    // Ensure ClassSubjectTeacher mapping is established for Section A & Mathematics
+    await prisma.classSubjectTeacher.upsert({
+      where: {
+        sectionId_subjectId: {
+          sectionId: section.id,
+          subjectId: subjectMath.id,
+        },
+      },
+      update: {
+        teacherId: mainTeacherProfileId,
+        tenantId: tenant.id,
+      },
+      create: {
+        tenantId: tenant.id,
+        sectionId: section.id,
+        subjectId: subjectMath.id,
+        teacherId: mainTeacherProfileId,
+      },
+    });
   }
 
   // 8. Seed a Sample Active Substitution for Today (Period 2 - Science)

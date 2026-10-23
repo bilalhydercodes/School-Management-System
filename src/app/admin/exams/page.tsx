@@ -7,6 +7,7 @@ import AdminExamsClient, {
   StudentResultPreview,
   GradeScaleItem,
 } from '@/components/admin/AdminExamsClient';
+import { evaluateSubjectAssessment, computeReportCardSummary } from '@/lib/grading';
 import { Role } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -181,7 +182,7 @@ export default async function AdminExamsPage() {
           grade: g.grade,
           minPercent: Number(g.minPercentage),
           maxPercent: Number(g.maxPercentage),
-          gradePoint: Number(g.gradePoint),
+          gradePoint: g.gradePoint != null ? Number(g.gradePoint) : 0,
           description: g.description || 'Scholastic standard',
         }))
       : [
@@ -195,21 +196,43 @@ export default async function AdminExamsPage() {
           { grade: 'E', minPercent: 0, maxPercent: 32, gradePoint: 0.0, description: 'Needs Essential Repeat' },
         ];
 
-  // Generate Report Card samples from active students
+  // Generate Report Card samples from active students with defensive practical evaluation
   const sampleReportCards: StudentResultPreview[] = studentsRaw.map((s, idx) => {
+    // Safely model realistic school scenario: Student 4 has a pending practical assessment
+    const isPracticalPending = idx === 3;
     const math = 88 - idx * 4;
-    const sci = 84 - idx * 3;
+    const sciTheory = isPracticalPending ? 64 : 84 - idx * 3;
     const eng = 92 - idx * 2;
     const sst = 86 - idx * 5;
-    const totalMax = 400;
-    const totalObtained = math + sci + eng + sst;
-    const percentage = Math.round((totalObtained / totalMax) * 100);
 
-    let overallGrade = 'A1';
-    if (percentage < 91 && percentage >= 81) overallGrade = 'A2';
-    else if (percentage < 81 && percentage >= 71) overallGrade = 'B1';
-    else if (percentage < 71 && percentage >= 61) overallGrade = 'B2';
-    else if (percentage < 61) overallGrade = 'C1';
+    const evaluatedMarks = [
+      evaluateSubjectAssessment(
+        { subject: 'Mathematics', code: 'MATH-10', max: 100, obtained: math },
+        gradeScales
+      ),
+      evaluateSubjectAssessment(
+        {
+          subject: 'Science (Theory & Lab)',
+          code: 'SCI-10',
+          max: 100,
+          theoryMax: 80,
+          theoryObtained: sciTheory,
+          practicalMax: 20,
+          practicalObtained: isPracticalPending ? null : 18,
+        },
+        gradeScales
+      ),
+      evaluateSubjectAssessment(
+        { subject: 'English', code: 'ENG-10', max: 100, obtained: eng },
+        gradeScales
+      ),
+      evaluateSubjectAssessment(
+        { subject: 'Social Studies', code: 'SST-10', max: 100, obtained: sst },
+        gradeScales
+      ),
+    ];
+
+    const summary = computeReportCardSummary(evaluatedMarks, gradeScales);
 
     return {
       id: s.id,
@@ -217,21 +240,13 @@ export default async function AdminExamsPage() {
       admissionNumber: s.admissionNumber,
       classSection: `${s.section.classGrade.name}-${s.section.name}`,
       rollNumber: s.rollNumber || idx + 1,
-      marks: [
-        { subject: 'Mathematics', code: 'MATH-10', max: 100, obtained: math, grade: math >= 91 ? 'A1' : 'A2' },
-        { subject: 'Science', code: 'SCI-10', max: 100, obtained: sci, grade: sci >= 81 ? 'A2' : 'B1' },
-        { subject: 'English', code: 'ENG-10', max: 100, obtained: eng, grade: eng >= 91 ? 'A1' : 'A2' },
-        { subject: 'Social Studies', code: 'SST-10', max: 100, obtained: sst, grade: sst >= 81 ? 'A2' : 'B1' },
-      ],
-      totalMax,
-      totalObtained,
-      percentage,
-      overallGrade,
+      marks: evaluatedMarks,
+      totalMax: summary.totalMax,
+      totalObtained: summary.totalObtained,
+      percentage: summary.percentage,
+      overallGrade: summary.overallGrade,
       attendancePercent: 94 - idx * 2,
-      remarks:
-        percentage >= 85
-          ? 'Exceptional academic consistency and disciplined classroom contribution.'
-          : 'Good effort demonstrated. Recommended to strengthen focus on numerical problem-solving.',
+      remarks: summary.remarks,
     };
   });
 
