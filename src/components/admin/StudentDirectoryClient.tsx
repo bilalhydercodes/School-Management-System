@@ -172,13 +172,7 @@ export default function StudentDirectoryClient({
   const [copiedResetCreds, setCopiedResetCreds] = useState(false);
 
   const generateStudentTempPassword = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
-    let result = 'Sch#';
-    for (let i = 0; i < 6; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    result += '!';
-    return result;
+    return 'alphaeduhub@12';
   };
 
   const [addForm, setAddForm] = useState({
@@ -188,7 +182,7 @@ export default function StudentDirectoryClient({
     lastName: '',
     email: '',
     phone: '',
-    password: 'Sch#' + Math.floor(1000 + Math.random() * 9000) + '!aB7',
+    password: 'alphaeduhub@12',
     dateOfBirth: '',
     gender: 'MALE' as 'MALE' | 'FEMALE' | 'OTHER',
     bloodGroup: 'O+',

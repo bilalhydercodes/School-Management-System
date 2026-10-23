@@ -71,7 +71,7 @@ export async function createTeacherAction(rawInput: CreateTeacherInput) {
           passwordHash,
           avatarUrl: input.avatarUrl?.trim() || null,
           isActive: true,
-          mustChangePassword: true,
+          mustChangePassword: false,
         },
       });
 
@@ -267,7 +267,7 @@ export async function resetTeacherPasswordAction(teacherProfileId: string) {
       where: { id: teacher.user.id },
       data: {
         passwordHash: newPasswordHash,
-        mustChangePassword: true,
+        mustChangePassword: false,
         failedLoginAttempts: 0,
         lockedUntil: null,
       },

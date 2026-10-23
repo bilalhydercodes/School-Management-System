@@ -282,7 +282,7 @@ export async function importStudentsBatchAction(rows: Array<Record<string, unkno
               lastName,
               role: 'STUDENT',
               passwordHash,
-              mustChangePassword: true,
+              mustChangePassword: false,
             },
           });
           userId = user.id;
@@ -328,7 +328,7 @@ export async function importStudentsBatchAction(rows: Array<Record<string, unkno
                 lastName: fatherName.split(' ').slice(1).join(' ') || 'Parent',
                 role: 'PARENT',
                 passwordHash: parentPasswordHash,
-                mustChangePassword: true,
+                mustChangePassword: false,
               },
             });
 
@@ -475,7 +475,7 @@ export async function importTeachersBatchAction(rows: Array<Record<string, unkno
               lastName,
               role: 'TEACHER',
               passwordHash,
-              mustChangePassword: true,
+              mustChangePassword: false,
             },
           });
           userId = user.id;
