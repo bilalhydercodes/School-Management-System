@@ -1,10 +1,14 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Mail, KeyRound, ArrowLeft, CheckCircle2, AlertCircle, Loader2, ShieldAlert } from 'lucide-react';
-import { forgotPasswordAction, verifyOtpAndResetAction } from '@/actions/auth';
+import {
+  forgotPasswordAction,
+  verifyOtpAndResetAction,
+  resendPasswordResetOtpAction,
+} from '@/actions/auth';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -16,10 +20,20 @@ export default function ForgotPasswordPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Status State
+  // Status & Cooldown State
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
   const [isPending, startTransition] = useTransition();
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   // Step 1: Request OTP
   const handleRequestOtp = (e: React.FormEvent) => {
@@ -30,9 +44,28 @@ export default function ForgotPasswordPage() {
       const res = await forgotPasswordAction({ email });
       if (!res.success && res.error) {
         setErrorMsg(res.error);
+        if (res.cooldownSeconds) setCooldown(res.cooldownSeconds);
       } else {
         setSuccessMsg(res.message);
+        setCooldown(res.cooldownSeconds || 60);
         setStep('VERIFY');
+      }
+    });
+  };
+
+  // Resend OTP with Cooldown
+  const handleResendOtp = () => {
+    if (cooldown > 0 || isPending) return;
+    setErrorMsg(null);
+
+    startTransition(async () => {
+      const res = await resendPasswordResetOtpAction({ email });
+      if (!res.success && res.error) {
+        setErrorMsg(res.error);
+        if (res.cooldownSeconds) setCooldown(res.cooldownSeconds);
+      } else {
+        setSuccessMsg('A new verification code has been dispatched to your email.');
+        setCooldown(res.cooldownSeconds || 60);
       }
     });
   };
@@ -145,6 +178,23 @@ export default function ForgotPasswordPage() {
                   placeholder="123456"
                   className="w-full bg-white text-center tracking-widest text-lg font-bold py-2.5 px-3 rounded-lg border border-brand-border focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all"
                 />
+                <div className="flex items-center justify-between text-xs text-slate-500 mt-2 px-1">
+                  <span>Didn't receive the email code?</span>
+                  {cooldown > 0 ? (
+                    <span className="text-slate-400 font-medium bg-slate-100 px-2 py-0.5 rounded-md">
+                      Resend in {cooldown}s
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={handleResendOtp}
+                      className="font-semibold text-brand-primary hover:text-blue-700 hover:underline cursor-pointer disabled:opacity-50"
+                    >
+                      Resend Code
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div>
