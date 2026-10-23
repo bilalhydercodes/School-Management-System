@@ -49,10 +49,21 @@ export class AuthService {
   }
 
   /**
-   * Compares a plaintext password against a bcrypt hash.
+   * Compares a plaintext password against a bcrypt hash with resilient whitespace tolerance.
    */
   static async verifyPassword(password: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(password, hash);
+    if (!password || !hash) return false;
+    try {
+      const directMatch = await bcrypt.compare(password, hash);
+      if (directMatch) return true;
+      const trimmed = password.trim();
+      if (trimmed !== password) {
+        return await bcrypt.compare(trimmed, hash);
+      }
+      return false;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -73,6 +84,7 @@ export class AuthService {
     metadata?: { ipAddress?: string; userAgent?: string }
   ): Promise<AuthenticationResult> {
     const email = input.email.toLowerCase().trim();
+    const rawPassword = input.password;
     const ip = metadata?.ipAddress || 'unknown';
 
     // 1. IP + Email composite rate limiting (Prevent online brute-force attacks)
@@ -93,9 +105,10 @@ export class AuthService {
       };
     }
 
-    // 2. Resolve user by Email, Mobile Number, Admission Number, Roll Number, or Employee ID
+    // 2. Resolve candidate users by Email, Mobile Number, Admission Number, Roll Number, or Employee ID
     const rawIdentifier = input.email.trim();
     const digitsOnly = rawIdentifier.replace(/\D/g, '');
+    const isNumeric = /^\d+$/.test(rawIdentifier);
     const phoneVariants = Array.from(
       new Set(
         [
@@ -109,9 +122,23 @@ export class AuthService {
       )
     );
 
-    let user;
+    const candidateUsers: any[] = [];
+    const seenUserIds = new Set<string>();
+
+    const addCandidates = (users: any[]) => {
+      for (const u of users) {
+        if (u && !seenUserIds.has(u.id)) {
+          seenUserIds.add(u.id);
+          candidateUsers.push(u);
+        }
+      }
+    };
+
+    const rollCandidate = /^\d{1,6}$/.test(rawIdentifier) ? parseInt(rawIdentifier, 10) : null;
+
     if (tenantId) {
-      user = await prisma.user.findFirst({
+      // 2a. Tenant-scoped candidate lookup
+      const directUsers = await prisma.user.findMany({
         where: {
           tenantId,
           OR: [
@@ -120,43 +147,37 @@ export class AuthService {
           ],
         },
       });
+      addCandidates(directUsers);
 
-      if (!user) {
-        const isNumeric = /^\d+$/.test(email);
-        const student = await prisma.studentProfile.findFirst({
-          where: {
-            tenantId,
-            OR: [
-              { admissionNumber: { equals: rawIdentifier, mode: 'insensitive' } },
-              ...(isNumeric ? [{ rollNumber: parseInt(email, 10) }] : []),
-              ...(phoneVariants.length > 0 ? [{ emergencyContact: { in: phoneVariants } }] : []),
-            ],
-          },
-          include: { user: true },
-        });
-        if (student?.user) {
-          user = student.user;
-        }
-      }
+      const students = await prisma.studentProfile.findMany({
+        where: {
+          tenantId,
+          OR: [
+            { admissionNumber: { equals: rawIdentifier, mode: 'insensitive' } },
+            ...(rollCandidate !== null ? [{ rollNumber: rollCandidate }] : []),
+            ...(phoneVariants.length > 0 ? [{ emergencyContact: { in: phoneVariants } }] : []),
+          ],
+        },
+        include: { user: true },
+        take: 5,
+      });
+      addCandidates(students.map((s) => s.user));
 
-      if (!user) {
-        const teacher = await prisma.teacherProfile.findFirst({
-          where: {
-            tenantId,
-            OR: [
-              { employeeId: { equals: rawIdentifier, mode: 'insensitive' } },
-              ...(phoneVariants.length > 0 ? [{ alternatePhone: { in: phoneVariants } }] : []),
-            ],
-          },
-          include: { user: true },
-        });
-        if (teacher?.user) {
-          user = teacher.user;
-        }
-      }
+      const teachers = await prisma.teacherProfile.findMany({
+        where: {
+          tenantId,
+          OR: [
+            { employeeId: { equals: rawIdentifier, mode: 'insensitive' } },
+            ...(phoneVariants.length > 0 ? [{ alternatePhone: { in: phoneVariants } }] : []),
+          ],
+        },
+        include: { user: true },
+        take: 5,
+      });
+      addCandidates(teachers.map((t) => t.user));
     } else {
-      // Unscoped / Central domain / localhost login: resolve active user by email or mobile number
-      user = await prisma.user.findFirst({
+      // 2b. Unscoped / Central domain / localhost login: resolve active candidates
+      const directUsers = await prisma.user.findMany({
         where: {
           OR: [
             { email: { equals: email, mode: 'insensitive' } },
@@ -164,50 +185,70 @@ export class AuthService {
           ],
           isActive: true,
         },
+        take: 10,
       });
+      addCandidates(directUsers);
 
-      if (!user) {
-        const student = await prisma.studentProfile.findFirst({
-          where: {
-            OR: [
-              { admissionNumber: { equals: rawIdentifier, mode: 'insensitive' } },
-              ...(phoneVariants.length > 0 ? [{ emergencyContact: { in: phoneVariants } }] : []),
-            ],
-          },
-          include: { user: true },
-        });
-        if (student?.user) {
-          user = student.user;
-        }
-      }
+      const students = await prisma.studentProfile.findMany({
+        where: {
+          OR: [
+            { admissionNumber: { equals: rawIdentifier, mode: 'insensitive' } },
+            ...(rollCandidate !== null ? [{ rollNumber: rollCandidate }] : []),
+            ...(phoneVariants.length > 0 ? [{ emergencyContact: { in: phoneVariants } }] : []),
+          ],
+        },
+        include: { user: true },
+        take: 5,
+      });
+      addCandidates(students.map((s) => s.user));
 
-      if (!user) {
-        const teacher = await prisma.teacherProfile.findFirst({
-          where: {
-            OR: [
-              { employeeId: { equals: rawIdentifier, mode: 'insensitive' } },
-              ...(phoneVariants.length > 0 ? [{ alternatePhone: { in: phoneVariants } }] : []),
-            ],
-          },
-          include: { user: true },
-        });
-        if (teacher?.user) {
-          user = teacher.user;
-        }
-      }
+      const teachers = await prisma.teacherProfile.findMany({
+        where: {
+          OR: [
+            { employeeId: { equals: rawIdentifier, mode: 'insensitive' } },
+            ...(phoneVariants.length > 0 ? [{ alternatePhone: { in: phoneVariants } }] : []),
+          ],
+        },
+        include: { user: true },
+        take: 5,
+      });
+      addCandidates(teachers.map((t) => t.user));
     }
 
-    // 3. Constant-time dummy comparison if user doesn't exist (Prevent timing enumeration)
-    // Uses rounds=10 hash to match login verification timing and avoid enumeration attack
-    if (!user) {
-      await bcrypt.compare(input.password, '$2a$10$e80y6jF3Q8ZpXqFmNfAweOXV4O1t9/4B4/K3/l4l6Wn/z1z1z1z1z');
+    // 3. Constant-time dummy comparison if no candidate user exists (Prevent timing enumeration)
+    if (candidateUsers.length === 0) {
+      await bcrypt.compare(rawPassword, '$2a$10$e80y6jF3Q8ZpXqFmNfAweOXV4O1t9/4B4/K3/l4l6Wn/z1z1z1z1z');
       return {
         success: false,
         error: 'Invalid credentials. Please verify your Mobile Number / Email / Roll Number and password.',
       };
     }
 
-    // 4. Deactivated check
+    // 4. Resolve matching candidate user:
+    // If multiple accounts share the identifier (e.g. parent & student sharing a phone number),
+    // verify the password against candidate users to pick the intended account.
+    let user: any = null;
+    let isPasswordValid = false;
+
+    for (const cand of candidateUsers) {
+      if (!cand.isActive || cand.deletedAt !== null) continue;
+      // Skip locked candidates during multi-candidate matching if other candidates exist
+      if (candidateUsers.length > 1 && cand.lockedUntil && cand.lockedUntil > new Date()) continue;
+
+      const isValid = await this.verifyPassword(rawPassword, cand.passwordHash);
+      if (isValid) {
+        user = cand;
+        isPasswordValid = true;
+        break;
+      }
+    }
+
+    // If no candidate password matched, fall back to the first active candidate for standard lockout / error handling
+    if (!user) {
+      user = candidateUsers.find((c) => c.isActive && c.deletedAt === null) || candidateUsers[0];
+    }
+
+    // 5. Deactivated check
     if (!user.isActive || user.deletedAt !== null) {
       return {
         success: false,
@@ -215,7 +256,7 @@ export class AuthService {
       };
     }
 
-    // 5. Account lockout check
+    // 6. Account lockout check
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       const remainingMinutes = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
       return {
@@ -224,9 +265,7 @@ export class AuthService {
       };
     }
 
-    // 6. Password comparison
-    const isPasswordValid = await this.verifyPassword(input.password, user.passwordHash);
-
+    // 7. Handle password failure
     if (!isPasswordValid) {
       const failedAttempts = user.failedLoginAttempts + 1;
       const isNowLocked = failedAttempts >= MAX_FAILED_ATTEMPTS;
