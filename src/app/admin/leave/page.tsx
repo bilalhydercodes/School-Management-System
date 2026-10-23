@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/session';
 import AdminLeaveClient, { TeacherLookup } from '@/components/admin/AdminLeaveClient';
+import { getAdminStudentLeavesAction } from '@/actions/admin/leaves';
 import { Role } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -17,22 +18,25 @@ export default async function AdminLeavePage() {
     redirect('/unauthorized');
   }
 
-  // Fetch teachers for substitution selector
-  const teachersRaw = await prisma.teacherProfile.findMany({
-    where: {
-      tenantId,
-      user: { isActive: true },
-    },
-    include: {
-      user: {
-        select: {
-          firstName: true,
-          lastName: true,
+  // 1. Fetch teachers for substitution selector
+  const [teachersRaw, studentLeavesResult] = await Promise.all([
+    prisma.teacherProfile.findMany({
+      where: {
+        tenantId,
+        user: { isActive: true },
+      },
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
         },
       },
-    },
-    orderBy: { user: { firstName: 'asc' } },
-  });
+      orderBy: { user: { firstName: 'asc' } },
+    }),
+    getAdminStudentLeavesAction(),
+  ]);
 
   const teachers: TeacherLookup[] = teachersRaw.map((t) => ({
     id: t.id,
@@ -41,5 +45,10 @@ export default async function AdminLeavePage() {
     employeeId: t.employeeId,
   }));
 
-  return <AdminLeaveClient teachers={teachers} />;
+  return (
+    <AdminLeaveClient
+      teachers={teachers}
+      initialStudentLeaves={studentLeavesResult.success ? studentLeavesResult.leaves || [] : []}
+    />
+  );
 }

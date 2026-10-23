@@ -64,12 +64,17 @@ export interface StudentResultPreview {
     subject: string;
     code: string;
     max: number;
-    obtained: number;
-    grade: string;
+    obtained?: number | null;
+    theoryObtained?: number | null;
+    practicalObtained?: number | null;
+    grade?: string;
+    gradePoint?: number | null;
+    status?: string;
+    isPending?: boolean;
   }[];
   totalMax: number;
-  totalObtained: number;
-  percentage: number;
+  totalObtained?: number | null;
+  percentage?: number | null;
   overallGrade: string;
   attendancePercent: number;
   remarks: string;
@@ -404,18 +409,20 @@ export default function AdminExamsClient({
                     <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                       <span className="text-slate-400 block text-[10px] uppercase font-bold">Marks</span>
                       <span className="font-extrabold text-slate-800">
-                        {rc.totalObtained}/{rc.totalMax}
+                        {rc.totalObtained != null ? `${rc.totalObtained}/${rc.totalMax}` : 'Pending'}
                       </span>
                     </div>
 
                     <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
                       <span className="text-emerald-700 block text-[10px] uppercase font-bold">Percentage</span>
-                      <span className="font-extrabold text-emerald-800">{rc.percentage}%</span>
+                      <span className="font-extrabold text-emerald-800">
+                        {rc.percentage != null ? `${rc.percentage}%` : 'Incomplete'}
+                      </span>
                     </div>
 
                     <div className="p-2.5 rounded-xl bg-purple-50/60 border border-purple-100">
                       <span className="text-purple-700 block text-[10px] uppercase font-bold">Grade</span>
-                      <span className="font-black text-purple-800">{rc.overallGrade}</span>
+                      <span className="font-black text-purple-800">{rc.overallGrade || 'PENDING'}</span>
                     </div>
                   </div>
 
@@ -472,7 +479,9 @@ export default function AdminExamsClient({
                     <td className="py-3.5 px-4 font-bold text-slate-800">
                       {gs.minPercent}% - {gs.maxPercent}%
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-700">{gs.gradePoint.toFixed(1)}</td>
+                    <td className="py-3.5 px-4 font-mono font-bold text-slate-700">
+                      {gs?.gradePoint != null ? Number(gs.gradePoint).toFixed(1) : '0.0'}
+                    </td>
                     <td className="py-3.5 px-5 font-medium text-slate-600">{gs.description}</td>
                   </tr>
                 ))}
@@ -634,19 +643,36 @@ export default function AdminExamsClient({
                 <tbody className="divide-y divide-slate-100">
                   {activeReportCard.marks.map((m) => (
                     <tr key={m.code}>
-                      <td className="py-2.5 px-4 font-semibold text-slate-800">{m.subject}</td>
+                      <td className="py-2.5 px-4 font-semibold text-slate-800">
+                        {m.subject}
+                        {m.status && m.status.startsWith('Pending') && (
+                          <span className="ml-2 text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                            {m.status}
+                          </span>
+                        )}
+                      </td>
                       <td className="py-2.5 px-3 text-center font-mono text-slate-500">{m.max}</td>
-                      <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-900">{m.obtained}</td>
+                      <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-900">
+                        {m.obtained != null ? (
+                          m.obtained
+                        ) : (
+                          <span className="text-amber-600 font-semibold text-[11px] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                            Pending
+                          </span>
+                        )}
+                      </td>
                       <td className="py-2.5 px-3 text-center">
-                        <span className="font-bold text-[#0B72E7]">{m.grade}</span>
+                        <span className="font-bold text-[#0B72E7]">{m.grade || 'PENDING'}</span>
                       </td>
                     </tr>
                   ))}
                   <tr className="bg-slate-50 font-bold">
                     <td className="py-3 px-4 text-slate-900">Total Cumulative</td>
                     <td className="py-3 px-3 text-center text-slate-600">{activeReportCard.totalMax}</td>
-                    <td className="py-3 px-3 text-center text-[#0B72E7]">{activeReportCard.totalObtained}</td>
-                    <td className="py-3 px-3 text-center text-purple-700">{activeReportCard.overallGrade}</td>
+                    <td className="py-3 px-3 text-center text-[#0B72E7]">
+                      {activeReportCard.totalObtained != null ? activeReportCard.totalObtained : 'Pending'}
+                    </td>
+                    <td className="py-3 px-3 text-center text-purple-700">{activeReportCard.overallGrade || 'PENDING'}</td>
                   </tr>
                 </tbody>
               </table>
@@ -656,7 +682,9 @@ export default function AdminExamsClient({
             <div className="grid grid-cols-2 gap-3 text-center">
               <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
                 <span className="text-emerald-700 block text-xs font-bold">Percentage</span>
-                <span className="text-xl font-black text-emerald-800">{activeReportCard.percentage}%</span>
+                <span className="text-xl font-black text-emerald-800">
+                  {activeReportCard.percentage != null ? `${activeReportCard.percentage}%` : 'Incomplete'}
+                </span>
               </div>
               <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
                 <span className="text-[#0B72E7] block text-xs font-bold">Attendance</span>

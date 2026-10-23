@@ -3,13 +3,14 @@ import { redirect } from 'next/navigation';
 import { getAuthenticatedContext } from '@/lib/auth-context';
 import { Role } from '@prisma/client';
 import { getAdminFeedbackAnalyticsAction } from '@/actions/feedback';
+import { getAdminStudentGrievancesAction } from '@/actions/admin/grievances';
 import AdminFeedbackDashboardClient from '@/components/admin/AdminFeedbackDashboardClient';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Teacher Feedback Analytics | Admin Portal',
-  description: 'School-wide student evaluations, teaching quality dimensions, and cycle management.',
+  title: 'Feedback & Student Grievances | Admin Portal',
+  description: 'School-wide teaching evaluations and student grievance redressal management.',
 };
 
 export default async function AdminFeedbackPage() {
@@ -18,7 +19,10 @@ export default async function AdminFeedbackPage() {
     redirect('/login?redirect=/admin/feedback');
   }
 
-  const result = await getAdminFeedbackAnalyticsAction();
+  const [feedbackResult, grievanceResult] = await Promise.all([
+    getAdminFeedbackAnalyticsAction(),
+    getAdminStudentGrievancesAction(),
+  ]);
 
   const emptyAnalytics = {
     totalSubmissions: 0,
@@ -32,8 +36,9 @@ export default async function AdminFeedbackPage() {
 
   return (
     <AdminFeedbackDashboardClient
-      initialAnalytics={result.success ? result.analytics || emptyAnalytics : emptyAnalytics}
-      cycles={result.success ? result.cycles || [] : []}
+      initialAnalytics={feedbackResult.success ? feedbackResult.analytics || emptyAnalytics : emptyAnalytics}
+      cycles={feedbackResult.success ? feedbackResult.cycles || [] : []}
+      initialGrievances={grievanceResult.success ? grievanceResult.grievances || [] : []}
     />
   );
 }
