@@ -43,9 +43,9 @@ export const CreateTeacherSchema = z.object({
   // STEP 5 — TEACHING ASSIGNMENTS
   assignments: z.array(TeachingAssignmentSchema).default([]),
 
-  // STEP 6 — ACCOUNT ACCESS
-  loginEmail: z.string().email('Valid login email is required'),
-  temporaryPassword: z.string().min(8, 'Temporary password must be at least 8 characters'),
+  // STEP 6 — ACCOUNT ACCESS (Auto-generated if omitted)
+  loginEmail: z.string().email('Valid login email is required').optional().or(z.literal('')),
+  temporaryPassword: z.string().optional().or(z.literal('')),
   sendInvitation: z.boolean().default(true),
 });
 

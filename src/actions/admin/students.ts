@@ -83,6 +83,7 @@ export async function createStudentAction(rawInput: CreateStudentInput) {
       const parentPhone = input.fatherPhone || input.motherPhone;
       const parentName = input.fatherName || input.motherName;
       const parentEmail = input.fatherEmail || input.motherEmail || `parent.${parentPhone}@school.edu.in`;
+      let createdParentPassword: string | null = null;
 
       if (parentPhone) {
         let parentUser = await tx.user.findFirst({
@@ -91,6 +92,7 @@ export async function createStudentAction(rawInput: CreateStudentInput) {
 
         if (!parentUser) {
           const parentTempPassword = AuthService.generateSecureTemporaryPassword();
+          createdParentPassword = parentTempPassword;
           const parentHash = await AuthService.hashPassword(parentTempPassword);
 
           parentUser = await tx.user.create({
@@ -133,7 +135,7 @@ export async function createStudentAction(rawInput: CreateStudentInput) {
         });
       }
 
-      return { studentProfile, studentUser };
+      return { studentProfile, studentUser, createdParentPassword, parentPhone, parentName, parentEmail };
     });
 
     await prisma.auditLog.create({
@@ -159,6 +161,21 @@ export async function createStudentAction(rawInput: CreateStudentInput) {
       success: true,
       studentId: result.studentProfile.id,
       temporaryPassword: tempPassword,
+      credentials: {
+        name: `${input.firstName} ${input.lastName}`,
+        admissionNumber: input.admissionNumber,
+        phone: input.phone || result.parentPhone || null,
+        email: studentEmail,
+        tempPassword,
+        role: 'STUDENT',
+      },
+      parentCredentials: result.createdParentPassword ? {
+        name: result.parentName,
+        phone: result.parentPhone,
+        email: result.parentEmail,
+        tempPassword: result.createdParentPassword,
+        role: 'PARENT',
+      } : undefined,
     };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Failed to create student.';
