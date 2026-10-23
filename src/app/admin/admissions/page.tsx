@@ -67,47 +67,47 @@ export default async function AdminAdmissionsPage() {
   const suggestedNextAdmNumber = `DPS-${currentYear}-${String(studentCount + 1).padStart(4, '0')}`;
 
   // Map applications
-  const applications: AdmissionApplicationItem[] = applicationsRaw.map((app) => ({
+  const applications: AdmissionApplicationItem[] = (applicationsRaw || []).map((app) => ({
     id: app.id,
-    applicationNumber: app.applicationNumber,
-    studentFirstName: app.studentFirstName,
-    studentLastName: app.studentLastName,
-    studentName: `${app.studentFirstName} ${app.studentLastName}`,
-    dateOfBirth: app.dateOfBirth.toISOString(),
-    gender: app.gender,
-    bloodGroup: app.bloodGroup,
+    applicationNumber: app.applicationNumber || 'APP',
+    studentFirstName: app.studentFirstName || '',
+    studentLastName: app.studentLastName || '',
+    studentName: `${app.studentFirstName || ''} ${app.studentLastName || ''}`.trim() || 'Applicant',
+    dateOfBirth: app.dateOfBirth ? new Date(app.dateOfBirth).toISOString() : new Date().toISOString(),
+    gender: app.gender || 'OTHER',
+    bloodGroup: app.bloodGroup || null,
     aadhaarNumber: sanitizeAadhaarForDisplay(app.aadhaarNumber),
-    parentName: app.parentName,
-    parentPhone: app.parentPhone,
-    parentEmail: app.parentEmail,
-    relationship: app.relationship,
-    address: app.address,
-    previousSchool: app.previousSchool,
+    parentName: app.parentName || 'Parent',
+    parentPhone: app.parentPhone || '',
+    parentEmail: app.parentEmail || null,
+    relationship: app.relationship || 'Guardian',
+    address: app.address || '',
+    previousSchool: app.previousSchool || null,
     previousMarks: app.previousMarks ? Number(app.previousMarks) : null,
-    applicationFee: Number(app.applicationFee),
-    isFeePaid: app.isFeePaid,
+    applicationFee: Number(app.applicationFee || 0),
+    isFeePaid: Boolean(app.isFeePaid),
     status: app.status as any,
-    interviewDate: app.interviewDate ? app.interviewDate.toISOString() : null,
-    adminRemarks: app.adminRemarks,
-    createdAt: app.createdAt.toISOString(),
-    classGradeName: app.classGrade.name,
+    interviewDate: app.interviewDate ? new Date(app.interviewDate).toISOString() : null,
+    adminRemarks: app.adminRemarks || null,
+    createdAt: app.createdAt ? new Date(app.createdAt).toISOString() : new Date().toISOString(),
+    classGradeName: app.classGrade?.name || 'Class',
     classGradeId: app.classGradeId,
     enrolledStudentId: app.enrolledStudentId,
   }));
 
   // Map sections
-  const sections: SectionItem[] = sectionsRaw.map((s) => ({
+  const sections: SectionItem[] = (sectionsRaw || []).map((s) => ({
     id: s.id,
-    name: s.name,
+    name: s.name || 'A',
     classGradeId: s.classGradeId,
-    classGradeName: s.classGrade.name,
+    classGradeName: s.classGrade?.name || 'Class',
   }));
 
   // Map fee structures
-  const feeStructures: FeeStructureItem[] = feeStructuresRaw.map((fs) => ({
+  const feeStructures: FeeStructureItem[] = (feeStructuresRaw || []).map((fs) => ({
     id: fs.id,
-    amount: Number(fs.amount),
-    categoryName: fs.feeCategory.name,
+    amount: Number(fs.amount || 0),
+    categoryName: fs.feeCategory?.name || 'Tuition',
     classGradeId: fs.classGradeId,
   }));
 
