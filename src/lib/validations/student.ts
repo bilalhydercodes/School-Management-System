@@ -8,6 +8,7 @@ export const CreateStudentSchema = z
     lastName: z.string().min(1, 'Last name is required'),
     email: z.string().email().optional().or(z.literal('')),
     phone: z.string().optional(),
+    password: z.string().optional().or(z.literal('')),
     dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format must be YYYY-MM-DD'),
     gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
     bloodGroup: z.string().optional(),

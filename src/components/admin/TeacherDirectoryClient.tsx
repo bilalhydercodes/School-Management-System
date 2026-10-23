@@ -24,6 +24,9 @@ import {
   ShieldAlert,
   Sparkles,
   Eye,
+  KeyRound,
+  Copy,
+  Check,
 } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
@@ -33,6 +36,7 @@ import AdminSearchInput from './ui/AdminSearchInput';
 import { AdminTabs } from './ui/AdminTabs';
 import AdminDrawer from './ui/AdminDrawer';
 import { archiveTeacherAction, reactivateTeacherAction } from '@/actions/admin/archive';
+import { resetTeacherPasswordAction } from '@/actions/admin/teachers';
 import AddTeacherModal from './AddTeacherModal';
 
 export interface TeacherItem {
@@ -67,8 +71,33 @@ export default function TeacherDirectoryClient({
   const [isAddTeacherModalOpen, setIsAddTeacherModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDept, setSelectedDept] = useState('ALL');
   const [selectedTeacher, setSelectedTeacher] = useState<TeacherItem | null>(null);
+  const [resettingPasswordForTeacher, setResettingPasswordForTeacher] = useState<string | null>(null);
+  const [resetTeacherCredsResult, setResetTeacherCredsResult] = useState<{
+    name: string;
+    employeeId: string;
+    phone: string | null;
+    email: string;
+    tempPassword: string;
+    role: string;
+  } | null>(null);
+  const [copiedResetTeacherCreds, setCopiedResetTeacherCreds] = useState(false);
+
+  const handleResetTeacherPassword = async (teacherId: string) => {
+    setResettingPasswordForTeacher(teacherId);
+    try {
+      const res = await resetTeacherPasswordAction(teacherId);
+      if (res.success && res.credentials) {
+        setResetTeacherCredsResult(res.credentials);
+      } else {
+        alert(res.error || 'Failed to reset teacher password');
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Error resetting teacher password');
+    } finally {
+      setResettingPasswordForTeacher(null);
+    }
+  };
 
   useEffect(() => {
     setTeachers(initialTeachers);
@@ -364,6 +393,15 @@ export default function TeacherDirectoryClient({
               <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
                 <span>Joined {t.joiningDate}</span>
                 <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    title="View & Manage Password"
+                    onClick={() => setSelectedTeacher(t)}
+                    className="inline-flex items-center gap-1 text-amber-600 hover:text-amber-700 font-semibold px-2 py-1 rounded-lg hover:bg-amber-50 transition-colors cursor-pointer"
+                  >
+                    <KeyRound className="w-3 h-3" />
+                    <span>Password</span>
+                  </button>
                   <AdminButton
                     variant="ghost"
                     size="sm"
@@ -401,7 +439,10 @@ export default function TeacherDirectoryClient({
       {/* 6. TEACHER DOSSIER DRAWER */}
       <AdminDrawer
         isOpen={Boolean(selectedTeacher)}
-        onClose={() => setSelectedTeacher(null)}
+        onClose={() => {
+          setSelectedTeacher(null);
+          setResetTeacherCredsResult(null);
+        }}
         title={selectedTeacher ? selectedTeacher.name : 'Faculty Dossier'}
         subtitle={selectedTeacher ? `${selectedTeacher.employeeId} · ${selectedTeacher.department}` : ''}
       >
@@ -416,6 +457,71 @@ export default function TeacherDirectoryClient({
                 <p className="text-xs font-semibold text-[#0B72E7]">{selectedTeacher.department} Department</p>
                 <p className="text-xs text-slate-500 mt-0.5">Joined on {selectedTeacher.joiningDate}</p>
               </div>
+            </div>
+
+            {/* Account Access & Password Management Card */}
+            <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-slate-100 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5 text-[#0B72E7]" />
+                  Portal Access & Password
+                </h4>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#0B72E7] border border-blue-200/60">
+                  Role: TEACHER
+                </span>
+              </div>
+              <div className="text-xs space-y-1.5 text-slate-600 bg-white p-3 rounded-xl border border-slate-200/80">
+                <p>
+                  <span className="text-slate-400 font-medium">Login Mobile Number: </span>
+                  <strong className="text-slate-800 font-mono">{selectedTeacher.phone || 'Not provided'}</strong>
+                </p>
+                <p>
+                  <span className="text-slate-400 font-medium">Employee ID: </span>
+                  <strong className="text-slate-800 font-mono">{selectedTeacher.employeeId}</strong>
+                </p>
+                <p>
+                  <span className="text-slate-400 font-medium">Teacher Email: </span>
+                  <strong className="text-slate-800">{selectedTeacher.email}</strong>
+                </p>
+              </div>
+
+              {resetTeacherCredsResult && resetTeacherCredsResult.employeeId === selectedTeacher.employeeId ? (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-emerald-800 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> New Password Generated!
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(resetTeacherCredsResult.tempPassword);
+                        setCopiedResetTeacherCreds(true);
+                        setTimeout(() => setCopiedResetTeacherCreds(false), 2000);
+                      }}
+                      className="text-[11px] font-semibold text-emerald-700 hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      {copiedResetTeacherCreds ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                      {copiedResetTeacherCreds ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
+                  <div className="font-mono font-bold text-slate-900 bg-white px-2.5 py-1.5 rounded-lg border border-emerald-200 text-sm select-all">
+                    {resetTeacherCredsResult.tempPassword}
+                  </div>
+                  <p className="text-[10px] text-emerald-700">
+                    Share this temporary password with the teacher. They can log in immediately using their registered mobile number.
+                  </p>
+                </div>
+              ) : (
+                <AdminButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleResetTeacherPassword(selectedTeacher.id)}
+                  isLoading={resettingPasswordForTeacher === selectedTeacher.id}
+                  icon={<KeyRound className="w-3.5 h-3.5 text-[#0B72E7]" />}
+                >
+                  Generate New Temporary Password
+                </AdminButton>
+              )}
             </div>
 
             <div className="space-y-3">

@@ -10,6 +10,7 @@ import {
   ChevronRight,
   ChevronLeft,
   Eye,
+  EyeOff,
   Phone,
   Mail,
   X,
@@ -38,7 +39,7 @@ import {
   reactivateStudentsAction,
   batchArchiveBySectionAction,
 } from '@/actions/admin/archive';
-import { createStudentAction } from '@/actions/admin/students';
+import { createStudentAction, resetStudentPasswordAction } from '@/actions/admin/students';
 import PageHeader from '@/components/ui/PageHeader';
 import DataCard from '@/components/ui/DataCard';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -158,6 +159,27 @@ export default function StudentDirectoryClient({
   const [copiedStudentCreds, setCopiedStudentCreds] = useState(false);
   const [copiedParentCreds, setCopiedParentCreds] = useState(false);
   const [copiedAllCreds, setCopiedAllCreds] = useState(false);
+  const [showAddFormPassword, setShowAddFormPassword] = useState(false);
+  const [resettingPasswordForStudent, setResettingPasswordForStudent] = useState<string | null>(null);
+  const [resetCredentialsResult, setResetCredentialsResult] = useState<{
+    name: string;
+    admissionNumber: string;
+    phone: string | null;
+    email: string;
+    tempPassword: string;
+    role: string;
+  } | null>(null);
+  const [copiedResetCreds, setCopiedResetCreds] = useState(false);
+
+  const generateStudentTempPassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
+    let result = 'Sch#';
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    result += '!';
+    return result;
+  };
 
   const [addForm, setAddForm] = useState({
     admissionNumber: '',
@@ -166,6 +188,7 @@ export default function StudentDirectoryClient({
     lastName: '',
     email: '',
     phone: '',
+    password: 'Sch#' + Math.floor(1000 + Math.random() * 9000) + '!aB7',
     dateOfBirth: '',
     gender: 'MALE' as 'MALE' | 'FEMALE' | 'OTHER',
     bloodGroup: 'O+',
@@ -180,6 +203,26 @@ export default function StudentDirectoryClient({
     emergencyContact: '',
     admissionDate: new Date().toISOString().split('T')[0],
   });
+
+  const regenerateAddFormPassword = () => {
+    setAddForm((prev) => ({ ...prev, password: generateStudentTempPassword() }));
+  };
+
+  const handleResetStudentPassword = async (studentId: string) => {
+    setResettingPasswordForStudent(studentId);
+    try {
+      const res = await resetStudentPasswordAction(studentId);
+      if (res.success && res.credentials) {
+        setResetCredentialsResult(res.credentials);
+      } else {
+        alert(res.error || 'Failed to reset password');
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Error resetting password');
+    } finally {
+      setResettingPasswordForStudent(null);
+    }
+  };
 
   const handleCopyAllStudentCredentials = () => {
     if (!createdStudentCredentials) return;
@@ -227,6 +270,7 @@ Login URL: ${origin}/login`;
         lastName: addForm.lastName.trim(),
         email: addForm.email.trim() || undefined,
         phone: addForm.phone.trim() || undefined,
+        password: addForm.password.trim(),
         dateOfBirth: addForm.dateOfBirth,
         gender: addForm.gender,
         bloodGroup: addForm.bloodGroup,
@@ -783,7 +827,15 @@ Login URL: ${origin}/login`;
                     <button
                       type="button"
                       onClick={() => setActiveStudent(s)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-[#0B72E7] hover:bg-[#EBF4FE] transition-colors"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
+                      title="Portal Password & Credentials"
+                    >
+                      <KeyRound className="w-4 h-4 text-amber-600" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveStudent(s)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-[#0B72E7] hover:bg-[#EBF4FE] transition-colors cursor-pointer"
                       title="View Full Profile"
                     >
                       <Eye className="w-4 h-4" />
@@ -937,6 +989,71 @@ Login URL: ${origin}/login`;
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Account Access & Password Management Card */}
+            <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-slate-100 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5 text-[#0B72E7]" />
+                  Portal Access & Password
+                </h4>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#0B72E7] border border-blue-200/60">
+                  Role: STUDENT
+                </span>
+              </div>
+              <div className="text-xs space-y-1.5 text-slate-600 bg-white p-3 rounded-xl border border-slate-200/80">
+                <p>
+                  <span className="text-slate-400 font-medium">Login Mobile Number: </span>
+                  <strong className="text-slate-800 font-mono">{activeStudent.emergencyContact || 'Not linked'}</strong>
+                </p>
+                <p>
+                  <span className="text-slate-400 font-medium">Admission ID: </span>
+                  <strong className="text-slate-800 font-mono">{activeStudent.admissionNumber}</strong>
+                </p>
+                <p>
+                  <span className="text-slate-400 font-medium">Student Email: </span>
+                  <strong className="text-slate-800">{activeStudent.email}</strong>
+                </p>
+              </div>
+
+              {resetCredentialsResult && resetCredentialsResult.admissionNumber === activeStudent.admissionNumber ? (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-emerald-800 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> New Password Generated!
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(resetCredentialsResult.tempPassword);
+                        setCopiedResetCreds(true);
+                        setTimeout(() => setCopiedResetCreds(false), 2000);
+                      }}
+                      className="text-[11px] font-semibold text-emerald-700 hover:underline flex items-center gap-1"
+                    >
+                      {copiedResetCreds ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                      {copiedResetCreds ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
+                  <div className="font-mono font-bold text-slate-900 bg-white px-2.5 py-1.5 rounded-lg border border-emerald-200 text-sm select-all">
+                    {resetCredentialsResult.tempPassword}
+                  </div>
+                  <p className="text-[10px] text-emerald-700">
+                    Share this temporary password with the student. They can log in immediately using their mobile number.
+                  </p>
+                </div>
+              ) : (
+                <AdminButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleResetStudentPassword(activeStudent.id)}
+                  isLoading={resettingPasswordForStudent === activeStudent.id}
+                  icon={<KeyRound className="w-3.5 h-3.5 text-[#0B72E7]" />}
+                >
+                  Generate New Temporary Password
+                </AdminButton>
+              )}
             </div>
           </div>
         </AdminDrawer>
@@ -1302,6 +1419,54 @@ Login URL: ${origin}/login`;
                     className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Section 3: Account Access & Password */}
+            <div className="space-y-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#0B72E7] flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5" />
+                  3. Account Access & Password
+                </h4>
+                <button
+                  type="button"
+                  onClick={regenerateAddFormPassword}
+                  className="text-[11px] font-bold text-[#0B72E7] hover:underline flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  Regenerate Password
+                </button>
+              </div>
+
+              <div className="bg-[#F8FAFC] border border-slate-200/90 rounded-xl p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Auto-Generated Temporary Password <span className="text-red-500">*</span>
+                  </label>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Auto-Generated (Secure)
+                  </span>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showAddFormPassword ? 'text' : 'password'}
+                    required
+                    value={addForm.password}
+                    onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                    className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2.5 text-xs font-mono font-bold text-slate-800 focus:border-[#0B72E7] outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAddFormPassword(!showAddFormPassword)}
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                  >
+                    {showAddFormPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  The student can log in using their <strong>Mobile Number</strong> ({addForm.phone || 'Entered in Section 1'}) or <strong>Admission Number</strong> ({addForm.admissionNumber || 'ADM'}) and this password.
+                </p>
               </div>
             </div>
           </form>

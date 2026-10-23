@@ -237,3 +237,71 @@ export async function getTeacherFormDataAction() {
     return { success: false, error: 'Failed to load options', sections: [], subjects: [], departments: [] };
   }
 }
+
+/**
+ * Admin action to reset and auto-generate a new temporary password for a teacher.
+ */
+export async function resetTeacherPasswordAction(teacherProfileId: string) {
+  const guard = await requireAuthGuard([Role.ADMIN, Role.SUPER_ADMIN]);
+  if (!guard.success) {
+    return { success: false, error: guard.error };
+  }
+
+  const { context } = guard;
+  const tenantId = context.tenantId;
+
+  try {
+    const teacher = await prisma.teacherProfile.findFirst({
+      where: { id: teacherProfileId, tenantId },
+      include: { user: true },
+    });
+
+    if (!teacher || !teacher.user) {
+      return { success: false, error: 'Teacher record not found.' };
+    }
+
+    const newTempPassword = AuthService.generateSecureTemporaryPassword();
+    const newPasswordHash = await AuthService.hashPassword(newTempPassword);
+
+    await prisma.user.update({
+      where: { id: teacher.user.id },
+      data: {
+        passwordHash: newPasswordHash,
+        mustChangePassword: true,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        tenantId,
+        userId: context.userId,
+        action: 'PASSWORD_RESET',
+        entityType: 'User',
+        entityId: teacher.user.id,
+        newValues: {
+          role: 'TEACHER',
+          employeeId: teacher.employeeId,
+          resetBy: context.userId,
+        },
+      },
+    });
+
+    return {
+      success: true,
+      message: `Password reset successfully for ${teacher.user.firstName} ${teacher.user.lastName}.`,
+      credentials: {
+        name: `${teacher.user.firstName} ${teacher.user.lastName}`,
+        employeeId: teacher.employeeId,
+        phone: teacher.user.phone || teacher.alternatePhone,
+        email: teacher.user.email,
+        tempPassword: newTempPassword,
+        role: 'TEACHER',
+      },
+    };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Failed to reset password.';
+    return { success: false, error: msg };
+  }
+}

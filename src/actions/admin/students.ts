@@ -35,8 +35,11 @@ export async function createStudentAction(rawInput: CreateStudentInput) {
       return { success: false, error: `Admission number "${input.admissionNumber}" is already in use.` };
     }
 
-    // Generate unique, cryptographically strong temporary password (P1-3)
-    const tempPassword = AuthService.generateSecureTemporaryPassword();
+    // Generate unique, cryptographically strong temporary password (or use provided password)
+    const tempPassword =
+      input.password && input.password.trim().length >= 6
+        ? input.password.trim()
+        : AuthService.generateSecureTemporaryPassword();
     const defaultPasswordHash = await AuthService.hashPassword(tempPassword);
     const studentEmail = input.email || `std.${input.admissionNumber.toLowerCase()}@school.edu.in`;
 
@@ -393,6 +396,74 @@ export async function rolloverAcademicYearAction(rawInput: RolloverAcademicYearI
     };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Failed to provision academic year.';
+    return { success: false, error: msg };
+  }
+}
+
+/**
+ * Admin action to reset and auto-generate a new temporary password for a student.
+ */
+export async function resetStudentPasswordAction(studentProfileId: string) {
+  const guard = await requireAuthGuard([Role.ADMIN, Role.SUPER_ADMIN]);
+  if (!guard.success) {
+    return { success: false, error: guard.error };
+  }
+
+  const { context } = guard;
+  const tenantId = context.tenantId;
+
+  try {
+    const student = await prisma.studentProfile.findFirst({
+      where: { id: studentProfileId, tenantId },
+      include: { user: true },
+    });
+
+    if (!student || !student.user) {
+      return { success: false, error: 'Student record not found.' };
+    }
+
+    const newTempPassword = AuthService.generateSecureTemporaryPassword();
+    const newPasswordHash = await AuthService.hashPassword(newTempPassword);
+
+    await prisma.user.update({
+      where: { id: student.user.id },
+      data: {
+        passwordHash: newPasswordHash,
+        mustChangePassword: true,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        tenantId,
+        userId: context.userId,
+        action: 'PASSWORD_RESET',
+        entityType: 'User',
+        entityId: student.user.id,
+        newValues: {
+          role: 'STUDENT',
+          admissionNumber: student.admissionNumber,
+          resetBy: context.userId,
+        },
+      },
+    });
+
+    return {
+      success: true,
+      message: `Password reset successfully for ${student.user.firstName} ${student.user.lastName}.`,
+      credentials: {
+        name: `${student.user.firstName} ${student.user.lastName}`,
+        admissionNumber: student.admissionNumber,
+        phone: student.user.phone || student.emergencyContact,
+        email: student.user.email,
+        tempPassword: newTempPassword,
+        role: 'STUDENT',
+      },
+    };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Failed to reset password.';
     return { success: false, error: msg };
   }
 }
