@@ -31,84 +31,106 @@ export default async function AdminStudentsPage({ searchParams }: PageProps) {
   const [totalCount, studentsRaw, sectionsRaw] = await getCachedAdminStudents(tenantId, page, pageSize);
 
   const classList = Array.from(
-    new Set(sectionsRaw.map((s) => `${s.classGrade.name}-${s.name}`))
+    new Set(
+      (sectionsRaw || [])
+        .map((s) => `${s.classGrade?.name || 'Class'}-${s.name || 'A'}`)
+        .filter(Boolean)
+    )
   );
 
-  const students: StudentItem[] = studentsRaw.map((s) => {
-    // Attendance rate
-    const totalAtt = Math.max(s.attendances.length, 1);
-    const presentCount = s.attendances.filter(
-      (a) => a.status === 'PRESENT' || a.status === 'LATE'
-    ).length;
-    const attendancePercentage =
-      s.attendances.length > 0
-        ? Math.round((presentCount / totalAtt) * 1000) / 10
-        : 94.8;
+  const students: StudentItem[] = (studentsRaw || [])
+    .filter((s) => Boolean(s && s.user))
+    .map((s) => {
+      // Attendance rate
+      const attendances = s.attendances || [];
+      const totalAtt = Math.max(attendances.length, 1);
+      const presentCount = attendances.filter(
+        (a) => a.status === 'PRESENT' || a.status === 'LATE'
+      ).length;
+      const attendancePercentage =
+        attendances.length > 0
+          ? Math.round((presentCount / totalAtt) * 1000) / 10
+          : 94.8;
 
-    // Fee balance
-    const totalInvoiced = s.feeInvoices.reduce(
-      (sum, inv) => sum + Number(inv.netAmount),
-      0
-    );
-    const totalPaid = s.feeInvoices.reduce(
-      (sum, inv) => sum + Number(inv.paidAmount),
-      0
-    );
-    const pendingAmount = s.feeInvoices.reduce(
-      (sum, inv) => sum + Number(inv.balanceAmount),
-      0
-    );
-    const feeStatusType: 'PAID' | 'PENDING' | 'OVERDUE' =
-      pendingAmount === 0 ? 'PAID' : 'PENDING';
+      // Fee balance
+      const invoices = s.feeInvoices || [];
+      const totalInvoiced = invoices.reduce(
+        (sum, inv) => sum + Number(inv.netAmount || 0),
+        0
+      );
+      const totalPaid = invoices.reduce(
+        (sum, inv) => sum + Number(inv.paidAmount || 0),
+        0
+      );
+      const pendingAmount = invoices.reduce(
+        (sum, inv) => sum + Number(inv.balanceAmount || 0),
+        0
+      );
+      const feeStatusType: 'PAID' | 'PENDING' | 'OVERDUE' =
+        pendingAmount === 0 ? 'PAID' : 'PENDING';
 
-    // Primary parent
-    const primaryParentLink = s.parents[0];
-    const parent = primaryParentLink?.parent
-      ? {
-          name: `${primaryParentLink.parent.user.firstName} ${primaryParentLink.parent.user.lastName}`,
-          relationship: primaryParentLink.parent.relationship,
-          phone: primaryParentLink.parent.user.phone || '+91 98765 43210',
-          email: primaryParentLink.parent.user.email,
+      // Primary parent
+      const primaryParentLink = s.parents?.[0];
+      const parentUser = primaryParentLink?.parent?.user;
+      const parent = parentUser
+        ? {
+            name: `${parentUser.firstName || ''} ${parentUser.lastName || ''}`.trim() || 'Parent',
+            relationship: primaryParentLink?.parent?.relationship || 'Guardian',
+            phone: parentUser.phone || '+91 98765 43210',
+            email: parentUser.email || '',
+          }
+        : null;
+
+      let formattedDob = 'N/A';
+      try {
+        if (s.dateOfBirth) {
+          const d = new Date(s.dateOfBirth);
+          if (!isNaN(d.getTime())) {
+            formattedDob = d.toLocaleDateString('en-IN', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+            });
+          }
         }
-      : null;
+      } catch {}
 
-    return {
-      id: s.id,
-      name: `${s.user.firstName} ${s.user.lastName}`,
-      firstName: s.user.firstName,
-      lastName: s.user.lastName,
-      email: s.user.email,
-      admissionNumber: s.admissionNumber,
-      rollNumber: s.rollNumber,
-      className: s.section.classGrade.name,
-      sectionName: s.section.name,
-      classSection: `${s.section.classGrade.name}-${s.section.name}`,
-      gender: s.gender,
-      dateOfBirth: new Date(s.dateOfBirth).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      }),
-      bloodGroup: s.bloodGroup,
-      address: s.address,
-      emergencyContact: s.emergencyContact,
-      attendancePercentage,
-      isActive: s.user.isActive,
-      deletedAt: (s.user as any).deletedAt ? new Date((s.user as any).deletedAt).toISOString() : null,
-      sectionId: s.sectionId,
-      feeStatus: {
-        totalInvoiced,
-        totalPaid,
-        pendingAmount,
-        status: feeStatusType,
-      },
-      parent,
-    };
-  });
+      const gradeName = s.section?.classGrade?.name || 'Class';
+      const secName = s.section?.name || 'A';
 
-  const sectionOptions = sectionsRaw.map((s) => ({
+      return {
+        id: s.id,
+        name: `${s.user?.firstName || ''} ${s.user?.lastName || ''}`.trim() || 'Student',
+        firstName: s.user?.firstName || '',
+        lastName: s.user?.lastName || '',
+        email: s.user?.email || '',
+        admissionNumber: s.admissionNumber || 'N/A',
+        rollNumber: s.rollNumber ?? null,
+        className: gradeName,
+        sectionName: secName,
+        classSection: `${gradeName}-${secName}`,
+        gender: s.gender || 'OTHER',
+        dateOfBirth: formattedDob,
+        bloodGroup: s.bloodGroup,
+        address: s.address || '',
+        emergencyContact: s.emergencyContact || '',
+        attendancePercentage,
+        isActive: s.user?.isActive ?? true,
+        deletedAt: (s.user as any)?.deletedAt ? new Date((s.user as any).deletedAt).toISOString() : null,
+        sectionId: s.sectionId || '',
+        feeStatus: {
+          totalInvoiced,
+          totalPaid,
+          pendingAmount,
+          status: feeStatusType,
+        },
+        parent,
+      };
+    });
+
+  const sectionOptions = (sectionsRaw || []).map((s) => ({
     id: s.id,
-    name: `${s.classGrade.name}-${s.name}`,
+    name: `${s.classGrade?.name || 'Class'}-${s.name || 'A'}`,
   }));
 
   return (
@@ -118,7 +140,7 @@ export default async function AdminStudentsPage({ searchParams }: PageProps) {
       sections={sectionOptions}
       pagination={{
         currentPage: page,
-        totalPages: Math.ceil(totalCount / pageSize),
+        totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
         totalCount,
         pageSize,
       }}
