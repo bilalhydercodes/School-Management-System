@@ -28,6 +28,7 @@ import {
   BookOpen,
   ArrowRight,
   RotateCcw,
+  GripVertical,
 } from 'lucide-react';
 import AIMessageContent from './AIMessageContent';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
@@ -130,6 +131,164 @@ export default function AIChat({
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // ── Movable Alpha Copilot Position & Dragging State ────────────────────────
+  const [btnPos, setBtnPos] = useState<{ x: number; y: number } | null>(null);
+  const [isBtnDragging, setIsBtnDragging] = useState(false);
+  const btnDragRef = useRef<{
+    startX: number;
+    startY: number;
+    initialX: number;
+    initialY: number;
+    moved: boolean;
+  } | null>(null);
+
+  const [panelPos, setPanelPos] = useState<{ x: number; y: number } | null>(null);
+  const panelDragRef = useRef<{
+    startX: number;
+    startY: number;
+    initialX: number;
+    initialY: number;
+    moved: boolean;
+  } | null>(null);
+
+  // Restore saved positions from localStorage on client mount
+  useEffect(() => {
+    try {
+      const savedBtn = localStorage.getItem('alpha_copilot_btn_pos');
+      if (savedBtn) {
+        const parsed = JSON.parse(savedBtn);
+        if (typeof parsed.x === 'number' && typeof parsed.y === 'number') {
+          const maxX = window.innerWidth - 180;
+          const maxY = window.innerHeight - 60;
+          setBtnPos({
+            x: Math.max(10, Math.min(Math.max(10, maxX), parsed.x)),
+            y: Math.max(10, Math.min(Math.max(10, maxY), parsed.y)),
+          });
+        }
+      }
+
+      const savedPanel = localStorage.getItem('alpha_copilot_panel_pos');
+      if (savedPanel) {
+        const parsed = JSON.parse(savedPanel);
+        if (typeof parsed.x === 'number' && typeof parsed.y === 'number') {
+          const maxX = window.innerWidth - 460;
+          const maxY = window.innerHeight - 650;
+          setPanelPos({
+            x: Math.max(10, Math.min(Math.max(10, maxX), parsed.x)),
+            y: Math.max(10, Math.min(Math.max(10, maxY), parsed.y)),
+          });
+        }
+      }
+    } catch {}
+  }, []);
+
+  // Button Pointer Down Handler
+  const handleBtnPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.button !== 0) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    btnDragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: rect.left,
+      initialY: rect.top,
+      moved: false,
+    };
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {}
+  };
+
+  const handleBtnPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!btnDragRef.current) return;
+    const deltaX = e.clientX - btnDragRef.current.startX;
+    const deltaY = e.clientY - btnDragRef.current.startY;
+    if (!btnDragRef.current.moved && Math.hypot(deltaX, deltaY) > 5) {
+      btnDragRef.current.moved = true;
+      setIsBtnDragging(true);
+    }
+    if (btnDragRef.current.moved) {
+      const width = e.currentTarget.offsetWidth || 160;
+      const height = e.currentTarget.offsetHeight || 50;
+      const maxX = window.innerWidth - width - 10;
+      const maxY = window.innerHeight - height - 10;
+      const newX = Math.max(10, Math.min(maxX, btnDragRef.current.initialX + deltaX));
+      const newY = Math.max(10, Math.min(maxY, btnDragRef.current.initialY + deltaY));
+      setBtnPos({ x: newX, y: newY });
+    }
+  };
+
+  const handleBtnPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!btnDragRef.current) return;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
+    const wasMoved = btnDragRef.current.moved;
+    btnDragRef.current = null;
+    setIsBtnDragging(false);
+
+    if (wasMoved) {
+      if (btnPos) {
+        try {
+          localStorage.setItem('alpha_copilot_btn_pos', JSON.stringify(btnPos));
+        } catch {}
+      }
+    } else {
+      setIsOpen(true);
+    }
+  };
+
+  // Panel Header Pointer Drag Handler
+  const handlePanelPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    if ((e.target as HTMLElement).closest('button')) return;
+    const panelEl = (e.currentTarget.closest('[role="dialog"]') as HTMLElement);
+    if (!panelEl) return;
+    const rect = panelEl.getBoundingClientRect();
+    panelDragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: rect.left,
+      initialY: rect.top,
+      moved: false,
+    };
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {}
+  };
+
+  const handlePanelPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!panelDragRef.current) return;
+    const deltaX = e.clientX - panelDragRef.current.startX;
+    const deltaY = e.clientY - panelDragRef.current.startY;
+    if (!panelDragRef.current.moved && Math.hypot(deltaX, deltaY) > 5) {
+      panelDragRef.current.moved = true;
+    }
+    if (panelDragRef.current.moved) {
+      const panelEl = (e.currentTarget.closest('[role="dialog"]') as HTMLElement);
+      const width = panelEl?.offsetWidth || 450;
+      const height = panelEl?.offsetHeight || 640;
+      const maxX = window.innerWidth - width - 10;
+      const maxY = window.innerHeight - height - 10;
+      const newX = Math.max(10, Math.min(Math.max(10, maxX), panelDragRef.current.initialX + deltaX));
+      const newY = Math.max(10, Math.min(Math.max(10, maxY), panelDragRef.current.initialY + deltaY));
+      setPanelPos({ x: newX, y: newY });
+    }
+  };
+
+  const handlePanelPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!panelDragRef.current) return;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
+    const wasMoved = panelDragRef.current.moved;
+    panelDragRef.current = null;
+    if (wasMoved && panelPos) {
+      try {
+        localStorage.setItem('alpha_copilot_panel_pos', JSON.stringify(panelPos));
+      } catch {}
+    }
+  };
 
   // Auto-scroll to bottom
   const scrollToBottom = useCallback(() => {
@@ -433,15 +592,34 @@ export default function AIChat({
 
   return (
     <>
-      {/* ─── Floating Trigger Button (Bottom-Right) ───────────────────── */}
+      {/* ─── Floating Trigger Button (Movable Anywhere) ───────────────────── */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
-          aria-label="Open Alpha AI Copilot Assistant"
-          className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-[#0B72E7] to-[#1D4ED8] hover:from-[#095ec2] hover:to-[#1e40af] text-white rounded-full shadow-[0_8px_30px_rgb(11,114,231,0.35)] hover:shadow-[0_12px_36px_rgb(11,114,231,0.5)] transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] group"
+          onPointerDown={handleBtnPointerDown}
+          onPointerMove={handleBtnPointerMove}
+          onPointerUp={handleBtnPointerUp}
+          aria-label="Open Alpha AI Copilot Assistant (Drag to move anywhere)"
+          title="Drag to reposition anywhere, click to open"
+          style={
+            btnPos
+              ? {
+                  left: `${btnPos.x}px`,
+                  top: `${btnPos.y}px`,
+                  bottom: 'auto',
+                  right: 'auto',
+                  touchAction: 'none',
+                }
+              : {
+                  touchAction: 'none',
+                }
+          }
+          className={`fixed ${!btnPos ? 'bottom-5 right-5' : ''} z-50 flex items-center gap-2 px-3.5 py-2.5 bg-gradient-to-r from-[#0B72E7] to-[#1D4ED8] hover:from-[#095ec2] hover:to-[#1e40af] text-white rounded-full shadow-[0_8px_30px_rgb(11,114,231,0.35)] hover:shadow-[0_12px_36px_rgb(11,114,231,0.5)] transition-shadow duration-200 cursor-grab active:cursor-grabbing select-none group ${
+            isBtnDragging ? 'scale-105 shadow-2xl opacity-95 ring-2 ring-white/50' : 'transform hover:scale-[1.03]'
+          }`}
         >
+          <GripVertical className="w-3.5 h-3.5 text-blue-200/70 group-hover:text-white transition-colors" />
           <div className="relative flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-amber-300 animate-spin-slow group-hover:rotate-12 transition-transform duration-300" />
+            <Sparkles className="w-4.5 h-4.5 text-amber-300 animate-spin-slow group-hover:rotate-12 transition-transform duration-300" />
             <span className="absolute -top-1 -right-1 flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-300 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400" />
@@ -451,18 +629,36 @@ export default function AIChat({
         </button>
       )}
 
-      {/* ─── Expandable Chat Modal Panel ──────────────────────────────── */}
+      {/* ─── Expandable Chat Modal Panel (Movable Anywhere) ───────────────── */}
       {isOpen && (
         <div
           role="dialog"
           aria-label="Alpha AI Copilot Chat Panel"
-          className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[450px] max-w-full sm:max-w-[450px] h-[100dvh] sm:h-[640px] max-h-[100dvh] sm:max-h-[calc(100vh-48px)] bg-white/95 backdrop-blur-md rounded-none sm:rounded-3xl shadow-[0_20px_60px_-15px_rgba(15,23,42,0.35)] border border-slate-200/90 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300"
+          style={
+            panelPos
+              ? {
+                  left: `${panelPos.x}px`,
+                  top: `${panelPos.y}px`,
+                  bottom: 'auto',
+                  right: 'auto',
+                }
+              : undefined
+          }
+          className={`fixed ${!panelPos ? 'bottom-0 right-0 sm:bottom-6 sm:right-6' : ''} z-50 w-full sm:w-[450px] max-w-full sm:max-w-[450px] h-[100dvh] sm:h-[640px] max-h-[100dvh] sm:max-h-[calc(100vh-48px)] bg-white/95 backdrop-blur-md rounded-none sm:rounded-3xl shadow-[0_20px_60px_-15px_rgba(15,23,42,0.35)] border border-slate-200/90 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300`}
         >
-          {/* Header */}
-          <div className="px-4 py-3 bg-gradient-to-r from-[#0B72E7] via-[#1E40AF] to-[#0B72E7] text-white flex items-center justify-between shadow-sm select-none">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-amber-300 shadow-inner">
-                <Sparkles className="w-5 h-5" />
+          {/* Header (Draggable) */}
+          <div
+            onPointerDown={handlePanelPointerDown}
+            onPointerMove={handlePanelPointerMove}
+            onPointerUp={handlePanelPointerUp}
+            style={{ touchAction: 'none' }}
+            title="Drag header to move chat window anywhere"
+            className="px-4 py-3 bg-gradient-to-r from-[#0B72E7] via-[#1E40AF] to-[#0B72E7] text-white flex items-center justify-between shadow-sm select-none cursor-grab active:cursor-grabbing"
+          >
+            <div className="flex items-center gap-2">
+              <GripVertical className="w-3.5 h-3.5 text-blue-200/60" />
+              <div className="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-amber-300 shadow-inner">
+                <Sparkles className="w-4.5 h-4.5" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
