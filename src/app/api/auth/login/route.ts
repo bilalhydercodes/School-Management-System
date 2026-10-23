@@ -24,9 +24,26 @@ export async function POST(request: Request) {
 
     const result = await AuthService.login({ email, password }, tenantId || null, { ipAddress, userAgent });
 
-    if (!result.success || !result.token || !result.user) {
+    if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error || 'Invalid email or password.' },
+        { status: 401 }
+      );
+    }
+
+    if (result.requiresOtp && result.challengeId) {
+      return NextResponse.json({
+        success: true,
+        requiresOtp: true,
+        challengeId: result.challengeId,
+        emailHint: result.emailHint,
+        role: result.role,
+      });
+    }
+
+    if (!result.token || !result.user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication failed to issue session.' },
         { status: 401 }
       );
     }
