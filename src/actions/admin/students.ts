@@ -59,7 +59,7 @@ export async function createStudentAction(rawInput: CreateStudentInput) {
             lastName: input.lastName,
             role: 'STUDENT',
             passwordHash: defaultPasswordHash,
-            mustChangePassword: true,
+            mustChangePassword: false,
           },
         });
       }
@@ -107,7 +107,7 @@ export async function createStudentAction(rawInput: CreateStudentInput) {
               lastName: parentName.split(' ').slice(1).join(' ') || 'Parent',
               role: 'PARENT',
               passwordHash: parentHash,
-              mustChangePassword: true,
+              mustChangePassword: false,
             },
           });
         }
@@ -429,7 +429,7 @@ export async function resetStudentPasswordAction(studentProfileId: string) {
       where: { id: student.user.id },
       data: {
         passwordHash: newPasswordHash,
-        mustChangePassword: true,
+        mustChangePassword: false,
         failedLoginAttempts: 0,
         lockedUntil: null,
       },

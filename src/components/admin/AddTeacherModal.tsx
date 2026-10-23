@@ -117,7 +117,7 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
       });
       // Suggest employee id and password
       const randNum = Math.floor(100 + Math.random() * 900);
-      const generatedTempPass = `Teach@${Math.floor(1000 + Math.random() * 9000)}!`;
+      const generatedTempPass = 'alphaeduhub@12';
       setFormData((prev) => ({
         ...prev,
         employeeId: prev.employeeId || `FAC-2026-${randNum}`,
@@ -139,13 +139,7 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
   };
 
   const generatePassword = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
-    let result = 'Teach@';
-    for (let i = 0; i < 6; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    result += '!';
-    setFormData((prev) => ({ ...prev, temporaryPassword: result }));
+    setFormData((prev) => ({ ...prev, temporaryPassword: 'alphaeduhub@12' }));
   };
 
   // Qualifications helpers

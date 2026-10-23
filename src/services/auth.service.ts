@@ -54,18 +54,11 @@ export class AuthService {
   }
 
   /**
-   * Generates a cryptographically strong, unique temporary password for user onboarding.
-   * e.g. 'Temp#a9f3b2!xK8#4' (contains uppercase, lowercase, numbers, and symbols).
+   * Generates default temporary password for user onboarding.
+   * Default password across system: 'alphaeduhub@12'
    */
   static generateSecureTemporaryPassword(): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*';
-    const bytes = crypto.randomBytes(8);
-    let randomPart = '';
-    for (let i = 0; i < 8; i++) {
-      randomPart += chars[bytes[i] % chars.length];
-    }
-    const hex = crypto.randomBytes(3).toString('hex');
-    return `Sch#${hex}!${randomPart}`;
+    return 'alphaeduhub@12';
   }
 
   /**

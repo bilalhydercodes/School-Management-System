@@ -193,7 +193,7 @@ export async function enrollStudentFromApplication(
         lastName: application.studentLastName,
         role: 'STUDENT',
         isActive: true,
-        mustChangePassword: true,
+        mustChangePassword: false,
       },
     });
 
@@ -234,7 +234,7 @@ export async function enrollStudentFromApplication(
           lastName: '',
           role: 'PARENT',
           isActive: true,
-          mustChangePassword: true,
+          mustChangePassword: false,
         },
       });
     }
