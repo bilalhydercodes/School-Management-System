@@ -87,7 +87,7 @@ const navSections: NavSection[] = [
     items: [
       { name: 'Notices & Circulars', href: '/admin/notices', icon: MessageSquare },
       { name: 'Notifications (SMS/WhatsApp)', href: '/admin/notifications', icon: Smartphone },
-      { name: 'Appointments', href: '/admin/events#appointments', icon: CalendarCheck },
+      { name: 'Appointments', href: '/admin/appointments', icon: CalendarCheck },
     ],
   },
   {

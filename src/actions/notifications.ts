@@ -210,7 +210,7 @@ export async function bookAuthorityAppointmentAction(rawInput: BookAppointmentIn
       title,
       body,
       type: NotificationType.GENERAL,
-      actionUrl: '/admin/emergency',
+      actionUrl: '/admin/appointments',
       metadata: {
         appointmentWith: input.authorityName,
         contactId: input.authorityContactId,
