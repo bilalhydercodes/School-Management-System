@@ -61,14 +61,14 @@ export default async function PortalPage({ searchParams }: PageProps) {
       const activeLink = matchedLink || parentLinks[0];
       targetStudent = activeLink.student;
 
-      const childrenOptions: ChildOption[] = parentLinks.map((link) => ({
-        id: link.student.id,
-        name: `${link.student.user.firstName} ${link.student.user.lastName}`,
-        rollNumber: link.student.rollNumber,
-        admissionNumber: link.student.admissionNumber,
-        className: link.student.section.classGrade.name,
-        sectionName: link.student.section.name,
-        isPrimary: link.isPrimary,
+      const childrenOptions: ChildOption[] = (parentLinks || []).map((link) => ({
+        id: link.student?.id || '',
+        name: `${link.student?.user?.firstName || ''} ${link.student?.user?.lastName || ''}`.trim() || 'Student',
+        rollNumber: link.student?.rollNumber ?? null,
+        admissionNumber: link.student?.admissionNumber || '',
+        className: link.student?.section?.classGrade?.name || 'Class',
+        sectionName: link.student?.section?.name || 'A',
+        isPrimary: Boolean(link.isPrimary),
       }));
 
       parentContext = {

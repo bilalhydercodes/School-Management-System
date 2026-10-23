@@ -43,13 +43,16 @@ export default async function AdminDashboardPage() {
   todayStart.setHours(0, 0, 0, 0);
 
   // Attendance metrics calculation (Today's actual attendance)
-  const submittedSectionIds = new Set(todayAttendanceRecords.map((r) => r.sectionId));
-  const unsubmittedSections = sections.filter((s) => !submittedSectionIds.has(s.id));
-  const totalSectionsCount = sections.length;
+  const attendanceRecords = todayAttendanceRecords || [];
+  const sectionsList = sections || [];
+
+  const submittedSectionIds = new Set(attendanceRecords.map((r) => r.sectionId));
+  const unsubmittedSections = sectionsList.filter((s) => !submittedSectionIds.has(s.id));
+  const totalSectionsCount = sectionsList.length;
   const submittedSectionsCount = totalSectionsCount - unsubmittedSections.length;
 
-  const todayPresentCount = todayAttendanceRecords.filter((r) => r.status === 'PRESENT').length;
-  const todayTotalAttendance = todayAttendanceRecords.length;
+  const todayPresentCount = attendanceRecords.filter((r) => r.status === 'PRESENT').length;
+  const todayTotalAttendance = attendanceRecords.length;
   // When today has no attendance records yet, default to 100% (no data = full day ahead)
   const todayAttendanceRate =
     todayTotalAttendance > 0
@@ -57,15 +60,16 @@ export default async function AdminDashboardPage() {
       : 100;
 
   // Fee metrics calculation via DB aggregates
-  const totalFeeInvoiced = Number(feeAggregates._sum.netAmount || 0);
-  const totalFeePaid = Number(feeAggregates._sum.paidAmount || 0);
-  const totalFeePending = Number(feeAggregates._sum.balanceAmount || 0);
+  const totalFeeInvoiced = Number(feeAggregates?._sum?.netAmount || 0);
+  const totalFeePaid = Number(feeAggregates?._sum?.paidAmount || 0);
+  const totalFeePending = Number(feeAggregates?._sum?.balanceAmount || 0);
   const collectionPercentage =
     totalFeeInvoiced > 0 ? Math.round((totalFeePaid / totalFeeInvoiced) * 100) : 0;
 
-  const totalOverdueAmount = Number(overdueFeeAggregates._sum.balanceAmount || 0);
+  const totalOverdueAmount = Number(overdueFeeAggregates?._sum?.balanceAmount || 0);
+  const overdueCount = Number(overdueFeeAggregates?._count?._all || 0);
 
-  const formattedNotices = notices.map((n) => ({
+  const formattedNotices = (notices || []).map((n) => ({
     id: n.id,
     title: n.title,
     content: n.content,
@@ -81,7 +85,7 @@ export default async function AdminDashboardPage() {
   }));
 
   // Filter out routine USER_LOGIN spam from primary audit view (already filtered at DB level)
-  const logsToRender = auditLogs.length > 0 ? auditLogs : [];
+  const logsToRender = auditLogs?.length > 0 ? auditLogs : [];
 
   const formattedAuditLogs = logsToRender.map((log) => {
     let cleanAction = log.action;
@@ -106,21 +110,21 @@ export default async function AdminDashboardPage() {
           })
         : 'Just now',
       ipAddress: safeIp,
-      userName: log.user ? `${log.user.firstName} ${log.user.lastName}` : 'Administrator',
+      userName: log.user ? `${log.user.firstName || ''} ${log.user.lastName || ''}`.trim() : 'Administrator',
     };
   });
 
-  const formattedSections = sections.map((sec) => {
+  const formattedSections = sectionsList.map((sec) => {
     const isSubmittedToday = submittedSectionIds.has(sec.id);
 
     return {
       id: sec.id,
-      className: sec.classGrade.name,
-      sectionName: sec.name,
+      className: sec.classGrade?.name || 'Class',
+      sectionName: sec.name || 'A',
       // Use _count.students (aggregate) instead of sec.students.length
       studentCount: (sec as any)._count?.students ?? 0,
       classTeacherName: sec.classTeacher?.user
-        ? `${sec.classTeacher.user.firstName} ${sec.classTeacher.user.lastName}`
+        ? `${sec.classTeacher.user.firstName || ''} ${sec.classTeacher.user.lastName || ''}`.trim()
         : 'Unassigned',
       isSubmittedToday,
     };
@@ -131,8 +135,8 @@ export default async function AdminDashboardPage() {
       schoolName={authContext.tenant?.name || 'Alpha Edu Hub'}
       board={authContext.tenant?.board || 'CBSE'}
       metrics={{
-        totalStudents,
-        totalTeachers,
+        totalStudents: totalStudents || 0,
+        totalTeachers: totalTeachers || 0,
         attendanceRate: todayAttendanceRate,
         submittedSectionsCount,
         totalSectionsCount,
@@ -141,15 +145,15 @@ export default async function AdminDashboardPage() {
         totalFeePending,
         totalFeeInvoiced,
         totalOverdueAmount,
-        overdueCount: overdueFeeAggregates._count._all || 0,
+        overdueCount,
         collectionPercentage,
-        totalNotices: notices.length,
-        activeSubstitutions,
-        pendingAdmissionsCount,
+        totalNotices: (notices || []).length,
+        activeSubstitutions: activeSubstitutions || 0,
+        pendingAdmissionsCount: pendingAdmissionsCount || 0,
       }}
       unsubmittedSections={unsubmittedSections.map((s) => ({
         id: s.id,
-        name: `${s.classGrade.name}-${s.name}`,
+        name: `${s.classGrade?.name || 'Class'}-${s.name || 'A'}`,
       }))}
       recentNotices={formattedNotices}
       recentAuditLogs={formattedAuditLogs}
