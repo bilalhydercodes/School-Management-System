@@ -20,6 +20,8 @@ import {
   Mail,
   Eye,
   EyeOff,
+  Copy,
+  Check,
 } from 'lucide-react';
 import AdminModal from './ui/AdminModal';
 import AdminButton from './ui/AdminButton';
@@ -47,6 +49,16 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [createdCredentials, setCreatedCredentials] = useState<{
+    name: string;
+    employeeId: string;
+    phone: string;
+    email: string;
+    tempPassword: string;
+    role: string;
+  } | null>(null);
+  const [copiedAll, setCopiedAll] = useState(false);
+  const [copiedPass, setCopiedPass] = useState(false);
 
   // Options from server
   const [departments, setDepartments] = useState<string[]>([]);
@@ -250,12 +262,16 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
       }
     } else if (currentStep === 6) {
       if (!formData.loginEmail.trim() || !formData.loginEmail.includes('@')) {
-        setErrorMessage('Valid Login Email is required');
-        return false;
+        // Fallback to contact email or phone handle
+        if (formData.email.trim() && formData.email.includes('@')) {
+          setFormData((prev) => ({ ...prev, loginEmail: prev.email.trim() }));
+        } else {
+          setErrorMessage('Valid Contact/Login Email is required');
+          return false;
+        }
       }
-      if (!formData.temporaryPassword || formData.temporaryPassword.length < 8) {
-        setErrorMessage('Temporary Password must be at least 8 characters');
-        return false;
+      if (!formData.temporaryPassword || formData.temporaryPassword.length < 6) {
+        generatePassword();
       }
     }
     return true;
@@ -272,6 +288,35 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
+  const handleCopyAll = () => {
+    if (!createdCredentials) return;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://alphaeduhub.in';
+    const text = `Alpha Edu Hub — Teacher Portal Credentials
+Name: ${createdCredentials.name}
+Role: ${createdCredentials.role}
+Employee ID: ${createdCredentials.employeeId}
+Login Mobile Number: ${createdCredentials.phone}
+Login Email: ${createdCredentials.email}
+Temporary Password: ${createdCredentials.tempPassword}
+Login Portal: ${origin}/login`;
+    navigator.clipboard.writeText(text);
+    setCopiedAll(true);
+    setTimeout(() => setCopiedAll(false), 2500);
+  };
+
+  const handleCopyPass = () => {
+    if (!createdCredentials) return;
+    navigator.clipboard.writeText(createdCredentials.tempPassword);
+    setCopiedPass(true);
+    setTimeout(() => setCopiedPass(false), 2500);
+  };
+
+  const handleFinish = () => {
+    setCreatedCredentials(null);
+    onClose();
+    if (onSuccess) onSuccess();
+  };
+
   const handleSubmit = async () => {
     if (!validateCurrentStep()) return;
 
@@ -282,11 +327,14 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
     try {
       const res = await createTeacherAction(formData);
       if (res.success) {
-        setSuccessMessage(res.message || 'Teacher successfully registered.');
-        setTimeout(() => {
-          onClose();
-          if (onSuccess) onSuccess();
-        }, 1200);
+        if (res.credentials) {
+          setCreatedCredentials(res.credentials);
+        } else {
+          setSuccessMessage(res.message || 'Teacher successfully registered.');
+          setTimeout(() => {
+            handleFinish();
+          }, 1200);
+        }
       } else {
         setErrorMessage(res.error || 'Failed to create teacher');
       }
@@ -300,51 +348,159 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
   return (
     <AdminModal
       isOpen={isOpen}
-      onClose={onClose}
-      title="Add New Faculty Member"
-      description="Register complete teacher profile, assign academic subjects, and provision secure portal login."
+      onClose={createdCredentials ? handleFinish : onClose}
+      title={createdCredentials ? 'Faculty Account Created & Credentials Generated' : 'Add New Faculty Member'}
+      description={
+        createdCredentials
+          ? 'Secure temporary credentials have been generated. The teacher can log in immediately using their Mobile Number.'
+          : 'Register complete teacher profile, assign academic subjects, and provision secure portal login.'
+      }
       maxWidth="4xl"
       footer={
-        <div className="flex items-center justify-between w-full">
-          <div>
-            {currentStep > 1 && (
+        createdCredentials ? (
+          <div className="flex items-center justify-between w-full">
+            <span className="text-xs text-slate-500 font-medium">
+              Copy credentials to share with the faculty member via SMS/WhatsApp.
+            </span>
+            <div className="flex items-center gap-2.5">
               <AdminButton
                 variant="secondary"
-                onClick={handleBack}
-                disabled={isSubmitting}
-                icon={<ArrowLeft className="w-3.5 h-3.5" />}
+                onClick={handleCopyAll}
+                icon={copiedAll ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
               >
-                Back
+                {copiedAll ? 'Credentials Copied!' : 'Copy Credentials'}
               </AdminButton>
-            )}
-          </div>
-          <div className="flex items-center gap-2.5">
-            <AdminButton variant="secondary" onClick={onClose} disabled={isSubmitting}>
-              Cancel
-            </AdminButton>
-            {currentStep < 6 ? (
               <AdminButton
                 variant="primary"
-                onClick={handleNext}
-                icon={<ArrowRight className="w-3.5 h-3.5" />}
-              >
-                Continue
-              </AdminButton>
-            ) : (
-              <AdminButton
-                variant="primary"
-                onClick={handleSubmit}
-                isLoading={isSubmitting}
+                onClick={handleFinish}
                 icon={<CheckCircle2 className="w-3.5 h-3.5" />}
               >
-                Create Teacher Account
+                Done
               </AdminButton>
-            )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center justify-between w-full">
+            <div>
+              {currentStep > 1 && (
+                <AdminButton
+                  variant="secondary"
+                  onClick={handleBack}
+                  disabled={isSubmitting}
+                  icon={<ArrowLeft className="w-3.5 h-3.5" />}
+                >
+                  Back
+                </AdminButton>
+              )}
+            </div>
+            <div className="flex items-center gap-2.5">
+              <AdminButton variant="secondary" onClick={onClose} disabled={isSubmitting}>
+                Cancel
+              </AdminButton>
+              {currentStep < 6 ? (
+                <AdminButton
+                  variant="primary"
+                  onClick={handleNext}
+                  icon={<ArrowRight className="w-3.5 h-3.5" />}
+                >
+                  Continue
+                </AdminButton>
+              ) : (
+                <AdminButton
+                  variant="primary"
+                  onClick={handleSubmit}
+                  isLoading={isSubmitting}
+                  icon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                >
+                  Create Teacher Account
+                </AdminButton>
+              )}
+            </div>
+          </div>
+        )
       }
     >
-      <div className="space-y-6">
+      {createdCredentials ? (
+        <div className="py-4 space-y-5 animate-in fade-in duration-200">
+          <div className="text-center space-y-2">
+            <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto ring-8 ring-emerald-50/50">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900">Faculty Account Successfully Registered</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              Account credentials have been created with automated password generation. The teacher can log in immediately using their registered mobile number.
+            </p>
+          </div>
+
+          <div className="bg-[#F8FAFC] border border-slate-200/90 rounded-2xl p-4.5 space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Faculty Member</span>
+                <p className="text-sm font-bold text-slate-900">{createdCredentials.name}</p>
+              </div>
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-[#0B72E7] border border-blue-200/60">
+                Role: TEACHER
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 bg-white rounded-xl border border-slate-200/80">
+                <span className="text-[11px] font-semibold text-slate-400 block mb-0.5">
+                  Mobile Number (Primary Login ID)
+                </span>
+                <span className="font-mono font-bold text-slate-800 text-sm">
+                  {createdCredentials.phone}
+                </span>
+              </div>
+
+              <div className="p-3 bg-white rounded-xl border border-slate-200/80">
+                <span className="text-[11px] font-semibold text-slate-400 block mb-0.5">
+                  Employee ID
+                </span>
+                <span className="font-mono font-bold text-slate-800 text-sm">
+                  {createdCredentials.employeeId}
+                </span>
+              </div>
+
+              <div className="p-3 bg-white rounded-xl border border-slate-200/80">
+                <span className="text-[11px] font-semibold text-slate-400 block mb-0.5">
+                  Login Email
+                </span>
+                <span className="font-medium text-slate-700 truncate block">
+                  {createdCredentials.email}
+                </span>
+              </div>
+
+              <div className="p-3 bg-white rounded-xl border border-blue-200 bg-blue-50/20">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[11px] font-bold text-[#0B72E7] flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" /> Auto-Generated Password
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyPass}
+                    className="text-[11px] font-semibold text-[#0B72E7] hover:underline flex items-center gap-1"
+                  >
+                    {copiedPass ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                    {copiedPass ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+                <span className="font-mono font-bold text-slate-900 text-sm select-all">
+                  {createdCredentials.tempPassword}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-800 text-[11px] flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <span>
+                The faculty member will be required to change this temporary password upon their first login to Alpha Edu Hub.
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
         {/* Step Progress Indicators */}
         <div className="bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-3">
           <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
@@ -911,7 +1067,7 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
           </div>
         )}
 
-        {/* STEP 6: ACCOUNT ACCESS */}
+        {/* STEP 6: ACCOUNT ACCESS & AUTOMATED CREDENTIALS */}
         {currentStep === 6 && (
           <div className="space-y-4">
             <div className="border-b border-slate-100 pb-2">
@@ -919,17 +1075,16 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
                 Step 6: Account Access & Credentials
               </h4>
               <p className="text-xs text-slate-500">
-                Teacher authentication credentials. Role assigned will strictly be{' '}
-                <strong className="text-slate-900 font-bold">TEACHER</strong>.
+                Password is automatically generated. The teacher can log in directly using their Mobile Number.
               </p>
             </div>
 
-            <div className="bg-blue-50/60 border border-blue-200/80 rounded-xl p-3 flex items-start gap-2.5">
-              <Sparkles className="w-4 h-4 text-[#0B72E7] shrink-0 mt-0.5" />
-              <div className="text-xs text-blue-900">
-                <span className="font-bold">Role: TEACHER</span>
-                <p className="text-[11px] text-blue-700 mt-0.5">
-                  The faculty member will receive access to Teacher LMS, Attendance Marker, Gradebook, and the Central Academic Calendar. They will not have Administrative permissions.
+            <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3 flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="text-xs text-emerald-950">
+                <span className="font-bold">Automated Credentials Provisioning</span>
+                <p className="text-[11px] text-emerald-800 mt-0.5">
+                  Faculty login is automatically enabled with their Mobile Number (<strong>{formData.phone || 'Entered in Step 2'}</strong>) and the secure password generated below.
                 </p>
               </div>
             </div>
@@ -937,25 +1092,28 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
             <div className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Login Email <span className="text-red-500">*</span>
+                  Login Email / Handle
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                   <input
                     type="email"
-                    required
                     value={formData.loginEmail}
                     onChange={(e) => setFormData({ ...formData, loginEmail: e.target.value })}
                     placeholder="teacher.login@school.edu.in"
                     className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
                   />
                 </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Faculty can log in using either this Email or their Mobile Number ({formData.phone || 'Phone'}).
+                </p>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Temporary Password <span className="text-red-500">*</span>
+                  <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[#0B72E7]" />
+                    Auto-Generated Temporary Password
                   </label>
                   <button
                     type="button"
@@ -972,7 +1130,7 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
                     required
                     value={formData.temporaryPassword}
                     onChange={(e) => setFormData({ ...formData, temporaryPassword: e.target.value })}
-                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl pl-3 pr-10 py-2.5 text-xs font-mono text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl pl-3 pr-10 py-2.5 text-xs font-mono font-bold text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
                   />
                   <button
                     type="button"
@@ -983,7 +1141,7 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
                   </button>
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  The faculty member will be required to change this temporary password upon first login.
+                  This password will be displayed with a 1-click copy button upon saving and will be required to change on first login.
                 </p>
               </div>
 
@@ -1004,6 +1162,7 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
           </div>
         )}
       </div>
+      )}
     </AdminModal>
   );
 }

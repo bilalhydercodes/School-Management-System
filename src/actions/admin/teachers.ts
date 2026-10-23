@@ -35,16 +35,27 @@ export async function createTeacherAction(rawInput: CreateTeacherInput) {
       return { success: false, error: `Employee ID "${input.employeeId}" is already assigned to another teacher.` };
     }
 
-    // 2. Validate login email uniqueness within tenant
+    // 2. Resolve login email (fallback to contact email or phone-based handle)
+    const phoneDigits = input.phone.replace(/\D/g, '');
+    const loginEmail =
+      input.loginEmail?.trim().toLowerCase() ||
+      input.email?.trim().toLowerCase() ||
+      `teacher.${phoneDigits || input.employeeId.toLowerCase()}@school.edu.in`;
+
     const existingUser = await prisma.user.findFirst({
-      where: { tenantId, email: input.loginEmail.trim().toLowerCase() },
+      where: { tenantId, email: loginEmail },
     });
     if (existingUser) {
-      return { success: false, error: `Login email "${input.loginEmail}" is already registered in this school.` };
+      return { success: false, error: `Login email "${loginEmail}" is already registered in this school.` };
     }
 
-    // 3. Hash temporary password
-    const passwordHash = await AuthService.hashPassword(input.temporaryPassword);
+    // 3. Automatically generate secure temporary password if not explicitly supplied
+    const tempPassword =
+      input.temporaryPassword && input.temporaryPassword.trim().length >= 6
+        ? input.temporaryPassword.trim()
+        : AuthService.generateSecureTemporaryPassword();
+
+    const passwordHash = await AuthService.hashPassword(tempPassword);
 
     // 4. Execute atomic transaction
     const result = await prisma.$transaction(async (tx) => {
@@ -52,7 +63,7 @@ export async function createTeacherAction(rawInput: CreateTeacherInput) {
       const user = await tx.user.create({
         data: {
           tenantId,
-          email: input.loginEmail.trim().toLowerCase(),
+          email: loginEmail,
           phone: input.phone.trim(),
           firstName: input.firstName.trim(),
           lastName: input.lastName.trim(),
@@ -146,6 +157,14 @@ export async function createTeacherAction(rawInput: CreateTeacherInput) {
       success: true,
       teacherId: result.teacherProfile.id,
       message: `Teacher ${result.user.firstName} ${result.user.lastName} successfully registered with Employee ID ${result.teacherProfile.employeeId}.`,
+      credentials: {
+        name: `${result.user.firstName} ${result.user.lastName}`,
+        employeeId: result.teacherProfile.employeeId,
+        phone: result.user.phone || input.phone,
+        email: result.user.email,
+        tempPassword,
+        role: 'TEACHER',
+      },
     };
   } catch (error: any) {
     console.error('Error creating teacher:', error);

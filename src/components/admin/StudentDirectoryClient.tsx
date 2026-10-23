@@ -28,6 +28,10 @@ import {
   GraduationCap,
   Calendar,
   Building2,
+  Copy,
+  Check,
+  Sparkles,
+  KeyRound,
 } from 'lucide-react';
 import {
   archiveStudentsAction,
@@ -136,6 +140,25 @@ export default function StudentDirectoryClient({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addFeedback, setAddFeedback] = useState<{ success?: boolean; message?: string } | null>(null);
   const [isAddingStudent, setIsAddingStudent] = useState(false);
+  const [createdStudentCredentials, setCreatedStudentCredentials] = useState<{
+    name: string;
+    admissionNumber: string;
+    phone: string | null;
+    email: string;
+    tempPassword: string;
+    role: string;
+  } | null>(null);
+  const [createdParentCredentials, setCreatedParentCredentials] = useState<{
+    name: string;
+    phone: string;
+    email: string;
+    tempPassword: string;
+    role: string;
+  } | null>(null);
+  const [copiedStudentCreds, setCopiedStudentCreds] = useState(false);
+  const [copiedParentCreds, setCopiedParentCreds] = useState(false);
+  const [copiedAllCreds, setCopiedAllCreds] = useState(false);
+
   const [addForm, setAddForm] = useState({
     admissionNumber: '',
     rollNumber: '',
@@ -157,6 +180,39 @@ export default function StudentDirectoryClient({
     emergencyContact: '',
     admissionDate: new Date().toISOString().split('T')[0],
   });
+
+  const handleCopyAllStudentCredentials = () => {
+    if (!createdStudentCredentials) return;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://alphaeduhub.in';
+    let text = `Alpha Edu Hub — Student Portal Credentials
+Student Name: ${createdStudentCredentials.name}
+Role: STUDENT
+Admission Number: ${createdStudentCredentials.admissionNumber}
+Login Mobile Number: ${createdStudentCredentials.phone || addForm.fatherPhone || 'Not set'}
+Login Email: ${createdStudentCredentials.email}
+Temporary Password: ${createdStudentCredentials.tempPassword}
+Login URL: ${origin}/login`;
+
+    if (createdParentCredentials) {
+      text += `\n\nParent Portal Credentials
+Parent Name: ${createdParentCredentials.name}
+Role: PARENT
+Login Mobile Number: ${createdParentCredentials.phone}
+Temporary Password: ${createdParentCredentials.tempPassword}
+Login URL: ${origin}/login`;
+    }
+
+    navigator.clipboard.writeText(text);
+    setCopiedAllCreds(true);
+    setTimeout(() => setCopiedAllCreds(false), 2500);
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+    setCreatedStudentCredentials(null);
+    setCreatedParentCredentials(null);
+    setAddFeedback(null);
+  };
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,7 +245,6 @@ export default function StudentDirectoryClient({
       if (!res.success) {
         setAddFeedback({ success: false, message: res.error || 'Failed to create student.' });
       } else {
-        setAddFeedback({ success: true, message: 'Student successfully enrolled!' });
         const targetSec = sections.find((s) => s.id === addForm.sectionId);
         const newStudentItem: StudentItem = {
           id: res.studentId || Math.random().toString(),
@@ -228,10 +283,16 @@ export default function StudentDirectoryClient({
         };
 
         setStudents((prev) => [newStudentItem, ...prev]);
-        setTimeout(() => {
-          setIsAddModalOpen(false);
-          setAddFeedback(null);
-        }, 1000);
+
+        if (res.credentials) {
+          setCreatedStudentCredentials(res.credentials);
+          setCreatedParentCredentials(res.parentCredentials || null);
+        } else {
+          setAddFeedback({ success: true, message: 'Student successfully enrolled!' });
+          setTimeout(() => {
+            handleCloseAddModal();
+          }, 1000);
+        }
       }
     } catch (err: any) {
       setAddFeedback({ success: false, message: err?.message || 'Error creating student.' });
@@ -884,187 +945,367 @@ export default function StudentDirectoryClient({
       {/* 7. ADD STUDENT MODAL */}
       <AdminModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        title="Direct Student Enrollment"
-        description="Register new student profile with automated parent account linking."
+        onClose={handleCloseAddModal}
+        title={createdStudentCredentials ? 'Student Enrolled & Credentials Generated' : 'Direct Student Enrollment'}
+        description={
+          createdStudentCredentials
+            ? 'Account has been registered with automated secure password generation. The student and parent can log in immediately using their Mobile Number.'
+            : 'Register new student profile with automated password generation and parent account linking.'
+        }
         maxWidth="2xl"
         footer={
-          <>
-            <AdminButton variant="secondary" onClick={() => setIsAddModalOpen(false)}>
-              Cancel
-            </AdminButton>
-            <AdminButton
-              variant="primary"
-              isLoading={isAddingStudent}
-              onClick={handleCreateStudent}
-              icon={<Plus className="w-3.5 h-3.5" />}
-            >
-              Enroll Student
-            </AdminButton>
-          </>
+          createdStudentCredentials ? (
+            <div className="flex items-center justify-between w-full">
+              <span className="text-xs text-slate-500 font-medium">
+                Copy credentials to share with student/parent via WhatsApp or SMS.
+              </span>
+              <div className="flex items-center gap-2.5">
+                <AdminButton
+                  variant="secondary"
+                  onClick={handleCopyAllStudentCredentials}
+                  icon={copiedAllCreds ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                >
+                  {copiedAllCreds ? 'Credentials Copied!' : 'Copy All Credentials'}
+                </AdminButton>
+                <AdminButton
+                  variant="primary"
+                  onClick={handleCloseAddModal}
+                  icon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                >
+                  Done
+                </AdminButton>
+              </div>
+            </div>
+          ) : (
+            <>
+              <AdminButton variant="secondary" onClick={handleCloseAddModal}>
+                Cancel
+              </AdminButton>
+              <AdminButton
+                variant="primary"
+                isLoading={isAddingStudent}
+                onClick={handleCreateStudent}
+                icon={<Plus className="w-3.5 h-3.5" />}
+              >
+                Enroll Student
+              </AdminButton>
+            </>
+          )
         }
       >
-        <form onSubmit={handleCreateStudent} className="space-y-5">
-          {addFeedback && (
-            <div
-              className={`p-3.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 ${
-                addFeedback.success
-                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                  : 'bg-rose-50 text-rose-700 border border-rose-200'
-              }`}
-            >
-              {addFeedback.success ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              ) : (
-                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              )}
-              <span>{addFeedback.message}</span>
+        {createdStudentCredentials ? (
+          <div className="py-2 space-y-4 animate-in fade-in duration-200">
+            <div className="text-center space-y-1.5 pb-1">
+              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto ring-8 ring-emerald-50/50">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">Enrollment Complete — Credentials Generated</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Secure passwords have been automatically generated for portal access.
+              </p>
             </div>
-          )}
 
-          {/* Section 1: Student Demographics */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#0B72E7]">
-              1. Student Demographics
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Admission Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={addForm.admissionNumber}
-                  onChange={(e) => setAddForm({ ...addForm, admissionNumber: e.target.value })}
-                  placeholder="e.g. ADM-2026-101"
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
-                />
+            {/* Student Credentials Card */}
+            <div className="bg-[#F8FAFC] border border-slate-200/90 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-200/60 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-[#0B72E7]" />
+                  <span className="text-xs font-bold text-slate-900">Student Portal Access</span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#0B72E7] border border-blue-200/60">
+                  Role: STUDENT
+                </span>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Class & Section <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={addForm.sectionId}
-                  onChange={(e) => setAddForm({ ...addForm, sectionId: e.target.value })}
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
-                >
-                  {sections.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+                  <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Student Name</span>
+                  <span className="font-bold text-slate-800">{createdStudentCredentials.name}</span>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  First Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={addForm.firstName}
-                  onChange={(e) => setAddForm({ ...addForm, firstName: e.target.value })}
-                  placeholder="First name"
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
-                />
-              </div>
+                <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+                  <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Admission Number</span>
+                  <span className="font-mono font-bold text-slate-800">{createdStudentCredentials.admissionNumber}</span>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Last Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={addForm.lastName}
-                  onChange={(e) => setAddForm({ ...addForm, lastName: e.target.value })}
-                  placeholder="Last name"
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
-                />
-              </div>
+                <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+                  <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">
+                    Login Mobile Number
+                  </span>
+                  <span className="font-mono font-bold text-slate-800">
+                    {createdStudentCredentials.phone || addForm.fatherPhone || 'Not set'}
+                  </span>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Date of Birth <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={addForm.dateOfBirth}
-                  onChange={(e) => setAddForm({ ...addForm, dateOfBirth: e.target.value })}
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Gender</label>
-                <select
-                  value={addForm.gender}
-                  onChange={(e) => setAddForm({ ...addForm, gender: e.target.value as any })}
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
-                >
-                  <option value="MALE">Male</option>
-                  <option value="FEMALE">Female</option>
-                  <option value="OTHER">Other</option>
-                </select>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Residential Address <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={addForm.address}
-                  onChange={(e) => setAddForm({ ...addForm, address: e.target.value })}
-                  placeholder="Full residential address"
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
-                />
+                <div className="p-2.5 bg-white rounded-xl border border-blue-200 bg-blue-50/20">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-[10px] font-bold text-[#0B72E7] flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> Auto-Generated Password
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(createdStudentCredentials.tempPassword);
+                        setCopiedStudentCreds(true);
+                        setTimeout(() => setCopiedStudentCreds(false), 2000);
+                      }}
+                      className="text-[10px] font-semibold text-[#0B72E7] hover:underline flex items-center gap-1"
+                    >
+                      {copiedStudentCreds ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                      {copiedStudentCreds ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
+                  <span className="font-mono font-bold text-slate-900 text-xs select-all">
+                    {createdStudentCredentials.tempPassword}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Section 2: Parent / Guardian Details */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#0B72E7]">
-              2. Parent & Guardian Details
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Father&apos;s Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={addForm.fatherName}
-                  onChange={(e) => setAddForm({ ...addForm, fatherName: e.target.value })}
-                  placeholder="Father full name"
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
-                />
-              </div>
+            {/* Parent Credentials Card (if created) */}
+            {createdParentCredentials && (
+              <div className="bg-[#F8FAFC] border border-slate-200/90 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-200/60 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-emerald-600" />
+                    <span className="text-xs font-bold text-slate-900">Parent Portal Access</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                    Role: PARENT
+                  </span>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Father&apos;s Mobile <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="tel"
-                  required
-                  value={addForm.fatherPhone}
-                  onChange={(e) => setAddForm({ ...addForm, fatherPhone: e.target.value })}
-                  placeholder="10-digit mobile number"
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                  <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+                    <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Parent Name</span>
+                    <span className="font-bold text-slate-800">{createdParentCredentials.name}</span>
+                  </div>
+
+                  <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+                    <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Parent Mobile (Login ID)</span>
+                    <span className="font-mono font-bold text-slate-800">{createdParentCredentials.phone}</span>
+                  </div>
+
+                  <div className="sm:col-span-2 p-2.5 bg-white rounded-xl border border-emerald-200 bg-emerald-50/20">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" /> Parent Auto-Generated Password
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(createdParentCredentials.tempPassword);
+                          setCopiedParentCreds(true);
+                          setTimeout(() => setCopiedParentCreds(false), 2000);
+                        }}
+                        className="text-[10px] font-semibold text-emerald-700 hover:underline flex items-center gap-1"
+                      >
+                        {copiedParentCreds ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        {copiedParentCreds ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+                    <span className="font-mono font-bold text-slate-900 text-xs select-all">
+                      {createdParentCredentials.tempPassword}
+                    </span>
+                  </div>
+                </div>
               </div>
+            )}
+
+            <div className="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-800 text-[11px] flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <span>
+                Students and parents can log in using their <strong>Mobile Number</strong> or Admission ID with these auto-generated passwords.
+              </span>
             </div>
           </div>
-        </form>
+        ) : (
+          <form onSubmit={handleCreateStudent} className="space-y-5">
+            {addFeedback && (
+              <div
+                className={`p-3.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 ${
+                  addFeedback.success
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                    : 'bg-rose-50 text-rose-700 border border-rose-200'
+                }`}
+              >
+                {addFeedback.success ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                )}
+                <span>{addFeedback.message}</span>
+              </div>
+            )}
+
+            {/* Automated Password Notice */}
+            <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3 flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="text-xs text-emerald-950">
+                <span className="font-bold">Automated Password Generation</span>
+                <p className="text-[11px] text-emerald-800 mt-0.5">
+                  Secure initial passwords will be automatically generated for both Student and Parent portal accounts. Mobile numbers entered below will serve as their primary login identifiers.
+                </p>
+              </div>
+            </div>
+
+            {/* Section 1: Student Demographics */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#0B72E7]">
+                1. Student Demographics
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Admission Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={addForm.admissionNumber}
+                    onChange={(e) => setAddForm({ ...addForm, admissionNumber: e.target.value })}
+                    placeholder="e.g. ADM-2026-101"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Class & Section <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={addForm.sectionId}
+                    onChange={(e) => setAddForm({ ...addForm, sectionId: e.target.value })}
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                  >
+                    {sections.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    First Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={addForm.firstName}
+                    onChange={(e) => setAddForm({ ...addForm, firstName: e.target.value })}
+                    placeholder="First name"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Last Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={addForm.lastName}
+                    onChange={(e) => setAddForm({ ...addForm, lastName: e.target.value })}
+                    placeholder="Last name"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Student Mobile Number <span className="text-slate-400 font-normal">(Login Phone)</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={addForm.phone}
+                    onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })}
+                    placeholder="10-digit student mobile number"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Date of Birth <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={addForm.dateOfBirth}
+                    onChange={(e) => setAddForm({ ...addForm, dateOfBirth: e.target.value })}
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Gender</label>
+                  <select
+                    value={addForm.gender}
+                    onChange={(e) => setAddForm({ ...addForm, gender: e.target.value as any })}
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                  >
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Residential Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={addForm.address}
+                    onChange={(e) => setAddForm({ ...addForm, address: e.target.value })}
+                    placeholder="Full residential address"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: Parent / Guardian Details */}
+            <div className="space-y-3 pt-3 border-t border-slate-100">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#0B72E7]">
+                2. Parent & Guardian Details
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Father&apos;s Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={addForm.fatherName}
+                    onChange={(e) => setAddForm({ ...addForm, fatherName: e.target.value })}
+                    placeholder="Father full name"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Father&apos;s Mobile (Parent Login Phone) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={addForm.fatherPhone}
+                    onChange={(e) => setAddForm({ ...addForm, fatherPhone: e.target.value })}
+                    placeholder="10-digit mobile number"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:border-[#0B72E7] outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </form>
+        )}
       </AdminModal>
 
       {/* 8. CONFIRMATION DIALOG */}

@@ -333,13 +333,13 @@ function LoginForm() {
                 )}
 
                 <form ref={formRef} onSubmit={handleCredentialsSubmit} className="mt-7">
-                  {/* Field 1: Roll Number / Admission ID / Email */}
+                  {/* Field 1: Mobile Number / Email / Roll Number / Admission ID */}
                   <div>
                     <label
                       htmlFor="roll-number-input"
                       className="block font-semibold text-[12.5px] text-[#0A1344] mb-2"
                     >
-                      Roll Number / Admission ID / Email
+                      Mobile Number / Email / Admission ID / Roll No
                     </label>
                     <input
                       id="roll-number-input"
@@ -348,7 +348,7 @@ function LoginForm() {
                       autoComplete="username"
                       value={userId}
                       onChange={(e) => setUserId(e.target.value)}
-                      placeholder="e.g. 101 or teacher@school.com"
+                      placeholder="e.g. 9876543210, ADM-2026-101, or email"
                       className="w-full h-[47px] px-5 rounded-[11px] border border-[#E2E8F0] bg-white text-[13.5px] text-[#0A1344] transition-all font-normal focus:border-[#008CFF] focus:outline-none focus:ring-2 focus:ring-[#008CFF]/20"
                     />
                   </div>

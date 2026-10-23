@@ -98,13 +98,31 @@ export class AuthService {
       };
     }
 
-    // 2. Resolve user
+    // 2. Resolve user by Email, Mobile Number, Admission Number, Roll Number, or Employee ID
+    const rawIdentifier = input.email.trim();
+    const digitsOnly = rawIdentifier.replace(/\D/g, '');
+    const phoneVariants = Array.from(
+      new Set(
+        [
+          rawIdentifier,
+          digitsOnly.length >= 10 ? digitsOnly : null,
+          digitsOnly.length >= 10 ? digitsOnly.slice(-10) : null,
+          digitsOnly.length >= 10 ? `+91${digitsOnly.slice(-10)}` : null,
+          digitsOnly.length >= 10 ? `+91 ${digitsOnly.slice(-10)}` : null,
+          digitsOnly.length >= 10 ? `0${digitsOnly.slice(-10)}` : null,
+        ].filter(Boolean) as string[]
+      )
+    );
+
     let user;
     if (tenantId) {
       user = await prisma.user.findFirst({
         where: {
           tenantId,
-          email,
+          OR: [
+            { email: { equals: email, mode: 'insensitive' } },
+            ...(phoneVariants.length > 0 ? [{ phone: { in: phoneVariants } }] : []),
+          ],
         },
       });
 
@@ -114,8 +132,9 @@ export class AuthService {
           where: {
             tenantId,
             OR: [
-              { admissionNumber: { equals: input.email.trim(), mode: 'insensitive' } },
+              { admissionNumber: { equals: rawIdentifier, mode: 'insensitive' } },
               ...(isNumeric ? [{ rollNumber: parseInt(email, 10) }] : []),
+              ...(phoneVariants.length > 0 ? [{ emergencyContact: { in: phoneVariants } }] : []),
             ],
           },
           include: { user: true },
@@ -124,14 +143,63 @@ export class AuthService {
           user = student.user;
         }
       }
+
+      if (!user) {
+        const teacher = await prisma.teacherProfile.findFirst({
+          where: {
+            tenantId,
+            OR: [
+              { employeeId: { equals: rawIdentifier, mode: 'insensitive' } },
+              ...(phoneVariants.length > 0 ? [{ alternatePhone: { in: phoneVariants } }] : []),
+            ],
+          },
+          include: { user: true },
+        });
+        if (teacher?.user) {
+          user = teacher.user;
+        }
+      }
     } else {
-      // Unscoped / Central domain / localhost login: resolve active user by email
+      // Unscoped / Central domain / localhost login: resolve active user by email or mobile number
       user = await prisma.user.findFirst({
         where: {
-          email: { equals: email, mode: 'insensitive' },
+          OR: [
+            { email: { equals: email, mode: 'insensitive' } },
+            ...(phoneVariants.length > 0 ? [{ phone: { in: phoneVariants } }] : []),
+          ],
           isActive: true,
         },
       });
+
+      if (!user) {
+        const student = await prisma.studentProfile.findFirst({
+          where: {
+            OR: [
+              { admissionNumber: { equals: rawIdentifier, mode: 'insensitive' } },
+              ...(phoneVariants.length > 0 ? [{ emergencyContact: { in: phoneVariants } }] : []),
+            ],
+          },
+          include: { user: true },
+        });
+        if (student?.user) {
+          user = student.user;
+        }
+      }
+
+      if (!user) {
+        const teacher = await prisma.teacherProfile.findFirst({
+          where: {
+            OR: [
+              { employeeId: { equals: rawIdentifier, mode: 'insensitive' } },
+              ...(phoneVariants.length > 0 ? [{ alternatePhone: { in: phoneVariants } }] : []),
+            ],
+          },
+          include: { user: true },
+        });
+        if (teacher?.user) {
+          user = teacher.user;
+        }
+      }
     }
 
     // 3. Constant-time dummy comparison if user doesn't exist (Prevent timing enumeration)
@@ -140,7 +208,7 @@ export class AuthService {
       await bcrypt.compare(input.password, '$2a$10$e80y6jF3Q8ZpXqFmNfAweOXV4O1t9/4B4/K3/l4l6Wn/z1z1z1z1z');
       return {
         success: false,
-        error: 'Invalid credentials. Please verify your Roll Number / Admission ID and password.',
+        error: 'Invalid credentials. Please verify your Mobile Number / Email / Roll Number and password.',
       };
     }
 
