@@ -287,8 +287,6 @@ export default function AppointmentsClient({
       <PageHeader
         title="Appointments & Consultations"
         subtitle="Schedule, review, and manage parent-teacher meetings, authority consultations, and visitor appointments."
-        icon={CalendarCheck}
-        badgeText="Institutional Hub"
         actions={
           <div className="flex items-center gap-3">
             <button
@@ -333,7 +331,7 @@ export default function AppointmentsClient({
         <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Today's Schedule
+              Today&apos;s Schedule
             </span>
             <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <Clock className="w-4 h-4" />
@@ -680,7 +678,7 @@ export default function AppointmentsClient({
         onClose={() => setIsScheduleModalOpen(false)}
         title="Schedule New Appointment"
         subtitle="Create an institutional consultation with a parent, student, or visitor."
-        maxWidth="max-w-xl"
+        maxWidth="xl"
       >
         <form onSubmit={handleScheduleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -877,7 +875,7 @@ export default function AppointmentsClient({
         onClose={() => setIsConfirmModalOpen(false)}
         title="Confirm Consultation Request"
         subtitle="Assign a confirmed time slot and venue for the parent's requested appointment."
-        maxWidth="max-w-lg"
+        maxWidth="lg"
       >
         {selectedPendingRequest && (
           <form onSubmit={handleConfirmSubmit} className="space-y-4">
