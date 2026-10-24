@@ -21,7 +21,7 @@ export default async function AdminAcademicsPage() {
   }
 
   // Ultra-fast cached academics fetch (SWR cache with sub-ms retrieval)
-  const [timetableRaw, teachersRaw, sectionsRaw, substitutionsRaw] =
+  const [timetableRaw, teachersRaw, sectionsRaw, substitutionsRaw, classGradesRaw] =
     await getCachedAdminAcademics(tenantId);
 
   // Teacher name lookup map
@@ -89,12 +89,31 @@ export default async function AdminAcademicsPage() {
     status: sub.status,
   }));
 
+  // Map class grades with nested sections, assigned teachers, and student tallies
+  const classGrades = (classGradesRaw || []).map((cg) => ({
+    id: cg.id,
+    name: cg.name,
+    numericOrder: cg.numericOrder,
+    sectionCount: cg._count?.sections ?? cg.sections?.length ?? 0,
+    studentCount: cg.sections?.reduce((sum, s) => sum + (s._count?.students ?? 0), 0) ?? 0,
+    sections: (cg.sections || []).map((s) => ({
+      id: s.id,
+      name: s.name,
+      classTeacherId: s.classTeacherId,
+      classTeacherName: s.classTeacher
+        ? `${s.classTeacher.user.firstName} ${s.classTeacher.user.lastName}`
+        : null,
+      studentCount: s._count?.students ?? 0,
+    })),
+  }));
+
   return (
     <AcademicsManagerClient
       timetableSlots={timetableSlots}
       teachers={teachers}
       sections={sections}
       recentSubstitutions={recentSubstitutions}
+      initialClassGrades={classGrades}
     />
   );
 }

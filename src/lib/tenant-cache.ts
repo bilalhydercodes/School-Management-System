@@ -528,6 +528,28 @@ export async function getCachedAdminAcademics(tenantId: string) {
           orderBy: { date: 'desc' },
           take: 50,
         }),
+        prisma.classGrade.findMany({
+          where: { tenantId },
+          include: {
+            sections: {
+              include: {
+                classTeacher: {
+                  include: {
+                    user: { select: { firstName: true, lastName: true } },
+                  },
+                },
+                _count: {
+                  select: { students: true },
+                },
+              },
+              orderBy: { name: 'asc' },
+            },
+            _count: {
+              select: { sections: true },
+            },
+          },
+          orderBy: { numericOrder: 'asc' },
+        }),
       ]);
     },
     60 * 1000,
