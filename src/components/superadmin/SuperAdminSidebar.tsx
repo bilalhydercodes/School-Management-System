@@ -18,7 +18,7 @@ import {
   Loader2,
   ClipboardList,
 } from 'lucide-react';
-import { logoutAction } from '@/actions/auth';
+import { performInstantLogout } from '@/lib/auth-client';
 
 interface SuperAdminSidebarProps {
   isOpen: boolean;
@@ -223,15 +223,14 @@ export default function SuperAdminSidebar({
             </div>
           </div>
 
-          <form action={logoutAction}>
-            <button
-              type="submit"
-              title="Sign Out of Super Admin"
-              className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={() => performInstantLogout()}
+            title="Sign Out of Super Admin"
+            className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </aside>
     </>

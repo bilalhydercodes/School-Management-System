@@ -116,20 +116,8 @@ function LoginForm() {
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Prefetch target dashboards so demo transitions are instantaneous
-  useEffect(() => {
-    try {
-      router.prefetch('/admin');
-      router.prefetch('/teacher');
-      router.prefetch('/portal');
-    } catch {
-      // Non-blocking prefetch failure ignored
-    }
-  }, [router]);
-
   // Redirect cleanly after successful login
   const navigateTo = useCallback((target: string) => {
-    setIsNavigating(true);
     window.location.replace(target);
   }, []);
 
@@ -229,9 +217,7 @@ function LoginForm() {
     });
   };
 
-  if (isNavigating) {
-    return <BrandLoader fullScreen message="Redirecting to your dashboard" sublabel="Alpha Edu Hub" />;
-  }
+
 
   return (
     <div
