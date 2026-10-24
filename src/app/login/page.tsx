@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition, Suspense, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useTransition, Suspense, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
