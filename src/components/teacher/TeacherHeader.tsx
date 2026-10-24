@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Search, Bell, ChevronDown, LogOut, User, Shield, Menu } from 'lucide-react';
-import { logoutAction } from '@/actions/auth';
+import { performInstantLogout } from '@/lib/auth-client';
 import { getTeacherAvatarUrl } from '@/lib/teacher-avatar';
 
 interface TeacherHeaderProps {
@@ -146,15 +146,14 @@ export function TeacherHeader({
                 </div>
               </div>
               <div className="pt-1 border-t border-slate-100">
-                <form action={logoutAction}>
-                  <button
-                    type="submit"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Sign Out</span>
-                  </button>
-                </form>
+                <button
+                  type="button"
+                  onClick={() => performInstantLogout()}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
               </div>
             </div>
           )}

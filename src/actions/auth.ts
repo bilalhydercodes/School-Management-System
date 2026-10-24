@@ -150,10 +150,15 @@ export async function verifyLoginOtpAction(input: VerifyLoginOtpInput): Promise<
  * Server Action to sign out current user by revoking all sessions, purging the session cookie and redirecting to /login.
  */
 export async function logoutAction(): Promise<void> {
-  const session = await getSessionFromCookies();
-  if (session?.sub) {
-    await revokeAllUserSessions(session.sub);
-  }
+  // Fire background session revocation so Redis latency never blocks logout
+  getSessionFromCookies()
+    .then((session) => {
+      if (session?.sub) {
+        revokeAllUserSessions(session.sub).catch(() => {});
+      }
+    })
+    .catch(() => {});
+
   await clearSessionCookie();
   redirect('/login');
 }

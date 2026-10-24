@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { logoutAction } from '@/actions/auth';
+import { performInstantLogout } from '@/lib/auth-client';
 
 // Always-loaded shell & primary landing screen (instant 0ms first render)
 import PortalSidebar from './PortalSidebar';
@@ -222,9 +222,9 @@ export default function StudentParentDashboardClient({
     });
   }, []);
 
-  const handleSignOut = useCallback(async () => {
+  const handleSignOut = useCallback(() => {
     setIsSigningOut(true);
-    await logoutAction();
+    performInstantLogout();
   }, []);
 
   const handleOpenAppointment = useCallback((person: (typeof faculty)[0]) => {

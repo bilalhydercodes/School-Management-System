@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Menu, Search, Bell, ChevronDown, LogOut, User, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
-import { logoutAction } from '@/actions/auth';
+import { performInstantLogout } from '@/lib/auth-client';
 import AdminAvatar from './illustrations/AdminAvatar';
 import NotificationBellDropdown from '@/components/notifications/NotificationBellDropdown';
 
@@ -35,9 +35,9 @@ export default function AdminHeader({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
     setIsLoggingOut(true);
-    await logoutAction();
+    performInstantLogout();
   };
 
   return (
