@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Search, Bell, ChevronDown, LogOut, User, Shield, Menu } from 'lucide-react';
+import Link from 'next/link';
+import { Search, Bell, ChevronDown, LogOut, User, Shield, Menu, Receipt } from 'lucide-react';
 import { performInstantLogout } from '@/lib/auth-client';
 import { getTeacherAvatarUrl } from '@/lib/teacher-avatar';
 
@@ -144,6 +145,14 @@ export function TeacherHeader({
                   <Shield className="w-3.5 h-3.5 text-[#16A34A]" />
                   <span>Staff ID: EMP-DPS-101</span>
                 </div>
+                <Link
+                  href="/teacher/salary-slip"
+                  onClick={() => setShowProfileMenu(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-[#64748B] hover:text-[#102A56] hover:bg-slate-50 transition-colors"
+                >
+                  <Receipt className="w-3.5 h-3.5 text-[#2563EB]" />
+                  <span>My Salary Slip</span>
+                </Link>
               </div>
               <div className="pt-1 border-t border-slate-100">
                 <button
