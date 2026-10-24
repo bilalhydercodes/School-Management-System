@@ -230,8 +230,8 @@ export function TeacherDashboardView({
           </Link>
 
           {/* QA 2: View Pay Slip */}
-          <div
-            onClick={() => setNotification('Pay slip for December 2025 downloaded.')}
+          <Link
+            href="/teacher/salary-slip"
             className="flex items-center gap-2.5 sm:gap-3.5 group hover:opacity-95 transition-opacity cursor-pointer"
           >
             <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-[#F3E8FF] flex items-center justify-center shrink-0 overflow-hidden">
@@ -251,7 +251,7 @@ export function TeacherDashboardView({
                 Pay Slip
               </p>
             </div>
-          </div>
+          </Link>
 
           {/* QA 3: Leave Balance */}
           <Link

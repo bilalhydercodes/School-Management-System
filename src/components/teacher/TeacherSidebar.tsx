@@ -18,6 +18,7 @@ import {
   MessageSquareHeart,
   Briefcase,
   ClipboardList,
+  Receipt,
   Bell,
   CalendarHeart,
   BookOpen,
@@ -87,6 +88,7 @@ export function TeacherSidebar({
       items: [
         { name: 'Apply Leave', href: '/teacher/leave/apply', icon: Briefcase },
         { name: 'Leave Status', href: '/teacher/leave/status', icon: ClipboardList },
+        { name: 'Salary & Pay Slip', href: '/teacher/salary-slip', icon: Receipt },
         { name: 'Notices & Circulars', href: '/teacher/notices', icon: Bell },
         { name: 'Events & Holidays', href: '/teacher/events', icon: CalendarHeart },
       ],

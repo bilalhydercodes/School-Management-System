@@ -31,6 +31,7 @@ const OTP_RESEND_COOLDOWN_SECONDS = 60; // 60 seconds cooldown between resend re
 
 // Fallback in-memory store for OTPs and login challenges if Redis is unavailable
 const memoryOtpStore = new Map<string, { hash: string; expiresAt: number; attempts: number; data?: Record<string, unknown> }>();
+const memoryCooldownStore = new Map<string, number>();
 // Pre-cached demo credentials and memory cache for 0ms demo logins
 const DEMO_CREDENTIALS: Record<string, string> = {
   'admin@dps.edu.in': 'Admin@123',
