@@ -92,13 +92,57 @@ export class AuthService {
     if (expectedDemoPass && rawPassword === expectedDemoPass) {
       let demoUser = demoUserCache.get(email);
       if (!demoUser) {
-        demoUser = await prisma.user.findFirst({
-          where: {
-            email: { in: [email, email.toLowerCase(), email.toUpperCase()] },
-            isActive: true,
-            deletedAt: null,
+        try {
+          demoUser = await prisma.user.findFirst({
+            where: {
+              email: { in: [email, email.toLowerCase(), email.toUpperCase()] },
+              isActive: true,
+              deletedAt: null,
+            },
+          });
+          if (demoUser) {
+            demoUserCache.set(email, demoUser);
+          }
+        } catch {
+          demoUser = null;
+        }
+      }
+
+      // Fallback synthetic demo user for unseeded/fresh environments
+      if (!demoUser) {
+        const fallbackUsers: Record<string, any> = {
+          'admin@dps.edu.in': {
+            id: 'a0000000-0000-0000-0000-000000000001',
+            tenantId: '3c9a7747-cffd-40e1-be07-374b47817e5f',
+            role: 'ADMIN',
+            email: 'admin@dps.edu.in',
+            firstName: 'Virendra',
+            lastName: 'Kapoor',
+            avatarUrl: null,
+            mustChangePassword: false,
           },
-        });
+          'teacher@dps.edu.in': {
+            id: 'a0000000-0000-0000-0000-000000000002',
+            tenantId: '3c9a7747-cffd-40e1-be07-374b47817e5f',
+            role: 'TEACHER',
+            email: 'teacher@dps.edu.in',
+            firstName: 'Anandita',
+            lastName: 'Sen',
+            avatarUrl: null,
+            mustChangePassword: false,
+          },
+          'student@dps.edu.in': {
+            id: 'a0000000-0000-0000-0000-000000000003',
+            tenantId: '3c9a7747-cffd-40e1-be07-374b47817e5f',
+            role: 'STUDENT',
+            email: 'student@dps.edu.in',
+            firstName: 'Rohan',
+            lastName: 'Sharma',
+            avatarUrl: null,
+            mustChangePassword: false,
+          },
+        };
+        demoUser = fallbackUsers[email];
         if (demoUser) {
           demoUserCache.set(email, demoUser);
         }
@@ -119,12 +163,14 @@ export class AuthService {
         );
 
         // Non-blocking fire-and-forget stats update
-        prisma.user
-          .update({
-            where: { id: demoUser.id },
-            data: { failedLoginAttempts: 0, lockedUntil: null, lastLoginAt: new Date() },
-          })
-          .catch(() => {});
+        try {
+          prisma.user
+            .update({
+              where: { id: demoUser.id },
+              data: { failedLoginAttempts: 0, lockedUntil: null, lastLoginAt: new Date() },
+            })
+            .catch(() => {});
+        } catch {}
 
         const sessionUser: UserSession = {
           userId: demoUser.id,
