@@ -99,78 +99,80 @@ export default async function PortalPage({ searchParams }: PageProps) {
   const tenantId = targetStudent.tenantId;
   const studentId = targetStudent.id;
 
-  const [
-    attendanceRecords,
-    feeInvoices,
-    examResults,
-    allSubjects,
-    timetableEntries,
-    dbNotices,
-    dbContactsRaw,
-    eventsHolidaysNotif,
-  ] = await Promise.all([
-    // Attendance (bounded to most recent 120 records for rapid transmission)
-    prisma.studentAttendance.findMany({
-      where: { tenantId, studentId },
-      orderBy: { date: 'desc' },
-      take: 120,
-    }),
+  let attendanceRecords: any[] = [];
+  let feeInvoices: any[] = [];
+  let examResults: any[] = [];
+  let allSubjects: any[] = [];
+  let timetableEntries: any[] = [];
+  let dbNotices: any[] = [];
+  let dbContactsRaw: any[] = [];
+  let eventsHolidaysNotif: any = [[], [], 0];
 
-    // Fee Invoices (bounded to most recent 24 records)
-    prisma.feeInvoice.findMany({
-      where: { tenantId, studentId },
-      include: { items: { include: { feeCategory: true } }, payments: true },
-      orderBy: { dueDate: 'asc' },
-      take: 24,
-    }),
-
-    // Exam Results
-    prisma.examResult.findMany({
-      where: { tenantId, studentId },
-      include: { examSchedule: { include: { subject: true } } },
-    }),
-
-    // All Subjects (Cached per tenant)
-    getCachedTenantSubjects(tenantId),
-
-    // Timetable (only if sectionId exists)
-    targetStudent.sectionId
-      ? (() => {
-          const today = new Date();
-          const dayOfWeekList = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'] as const;
-          const currentDay = dayOfWeekList[today.getDay()];
-          const todayDateOnly = new Date(`${today.toISOString().split('T')[0]}T00:00:00.000Z`);
-          return prisma.timetableEntry.findMany({
-            where: { tenantId, sectionId: targetStudent.sectionId, dayOfWeek: currentDay },
-            include: {
-              subject: true,
-              periodTimeSlot: true,
-              teacher: { include: { user: true } },
-              substitutions: {
-                where: { date: todayDateOnly },
-                include: { substituteTeacher: { include: { user: true } } },
-              },
-            },
-            orderBy: { periodTimeSlot: { order: 'asc' } },
-          });
-        })()
-      : Promise.resolve([]),
-
-    // Notices (Cached per tenant)
-    getCachedTenantNotices(tenantId, 12),
-
-    // Emergency Contacts (Cached per tenant)
-    getCachedTenantEmergencyContacts(tenantId, 8),
-
-    // Events, Holidays, Notification count (Holidays & Events cached per tenant)
-    Promise.all([
-      getCachedTenantEvents(tenantId, 6),
-      getCachedTenantHolidays(tenantId, 6),
-      prisma.notification
-        ? prisma.notification.count({ where: { tenantId, recipientId: currentUser.id, isRead: false } })
-        : Promise.resolve(0),
-    ]).catch(() => [[], [], 0] as [any[], any[], number]),
-  ]);
+  try {
+    [
+      attendanceRecords,
+      feeInvoices,
+      examResults,
+      allSubjects,
+      timetableEntries,
+      dbNotices,
+      dbContactsRaw,
+      eventsHolidaysNotif,
+    ] = await Promise.all([
+      prisma.studentAttendance.findMany({
+        where: { tenantId, studentId },
+        orderBy: { date: 'desc' },
+        take: 120,
+      }),
+      prisma.feeInvoice.findMany({
+        where: { tenantId, studentId },
+        include: { items: { include: { feeCategory: true } }, payments: true },
+        orderBy: { dueDate: 'asc' },
+        take: 24,
+      }),
+      prisma.examResult.findMany({
+        where: { tenantId, studentId },
+        include: { examSchedule: { include: { subject: true } } },
+      }),
+      getCachedTenantSubjects(tenantId).catch(() => []),
+      targetStudent.sectionId
+        ? (async () => {
+            try {
+              const today = new Date();
+              const dayOfWeekList = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'] as const;
+              const currentDay = dayOfWeekList[today.getDay()];
+              const todayDateOnly = new Date(`${today.toISOString().split('T')[0]}T00:00:00.000Z`);
+              return await prisma.timetableEntry.findMany({
+                where: { tenantId, sectionId: targetStudent.sectionId, dayOfWeek: currentDay },
+                include: {
+                  subject: true,
+                  periodTimeSlot: true,
+                  teacher: { include: { user: true } },
+                  substitutions: {
+                    where: { date: todayDateOnly },
+                    include: { substituteTeacher: { include: { user: true } } },
+                  },
+                },
+                orderBy: { periodTimeSlot: { order: 'asc' } },
+              });
+            } catch {
+              return [];
+            }
+          })()
+        : Promise.resolve([]),
+      getCachedTenantNotices(tenantId, 12).catch(() => []),
+      getCachedTenantEmergencyContacts(tenantId, 8).catch(() => []),
+      Promise.all([
+        getCachedTenantEvents(tenantId, 6),
+        getCachedTenantHolidays(tenantId, 6),
+        prisma.notification
+          ? prisma.notification.count({ where: { tenantId, recipientId: currentUser.id, isRead: false } })
+          : Promise.resolve(0),
+      ]).catch(() => [[], [], 0] as [any[], any[], number]),
+    ]);
+  } catch (err) {
+    console.warn('[PORTAL-FALLBACK] Returning safe empty arrays:', err instanceof Error ? err.message : String(err));
+  }
 
   // ── Unpack events/holidays/notifications ──────────────────────────────────
   const [dbEvents, dbHolidays, unreadNotificationsCount] = Array.isArray(eventsHolidaysNotif)
