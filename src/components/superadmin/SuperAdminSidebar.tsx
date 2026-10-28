@@ -17,6 +17,7 @@ import {
   Server,
   Loader2,
   ClipboardList,
+  HelpCircle,
 } from 'lucide-react';
 import { performInstantLogout } from '@/lib/auth-client';
 
@@ -57,6 +58,12 @@ const navItems = [
     name: 'Domains & DNS CNAME',
     href: '/superadmin/domains',
     icon: Globe,
+    badge: null,
+  },
+  {
+    name: 'Help & Support',
+    href: '/superadmin/help',
+    icon: HelpCircle,
     badge: null,
   },
 ];
