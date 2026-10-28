@@ -462,7 +462,7 @@ export async function sendApplicationRejectedEmail({
   reason?: string;
 }) {
   const subject = `Update Regarding Your Application for ${institutionName} — Alpha Edu Hub`;
-  const text = `Hello ${recipientName},\n\nThank you for your interest in Alpha Edu Hub. After careful review, we are unable to approve your application for ${institutionName} at this time.\n\nReason: ${reason || 'Details could not be verified'}\n\nIf you have questions, please contact support@alphaeduhub.in.`;
+  const text = `Hello ${recipientName},\n\nThank you for your interest in Alpha Edu Hub. After careful review, we are unable to approve your application for ${institutionName} at this time.\n\nReason: ${reason || 'Details could not be verified'}\n\nIf you have questions, please contact alphaeduhub360@gmail.com.`;
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 28px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;">
       <div style="text-align: center; margin-bottom: 24px;">
@@ -481,7 +481,7 @@ export async function sendApplicationRejectedEmail({
               </div>`
             : ''
         }
-        <p style="color: #4b5563; font-size: 13px; line-height: 1.6;">If you believe this decision was made in error or wish to submit updated documentation, please contact our onboarding support team at <a href="mailto:support@alphaeduhub.in" style="color: #0b72e7;">support@alphaeduhub.in</a>.</p>
+        <p style="color: #4b5563; font-size: 13px; line-height: 1.6;">If you believe this decision was made in error or wish to submit updated documentation, please contact our onboarding support team at <a href="mailto:alphaeduhub360@gmail.com" style="color: #0b72e7;">alphaeduhub360@gmail.com</a>.</p>
       </div>
       <p style="color: #94a3b8; font-size: 11px; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} Alpha Edu Hub. All rights reserved.</p>
     </div>

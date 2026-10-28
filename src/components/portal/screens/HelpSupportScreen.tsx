@@ -80,13 +80,15 @@ export default function HelpSupportScreen({
             <div className="pt-2 space-y-2.5 text-xs text-slate-700">
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-blue-600 shrink-0" />
-                <a href="mailto:support@alphaeduhub.in" className="hover:text-blue-600 font-medium">
-                  support@alphaeduhub.in
+                <a href="mailto:alphaeduhub360@gmail.com" className="hover:text-blue-600 font-medium">
+                  alphaeduhub360@gmail.com
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-blue-600 shrink-0" />
-                <span className="font-medium">+91 11 2345 6780 (Ext: 204)</span>
+                <a href="tel:+918277300451" className="hover:text-blue-600 font-medium">
+                  +91 82773 00451
+                </a>
               </div>
             </div>
 

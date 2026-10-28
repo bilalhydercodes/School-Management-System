@@ -146,7 +146,7 @@ const jsonLd = {
         '@type': 'ContactPoint',
         contactType: 'Customer Support',
         telephone: ['+91-8277300451', '+91-9845488621'],
-        email: 'support@alphaeduhub.in',
+        email: 'alphaeduhub360@gmail.com',
         url: 'https://alphaeduhub.in/contact',
         availableLanguage: ['English', 'Hindi'],
       },

@@ -140,11 +140,11 @@ export default function Footer() {
                   <span className="group-hover:text-blue-400 transition-colors">+91 98454 88621</span>
                 </a>
                 <a
-                  href="mailto:support@alphaeduhub.in"
+                  href="mailto:alphaeduhub360@gmail.com"
                   className="group inline-flex items-center gap-2 text-slate-300 hover:text-blue-400 transition-colors"
                 >
                   <Mail className="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-300 shrink-0 transition-colors" />
-                  <span className="group-hover:text-blue-400 transition-colors">support@alphaeduhub.in</span>
+                  <span className="group-hover:text-blue-400 transition-colors">alphaeduhub360@gmail.com</span>
                 </a>
               </div>
             </div>

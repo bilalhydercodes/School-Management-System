@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Search, Bell, ChevronDown, LogOut, User, ShieldCheck } from 'lucide-react';
+import { Menu, Search, Bell, ChevronDown, LogOut, User, ShieldCheck, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { performInstantLogout } from '@/lib/auth-client';
 import AdminAvatar from './illustrations/AdminAvatar';
@@ -120,6 +120,14 @@ export default function AdminHeader({
                 >
                   <ShieldCheck className="w-4 h-4 text-slate-400" />
                   <span>Security & Audit</span>
+                </Link>
+                <Link
+                  href="/admin/help"
+                  onClick={() => setProfileDropdownOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <HelpCircle className="w-4 h-4 text-slate-400" />
+                  <span>Help & Support</span>
                 </Link>
               </div>
 

@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, Bell, ChevronDown, LogOut, User, Shield, Menu, Receipt } from 'lucide-react';
+import { Search, Bell, ChevronDown, LogOut, User, Shield, Menu, Receipt, HelpCircle } from 'lucide-react';
 import { performInstantLogout } from '@/lib/auth-client';
 import { getTeacherAvatarUrl } from '@/lib/teacher-avatar';
 
@@ -152,6 +152,14 @@ export function TeacherHeader({
                 >
                   <Receipt className="w-3.5 h-3.5 text-[#2563EB]" />
                   <span>My Salary Slip</span>
+                </Link>
+                <Link
+                  href="/teacher/help"
+                  onClick={() => setShowProfileMenu(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-[#64748B] hover:text-[#102A56] hover:bg-slate-50 transition-colors"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-[#2563EB]" />
+                  <span>Help & Support</span>
                 </Link>
               </div>
               <div className="pt-1 border-t border-slate-100">

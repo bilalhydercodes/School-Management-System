@@ -271,16 +271,16 @@ export default function AdminSidebar({
         {/* Bottom Help & Support Section */}
         <div className="p-3.5 border-t border-slate-100 bg-[#FAFCFE] rounded-b-[28px]">
           <Link
-            href="/admin/settings"
+            href="/admin/help"
             prefetch={true}
-            onClick={() => handleLinkClick('/admin/settings')}
+            onClick={() => handleLinkClick('/admin/help')}
             className={`flex items-center justify-between p-2 rounded-xl text-slate-600 hover:text-[#0B72E7] hover:bg-[#F0F7FE] transition-colors group ${
-              pendingHref === '/admin/settings' ? 'bg-[#EBF4FE] text-[#0B72E7] font-semibold ring-1 ring-[#0B72E7]/30' : ''
+              pendingHref === '/admin/help' || pathname === '/admin/help' ? 'bg-[#EBF4FE] text-[#0B72E7] font-semibold ring-1 ring-[#0B72E7]/30' : ''
             }`}
           >
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center shrink-0">
-                {pendingHref === '/admin/settings' ? (
+                {pendingHref === '/admin/help' ? (
                   <Loader2 className="w-4 h-4 animate-spin text-[#0B72E7]" />
                 ) : (
                   <BookOpen className="w-4 h-4" />

@@ -200,8 +200,8 @@ export default function AboutPage() {
                   </div>
                   <div className="flex justify-between py-1">
                     <span className="text-slate-400">Support:</span>
-                    <a href="mailto:support@alphaeduhub.in" className="font-semibold text-blue-600 hover:underline">
-                      support@alphaeduhub.in
+                    <a href="mailto:alphaeduhub360@gmail.com" className="font-semibold text-blue-600 hover:underline">
+                      alphaeduhub360@gmail.com
                     </a>
                   </div>
                 </div>

@@ -98,7 +98,7 @@ export default function PrivacyPolicyPage() {
                 If you have questions regarding this Privacy Policy or your institution&apos;s data compliance, please reach out to:
               </p>
               <p className="text-slate-900 font-semibold">
-                Email: <a href="mailto:support@alphaeduhub.in" className="text-[#1d8cfd] hover:underline">support@alphaeduhub.in</a>
+                Email: <a href="mailto:alphaeduhub360@gmail.com" className="text-[#1d8cfd] hover:underline">alphaeduhub360@gmail.com</a>
               </p>
             </section>
           </div>

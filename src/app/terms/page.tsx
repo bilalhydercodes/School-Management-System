@@ -89,7 +89,7 @@ export default function TermsPage() {
                 These Terms shall be governed by and construed in accordance with the laws of India. For questions regarding licensing, agreements, or terms, contact:
               </p>
               <p className="text-slate-900 font-semibold">
-                Email: <a href="mailto:support@alphaeduhub.in" className="text-[#1d8cfd] hover:underline">support@alphaeduhub.in</a>
+                Email: <a href="mailto:alphaeduhub360@gmail.com" className="text-[#1d8cfd] hover:underline">alphaeduhub360@gmail.com</a>
               </p>
             </section>
           </div>
