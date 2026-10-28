@@ -79,10 +79,10 @@ export default function ContactPage() {
                 <h3 className="text-base font-bold text-slate-900">Official Support Email</h3>
                 <p className="text-xs text-slate-500 mt-1">Our technical assistance team replies within 24 hours.</p>
                 <a
-                  href="mailto:support@alphaeduhub.in"
+                  href="mailto:alphaeduhub360@gmail.com"
                   className="mt-3 inline-block text-sm font-semibold text-[#1d8cfd] hover:underline"
                 >
-                  support@alphaeduhub.in
+                  alphaeduhub360@gmail.com
                 </a>
               </div>
 
@@ -119,7 +119,7 @@ export default function ContactPage() {
                 Fill out the form below and an Alpha Edu Hub representative will assist you.
               </p>
 
-              <form action="mailto:support@alphaeduhub.in" method="GET" className="space-y-4">
+              <form action="mailto:alphaeduhub360@gmail.com" method="GET" className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1.5">

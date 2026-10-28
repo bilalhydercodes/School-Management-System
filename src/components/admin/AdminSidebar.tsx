@@ -280,7 +280,7 @@ export default function AdminSidebar({
           >
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center shrink-0">
-                {pendingHref === '/admin/settings' ? (
+                {pendingHref === '/admin/help' ? (
                   <Loader2 className="w-4 h-4 animate-spin text-[#0B72E7]" />
                 ) : (
                   <BookOpen className="w-4 h-4" />

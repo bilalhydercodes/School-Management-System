@@ -429,7 +429,7 @@ export default function ApplicationStatusClient({ application }: Props) {
                   <span>Submit New Application</span>
                 </Link>
                 <a
-                  href="mailto:support@alphaeduhub.in?subject=Application Inquiry"
+                  href="mailto:alphaeduhub360@gmail.com?subject=Application Inquiry"
                   className="w-full sm:w-auto px-5 py-2.5 rounded-xl font-semibold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <HelpCircle className="w-3.5 h-3.5" />

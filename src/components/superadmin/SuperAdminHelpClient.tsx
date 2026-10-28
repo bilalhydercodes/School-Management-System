@@ -22,6 +22,8 @@ import {
   Terminal,
   Activity,
   AlertTriangle,
+  ExternalLink,
+  MessageSquare,
 } from 'lucide-react';
 
 interface FaqItem {
@@ -42,7 +44,7 @@ const SUPERADMIN_FAQS: FaqItem[] = [
   {
     id: 's2',
     category: 'Tenant Provisioning',
-    question: 'How do custom custom subdomains and SSL certificates work?',
+    question: 'How do custom subdomains and SSL certificates work?',
     answer:
       'Each school is provisioned with a default slug (e.g., dps.alphaeduhub.in). For custom apex domains, configure a CNAME record pointing to proxy.alphaeduhub.in. Automated Let\'s Encrypt SSL certificates are issued within 60 seconds of DNS validation.',
   },
@@ -222,9 +224,9 @@ export default function SuperAdminHelpClient() {
               <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
                 <Mail className="w-4 h-4 text-purple-400 shrink-0" />
                 <div>
-                  <p className="text-[10px] text-slate-400 font-semibold">DevOps Engineering Email</p>
-                  <a href="mailto:devops@alphaeduhub.in" className="font-semibold text-purple-300 hover:underline">
-                    devops@alphaeduhub.in
+                  <p className="text-[10px] text-slate-400 font-semibold">DevOps & Technical Email</p>
+                  <a href="mailto:alphaeduhub360@gmail.com" className="font-semibold text-purple-300 hover:underline">
+                    alphaeduhub360@gmail.com
                   </a>
                 </div>
               </div>
@@ -233,9 +235,30 @@ export default function SuperAdminHelpClient() {
                 <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
                 <div>
                   <p className="text-[10px] text-slate-400 font-semibold">Emergency Infrastructure Line</p>
-                  <p className="font-semibold text-slate-200">+91 11 2345 6780 (Ext: 911)</p>
+                  <div className="flex items-center gap-2">
+                    <a href="tel:+918277300451" className="font-semibold text-slate-200 hover:text-purple-300 transition-colors">
+                      +91 82773 00451
+                    </a>
+                    <span className="text-slate-600">|</span>
+                    <a href="tel:+919845488621" className="font-semibold text-slate-200 hover:text-purple-300 transition-colors">
+                      +91 98454 88621
+                    </a>
+                  </div>
                 </div>
               </div>
+
+              <a
+                href="https://wa.me/918277300451?text=Hello%20AlphaEduHub%20Platform%20Engineering%20Support"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-3 rounded-xl bg-emerald-950/60 text-emerald-300 hover:bg-emerald-900/60 transition-colors border border-emerald-800/60 font-semibold"
+              >
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-emerald-400" />
+                  <span>Platform DevOps WhatsApp Line</span>
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
+              </a>
 
               <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
                 <Clock className="w-4 h-4 text-amber-400 shrink-0" />

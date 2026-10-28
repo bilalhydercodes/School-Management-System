@@ -51,7 +51,7 @@ export default function RefundPolicyPage() {
                 <span>1. Subscription Cancellation</span>
               </h2>
               <p>
-                Schools may cancel their Alpha Edu Hub SaaS plan (Lite or Prime) at any time through the SuperAdmin / Institution Billing settings or by submitting a written notice to <strong>support@alphaeduhub.in</strong>.
+                Schools may cancel their Alpha Edu Hub SaaS plan (Lite or Prime) at any time through the SuperAdmin / Institution Billing settings or by submitting a written notice to <strong>alphaeduhub360@gmail.com</strong>.
               </p>
               <p>
                 Upon cancellation, your school will maintain full access to your ERP tenant until the end of the current paid billing cycle, after which the account will not be charged again.
@@ -67,7 +67,7 @@ export default function RefundPolicyPage() {
                 We stand behind our platform. New school onboardings are eligible for a <strong>14-day money-back guarantee</strong> if the software does not meet your operational requirements or if technical onboarding cannot be achieved.
               </p>
               <p>
-                To request a refund under the 14-day onboarding guarantee, the authorized school administrator must submit a formal refund request to <strong>support@alphaeduhub.in</strong> within 14 calendar days of plan activation. Approved refunds are processed to the original payment method within 5–7 business days.
+                To request a refund under the 14-day onboarding guarantee, the authorized school administrator must submit a formal refund request to <strong>alphaeduhub360@gmail.com</strong> within 14 calendar days of plan activation. Approved refunds are processed to the original payment method within 5–7 business days.
               </p>
             </section>
 
@@ -87,7 +87,7 @@ export default function RefundPolicyPage() {
                 For invoice inquiries, GST tax receipts, or subscription updates, please contact our billing team:
               </p>
               <p className="text-slate-900 font-semibold">
-                Email: <a href="mailto:support@alphaeduhub.in" className="text-[#1d8cfd] hover:underline">support@alphaeduhub.in</a>
+                Email: <a href="mailto:alphaeduhub360@gmail.com" className="text-[#1d8cfd] hover:underline">alphaeduhub360@gmail.com</a>
               </p>
             </section>
           </div>

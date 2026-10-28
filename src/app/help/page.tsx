@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Sparkles,
   Building2,
+  ExternalLink,
 } from 'lucide-react';
 import Navbar from '@/components/landing/Navbar';
 import Footer from '@/components/landing/Footer';
@@ -33,7 +34,7 @@ const GENERAL_FAQS = [
   },
   {
     q: 'How does a school sign up for Alpha Edu Hub?',
-    a: 'School directors and principals can request an institution pilot by visiting our Contact page or emailing support@alphaeduhub.in. Our team provisions a dedicated tenant, migrates existing student/teacher data, and trains staff within 48 hours.',
+    a: 'School directors and principals can request an institution pilot by visiting our Contact page or emailing alphaeduhub360@gmail.com. Our team provisions a dedicated tenant, migrates existing student/teacher data, and trains staff within 48 hours.',
   },
   {
     q: 'What educational boards does Alpha Edu Hub support?',
@@ -171,20 +172,29 @@ export default function UniversalHelpPage() {
             <p className="text-xs text-blue-100">Our customer happiness and engineering team is available 6 days a week.</p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <a
-              href="mailto:support@alphaeduhub.in"
-              className="px-5 py-2.5 rounded-xl bg-white text-blue-700 text-xs font-bold hover:bg-blue-50 transition-colors flex items-center gap-2 shadow-sm"
+              href="mailto:alphaeduhub360@gmail.com"
+              className="px-4 py-2.5 rounded-xl bg-white text-blue-700 text-xs font-bold hover:bg-blue-50 transition-colors flex items-center gap-2 shadow-sm"
             >
               <Mail className="w-4 h-4" />
-              <span>support@alphaeduhub.in</span>
+              <span>alphaeduhub360@gmail.com</span>
             </a>
             <a
-              href="tel:+911123456780"
-              className="px-5 py-2.5 rounded-xl bg-blue-800/80 hover:bg-blue-800 text-white text-xs font-bold transition-colors flex items-center gap-2 border border-blue-400/30"
+              href="tel:+918277300451"
+              className="px-4 py-2.5 rounded-xl bg-blue-800/80 hover:bg-blue-800 text-white text-xs font-bold transition-colors flex items-center gap-2 border border-blue-400/30"
             >
               <Phone className="w-4 h-4" />
-              <span>+91 11 2345 6780</span>
+              <span>+91 82773 00451</span>
+            </a>
+            <a
+              href="https://wa.me/918277300451?text=Hello%20AlphaEduHub%20Support"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors flex items-center gap-2 border border-emerald-400/30 shadow-sm"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>WhatsApp Support</span>
             </a>
           </div>
         </div>

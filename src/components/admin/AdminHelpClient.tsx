@@ -22,6 +22,10 @@ import {
   Headphones,
   ExternalLink,
   MessageSquare,
+  Copy,
+  Printer,
+  X,
+  Sparkles,
 } from 'lucide-react';
 
 interface FaqItem {
@@ -83,7 +87,15 @@ const ADMIN_FAQS: FaqItem[] = [
   },
 ];
 
-const CATEGORIES = ['All', 'Student & Staff Onboarding', 'Fee Management & Gateways', 'Exams & CBSE Board Compliance', 'Roles & School Settings'];
+const CATEGORIES = [
+  'All',
+  'Student & Staff Onboarding',
+  'Fee Management & Gateways',
+  'Exams & CBSE Board Compliance',
+  'Roles & School Settings',
+];
+
+type DocType = 'deployment' | 'cbse' | null;
 
 export default function AdminHelpClient() {
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -97,6 +109,10 @@ export default function AdminHelpClient() {
   const [ticketDescription, setTicketDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ticketSubmitted, setTicketSubmitted] = useState<string | null>(null);
+  const [copiedTicket, setCopiedTicket] = useState(false);
+
+  // SOP Modal Viewer
+  const [activeDoc, setActiveDoc] = useState<DocType>(null);
 
   const filteredFaqs = ADMIN_FAQS.filter((faq) => {
     const matchesCategory = selectedCategory === 'All' || faq.category === selectedCategory;
@@ -118,6 +134,13 @@ export default function AdminHelpClient() {
       setTicketSubject('');
       setTicketDescription('');
     }, 600);
+  };
+
+  const copyTicketRef = () => {
+    if (!ticketSubmitted) return;
+    navigator.clipboard.writeText(ticketSubmitted);
+    setCopiedTicket(true);
+    setTimeout(() => setCopiedTicket(false), 2000);
   };
 
   return (
@@ -169,7 +192,7 @@ export default function AdminHelpClient() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: FAQs (7 cols) */}
+        {/* Left Column: FAQs & Documents (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="bg-white rounded-[22px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
@@ -221,46 +244,51 @@ export default function AdminHelpClient() {
             )}
           </div>
 
-          {/* Standard Operational Procedures (SOPs) Downloads */}
+          {/* Standard Operational Procedures (SOPs) Downloads & Viewers */}
           <div className="bg-white rounded-[22px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-6 space-y-3">
-            <div className="flex items-center gap-2 mb-2">
-              <BookOpen className="w-4 h-4 text-[#0B72E7]" />
-              <h3 className="text-sm font-bold text-slate-900">Compliance Documents & Deployment SOPs</h3>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-[#0B72E7]" />
+                <h3 className="text-sm font-bold text-slate-900">Compliance Documents & Deployment SOPs</h3>
+              </div>
+              <span className="text-[11px] font-medium text-slate-400">Click to view / print</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-3.5 rounded-xl border border-slate-100 hover:border-blue-200 bg-slate-50/50 hover:bg-blue-50/30 transition-all flex items-center justify-between group">
+              <div
+                onClick={() => setActiveDoc('deployment')}
+                className="p-3.5 rounded-xl border border-slate-100 hover:border-blue-200 bg-slate-50/50 hover:bg-blue-50/30 transition-all flex items-center justify-between group cursor-pointer"
+              >
                 <div className="flex items-center gap-2.5">
                   <FileText className="w-4 h-4 text-blue-600 shrink-0" />
                   <div>
-                    <p className="text-xs font-semibold text-slate-900">Admin Deployment Guide</p>
-                    <p className="text-[10px] text-slate-400">PDF • 3.8 MB</p>
+                    <p className="text-xs font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
+                      Admin Deployment Guide
+                    </p>
+                    <p className="text-[10px] text-slate-400">Official SOP • Printable</p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => window.open('/assets/admin-deployment-guide.pdf', '_blank')}
-                  className="p-1.5 rounded-lg text-slate-400 group-hover:text-blue-600 hover:bg-blue-100/60 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                </button>
+                <span className="p-1.5 rounded-lg text-slate-400 group-hover:text-blue-600 hover:bg-blue-100/60 transition-colors">
+                  <BookOpen className="w-4 h-4" />
+                </span>
               </div>
 
-              <div className="p-3.5 rounded-xl border border-slate-100 hover:border-blue-200 bg-slate-50/50 hover:bg-blue-50/30 transition-all flex items-center justify-between group">
+              <div
+                onClick={() => setActiveDoc('cbse')}
+                className="p-3.5 rounded-xl border border-slate-100 hover:border-purple-200 bg-slate-50/50 hover:bg-purple-50/30 transition-all flex items-center justify-between group cursor-pointer"
+              >
                 <div className="flex items-center gap-2.5">
                   <FileText className="w-4 h-4 text-purple-600 shrink-0" />
                   <div>
-                    <p className="text-xs font-semibold text-slate-900">CBSE Affiliation Checklist</p>
-                    <p className="text-[10px] text-slate-400">PDF • 1.6 MB</p>
+                    <p className="text-xs font-semibold text-slate-900 group-hover:text-purple-600 transition-colors">
+                      CBSE Affiliation Checklist
+                    </p>
+                    <p className="text-[10px] text-slate-400">Compliance Doc • Printable</p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => window.open('/assets/cbse-compliance.pdf', '_blank')}
-                  className="p-1.5 rounded-lg text-slate-400 group-hover:text-purple-600 hover:bg-purple-100/60 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                </button>
+                <span className="p-1.5 rounded-lg text-slate-400 group-hover:text-purple-600 hover:bg-purple-100/60 transition-colors">
+                  <BookOpen className="w-4 h-4" />
+                </span>
               </div>
             </div>
           </div>
@@ -281,18 +309,56 @@ export default function AdminHelpClient() {
             </div>
 
             {ticketSubmitted ? (
-              <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 text-center space-y-2">
-                <CheckCircle2 className="w-8 h-8 text-blue-600 mx-auto" />
-                <p className="text-xs font-bold text-blue-900">
-                  Escalation Logged Successfully!
-                </p>
-                <p className="text-[11px] text-blue-700">
-                  Your tracking ID is <span className="font-mono font-bold">{ticketSubmitted}</span>. Your Dedicated Account Engineer has been paged.
-                </p>
+              <div className="p-4 rounded-xl bg-blue-50/80 border border-blue-100 text-center space-y-3">
+                <CheckCircle2 className="w-9 h-9 text-blue-600 mx-auto" />
+                <div>
+                  <p className="text-xs font-bold text-blue-950">
+                    Escalation Logged Successfully!
+                  </p>
+                  <p className="text-[11px] text-blue-700 mt-1">
+                    Your tracking reference is:
+                  </p>
+                  <div className="inline-flex items-center gap-2 mt-1.5 px-3 py-1 rounded-lg bg-white border border-blue-200 shadow-2xs">
+                    <span className="font-mono text-xs font-bold text-blue-900">{ticketSubmitted}</span>
+                    <button
+                      type="button"
+                      onClick={copyTicketRef}
+                      title="Copy Reference"
+                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      {copiedTicket ? (
+                        <span className="text-[10px] font-semibold text-emerald-600">Copied!</span>
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex flex-col gap-2">
+                  <a
+                    href={`https://wa.me/918277300451?text=Hello%20AlphaEduHub%20Support,%20I%20have%20submitted%20Admin%20Escalation%20Ticket:%20${ticketSubmitted}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors shadow-xs"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>Chat on WhatsApp with Reference</span>
+                  </a>
+
+                  <a
+                    href={`mailto:alphaeduhub360@gmail.com?subject=Admin%20Escalation%20[${ticketSubmitted}]&body=Hello%20Support%20Team,%0A%0AReferencing%20Ticket:%20${ticketSubmitted}%0A%0A`}
+                    className="w-full py-2 px-3 rounded-xl bg-white border border-blue-200 text-blue-700 text-xs font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Send via Direct Email</span>
+                  </a>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => setTicketSubmitted(null)}
-                  className="mt-2 text-xs font-semibold text-blue-700 hover:underline cursor-pointer"
+                  className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 hover:underline cursor-pointer pt-1"
                 >
                   Submit Another Escalation
                 </button>
@@ -395,8 +461,11 @@ export default function AdminHelpClient() {
                 <Mail className="w-4 h-4 text-blue-600 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-[10px] text-slate-400 font-semibold">Priority Email Escalation</p>
-                  <a href="mailto:support@alphaeduhub.in" className="font-semibold text-blue-600 hover:underline truncate block">
-                    support@alphaeduhub.in
+                  <a
+                    href="mailto:alphaeduhub360@gmail.com"
+                    className="font-semibold text-blue-600 hover:underline truncate block"
+                  >
+                    alphaeduhub360@gmail.com
                   </a>
                 </div>
               </div>
@@ -405,9 +474,37 @@ export default function AdminHelpClient() {
                 <Phone className="w-4 h-4 text-emerald-600 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-[10px] text-slate-400 font-semibold">Enterprise Phone Hotline</p>
-                  <p className="font-semibold text-slate-800">+91 11 2345 6780</p>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="tel:+918277300451"
+                      className="font-semibold text-slate-800 hover:text-blue-600 transition-colors"
+                    >
+                      +91 82773 00451
+                    </a>
+                    <span className="text-slate-300">|</span>
+                    <a
+                      href="tel:+919845488621"
+                      className="font-semibold text-slate-800 hover:text-blue-600 transition-colors"
+                    >
+                      +91 98454 88621
+                    </a>
+                  </div>
                 </div>
               </div>
+
+              {/* Direct WhatsApp Support */}
+              <a
+                href="https://wa.me/918277300451?text=Hello%20AlphaEduHub%20Support,%20I%20am%20a%20School%20Administrator"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80 transition-colors border border-emerald-200/60 font-semibold"
+              >
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-emerald-600" />
+                  <span>Direct WhatsApp Enterprise Hotline</span>
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
+              </a>
 
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50">
                 <Clock className="w-4 h-4 text-amber-600 shrink-0" />
@@ -420,6 +517,127 @@ export default function AdminHelpClient() {
           </div>
         </div>
       </div>
+
+      {/* SOP Document Viewer Modal */}
+      {activeDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-[24px] max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    {activeDoc === 'deployment' ? 'Admin Deployment & Onboarding SOP' : 'CBSE Affiliation & Examination SOP'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500">Official Alpha Edu Hub Standard Operating Guide</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveDoc(null)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto space-y-4 text-xs text-slate-700 leading-relaxed">
+              {activeDoc === 'deployment' ? (
+                <>
+                  <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-100">
+                    <p className="font-bold text-blue-900">Phase 1: Institution Setup & Domain Binding</p>
+                    <p className="text-blue-800 mt-1">
+                      Configure your official school logo, apex CNAME record to <code className="font-mono bg-white px-1 py-0.5 rounded">proxy.alphaeduhub.in</code>, and enable auto-renewing SSL certificates.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-slate-900">Phase 2: Academic Structure & Faculty Accounts</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Define academic years, class grades, and active sections in Academics Manager.</li>
+                      <li>Assign class teachers and subject coordinators to avoid timetable collisions.</li>
+                      <li>Generate faculty accounts with temporary passwords; credentials auto-dispatch via email.</li>
+                    </ul>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-slate-900">Phase 3: Student Roster Bulk Ingestion</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Download the standard CSV template from Student Directory &gt; Bulk Import.</li>
+                      <li>Include mandatory columns: Admission Number, Student Full Name, Guardian Mobile, DOB, Blood Group.</li>
+                      <li>Run validation check before commit to prevent duplicate admission records.</li>
+                    </ul>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-slate-900">Phase 4: Fee Structure & Online Payment Gateways</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Set up tuition, transport, and lab fee categories for each class grade.</li>
+                      <li>Configure Razorpay Key ID, Secret, and Webhook URL in Admin Settings.</li>
+                      <li>Test ₹1 transaction in test mode before opening collection to parents.</li>
+                    </ul>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-100">
+                    <p className="font-bold text-purple-900">CBSE CCE & Board Affiliation Compliance Checklist</p>
+                    <p className="text-purple-800 mt-1">
+                      Strict guidelines for scholastic grading, co-scholastic rubrics, student attendance thresholds, and board report card generation.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-slate-900">1. Attendance Mandate</h4>
+                    <p>
+                      CBSE requires minimum 75% attendance to sit for board examinations. The system automatically highlights students falling below 75% and dispatches automated warning letters to parents.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-slate-900">2. Continuous Scholastic Grading</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Periodic Tests: 10 marks weightage.</li>
+                      <li>Notebook Submission & Class Work: 5 marks weightage.</li>
+                      <li>Subject Enrichment Activities (Lab/Speaking/Projects): 5 marks weightage.</li>
+                      <li>Term-End Written Examination: 80 marks.</li>
+                    </ul>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-slate-900">3. Report Card Lock & Digital Signatures</h4>
+                    <p>
+                      Once faculty completes marks entry, the Principal locks the term. The report cards generate with cryptographic QR codes for instant online verification by board auditors.
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+              <div className="text-[11px] text-slate-500">
+                Support: <a href="mailto:alphaeduhub360@gmail.com" className="text-blue-600 font-semibold">alphaeduhub360@gmail.com</a>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print SOP</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveDoc(null)}
+                  className="px-4 py-2 rounded-xl bg-[#0B72E7] text-white text-xs font-bold hover:bg-[#095ec0] transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
