@@ -13,7 +13,7 @@ const EMERGENCY_CONTACTS = [
   { name: 'Campus Safety & Chief Security Officer', icon: ShieldAlert, phone: '+91 98112 99001', location: 'Main Campus Gate 1 & 2', hours: '24 Hours / 7 Days', person: 'Mr. Vikram Rathore (Security Head)', badge: 'Security', color: 'blue' },
   { name: 'Anti-Bullying & POCSO Student Welfare Cell', icon: AlertCircle, phone: '+91 98223 11002', location: 'Welfare Centre, Library Wing', hours: '08:00 AM - 04:00 PM', person: 'Mrs. Ananya Sen (Counsellor)', badge: 'Welfare', color: 'purple' },
   { name: 'Emergency Ambulance & First Responder Desk', icon: HeartPulse, phone: '+91 11 2345 6799', location: 'Medical Bay Parking Bay 1', hours: '24 Hours On-Call', person: 'Campus Emergency Dispatch', badge: 'Critical', color: 'rose' },
-  { name: 'Student Academic & Transport Helpdesk', icon: LifeBuoy, phone: '+91 11 2345 6780', location: 'Central Reception, Main Foyer', hours: '08:00 AM - 05:00 PM', person: 'Helpdesk Duty Officer', badge: 'Support', color: 'blue' },
+  { name: 'Student Academic & Transport Helpdesk', icon: LifeBuoy, phone: '+91 82773 00451', location: 'Central Reception, Main Foyer', hours: '08:00 AM - 05:00 PM', person: 'Helpdesk Duty Officer', badge: 'Support', color: 'blue' },
 ];
 
 export default function EmergencyContactsScreen({
