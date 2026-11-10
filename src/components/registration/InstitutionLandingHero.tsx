@@ -17,6 +17,7 @@ import {
   Check
 } from 'lucide-react';
 import ModernInstitutionRegistrationFlow from './ModernInstitutionRegistrationFlow';
+import InstitutionPerksTicketCarousel from './InstitutionPerksTicketCarousel';
 
 export default function InstitutionLandingHero() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -398,75 +399,10 @@ export default function InstitutionLandingHero() {
         </div>
       </main>
 
-      {/* ── SECTION: INSTITUTION BENEFITS & PRIVILEGES ── */}
-      <section id="institution-perks" className="relative z-20 border-t border-slate-200/80 bg-white/70 backdrop-blur-md py-20 px-6 sm:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 border border-indigo-200/60 px-3 py-1 rounded-full">
-              Enterprise Institutional Privileges
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Engineered for School Principals, Trustees & Administrators
-            </h2>
-            <p className="mt-3 text-slate-600 text-sm sm:text-base">
-              Replace fragmented registers, Excel sheets, and legacy desktop software with one high-speed platform.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Benefit 1 */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl mb-6 group-hover:scale-110 transition-transform">
-                <Zap className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">Zero-Downtime Data Migration</h3>
-              <p className="mt-2.5 text-sm text-slate-600 leading-relaxed">
-                Our onboarding team migrates your existing student records, faculty rosters, and fee registers free of charge within 24 hours. Zero disruption to classes.
-              </p>
-            </div>
-
-            {/* Benefit 2 */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl mb-6 group-hover:scale-110 transition-transform">
-                <FileCheck2 className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">CBSE, ICSE & State Compliance</h3>
-              <p className="mt-2.5 text-sm text-slate-600 leading-relaxed">
-                Pre-configured CCE report cards, attendance registers, UDISE+/APAAR code tracking, and digital transfer certificates compliant with national education policies.
-              </p>
-            </div>
-
-            {/* Benefit 3 */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl mb-6 group-hover:scale-110 transition-transform">
-                <BellRing className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">Automated Parent Alerts & UPI</h3>
-              <p className="mt-2.5 text-sm text-slate-600 leading-relaxed">
-                Instant period-absence notifications to parents via automated WhatsApp and SMS. Digital fee invoices with instant UPI QR payments and automated reconciliation.
-              </p>
-            </div>
-          </div>
-
-          {/* Bottom Action Card */}
-          <div className="mt-16 bg-slate-900 text-white rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
-            <div>
-              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Ready to empower your school with Alpha Edu Hub?
-              </h3>
-              <p className="mt-2 text-slate-400 text-sm sm:text-base max-w-xl">
-                Submit your institution details. Our onboarding team validates and provisions your multi-tenant school console with priority deployment.
-              </p>
-            </div>
-            <button
-              onClick={() => setShowApplicationModal(true)}
-              className="whitespace-nowrap px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full font-bold text-base shadow-lg shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all"
-            >
-              Start Registration →
-            </button>
-          </div>
-        </div>
-      </section>
+      {/* ── SECTION: EXCLUSIVE PARTNER PERKS TICKET CAROUSEL ── */}
+      <div id="institution-perks">
+        <InstitutionPerksTicketCarousel onApplyClick={() => setShowApplicationModal(true)} />
+      </div>
 
       {/* ── IMMERSIVE ONBOARDING EXPERIENCE MODAL ── */}
       <AnimatePresence>

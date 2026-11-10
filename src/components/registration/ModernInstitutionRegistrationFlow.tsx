@@ -986,3 +986,4 @@ export default function ModernInstitutionRegistrationFlow({ onClose }: ModernFlo
     </div>
   );
 }
+
