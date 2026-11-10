@@ -6,16 +6,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowUpRight, 
   ChevronDown, 
-  Sparkles, 
-  CheckCircle2, 
   ShieldCheck, 
   GraduationCap, 
-  Users, 
   Zap, 
   X,
-  Building2,
-  Clock,
-  ExternalLink
+  School,
+  FileCheck2,
+  BellRing,
+  Building,
+  Check
 } from 'lucide-react';
 import InstitutionRegistrationWizard from './InstitutionRegistrationWizard';
 
@@ -38,7 +37,7 @@ export default function InstitutionLandingHero() {
   }, []);
 
   const scrollToPerks = () => {
-    const perksElement = document.getElementById('leader-perks');
+    const perksElement = document.getElementById('institution-perks');
     if (perksElement) {
       perksElement.scrollIntoView({ behavior: 'smooth' });
     }
@@ -164,7 +163,7 @@ export default function InstitutionLandingHero() {
           <div>
             <span className="font-extrabold text-base tracking-tight text-slate-900">Alpha Edu Hub</span>
             <span className="hidden sm:inline-block ml-2 text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-full">
-              Partner Program
+              Institution Onboarding
             </span>
           </div>
         </Link>
@@ -174,7 +173,7 @@ export default function InstitutionLandingHero() {
             href="/login"
             className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1"
           >
-            Already registered? <span className="text-indigo-600 hover:underline">Sign in →</span>
+            Already an institutional user? <span className="text-indigo-600 hover:underline">Sign in →</span>
           </Link>
         </div>
       </header>
@@ -194,11 +193,11 @@ export default function InstitutionLandingHero() {
             >
               <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
               <span className="text-xs font-bold tracking-wider text-slate-700 uppercase">
-                Institution Leader Program
+                Verified Institution Registration
               </span>
             </motion.div>
 
-            {/* Giant Bold Headline matching sample */}
+            {/* Giant Bold Headline tailored directly for Alpha Edu Hub */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
@@ -206,18 +205,18 @@ export default function InstitutionLandingHero() {
               className="space-y-1 sm:space-y-2"
             >
               <h1 className="text-5xl sm:text-6xl lg:text-[72px] font-black text-slate-900 tracking-[-0.03em] leading-[1.06]">
-                Lead Your{' '}
+                Modernize Your{' '}
                 <span className="relative inline-block px-1">
-                  Campus.
-                  {/* Highlighter effect behind 'Campus.' */}
+                  School.
+                  {/* Highlighter effect behind 'School.' */}
                   <span className="absolute left-0 bottom-1.5 -z-10 w-full h-3.5 sm:h-5 bg-indigo-100/90 rounded-sm" />
                 </span>
               </h1>
               <h1 className="text-5xl sm:text-6xl lg:text-[72px] font-black text-slate-900 tracking-[-0.03em] leading-[1.06]">
-                Shape Your{' '}
+                Automate Every{' '}
                 <span className="relative inline-block text-indigo-600">
-                  Future.
-                  {/* Hand-drawn playful wavy doodle underline under 'Future.' */}
+                  Workflow.
+                  {/* Hand-drawn playful wavy doodle underline under 'Workflow.' */}
                   <svg
                     viewBox="0 0 200 14"
                     fill="none"
@@ -234,17 +233,38 @@ export default function InstitutionLandingHero() {
               </h1>
             </motion.div>
 
-            {/* Subtitle */}
+            {/* Subtitle explicitly communicating Alpha Edu Hub value proposition */}
             <motion.p
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               className="mt-8 text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed"
             >
-              Become an Alpha Edu Hub institution leader. Represent your campus in our next-generation school management network.
+              Provision a dedicated multi-tenant ERP workspace for your school or college. Streamline student admissions, daily attendance, automated fee collection, and parent communications in one unified platform.
             </motion.p>
 
-            {/* CTAs matching sample */}
+            {/* Feature highlights bullets */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+              className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm font-semibold text-slate-600"
+            >
+              <div className="flex items-center gap-1.5">
+                <Check className="w-4 h-4 text-emerald-600" />
+                <span>CBSE, ICSE & State Boards</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Check className="w-4 h-4 text-emerald-600" />
+                <span>Zero Migration Downtime</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Check className="w-4 h-4 text-emerald-600" />
+                <span>Instant WhatsApp Alerts</span>
+              </div>
+            </motion.div>
+
+            {/* CTAs */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -255,7 +275,7 @@ export default function InstitutionLandingHero() {
                 onClick={() => setShowApplicationModal(true)}
                 className="group relative inline-flex items-center gap-3.5 bg-slate-950 hover:bg-slate-900 active:scale-[0.98] text-white pl-6 pr-3.5 py-3 rounded-full text-base font-semibold shadow-xl shadow-slate-950/15 transition-all hover:shadow-2xl hover:shadow-slate-950/20"
               >
-                <span>Apply Now</span>
+                <span>Register Institution</span>
                 <span className="w-8 h-8 rounded-full bg-white text-slate-950 flex items-center justify-center font-bold transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                   <ArrowUpRight className="w-4 h-4" />
                 </span>
@@ -265,7 +285,7 @@ export default function InstitutionLandingHero() {
                 onClick={scrollToPerks}
                 className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-slate-700 hover:text-slate-950 transition-colors group"
               >
-                <span>See the perks</span>
+                <span>See institution benefits</span>
                 <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
               </button>
             </motion.div>
@@ -316,8 +336,8 @@ export default function InstitutionLandingHero() {
                   </div>
                 </div>
 
-                {/* ── 3. Hanging ID Card ── */}
-                <div className="-mt-1 relative w-64 sm:w-[280px] h-[380px] sm:h-[400px] bg-white rounded-[28px] border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_10px_20px_-5px_rgba(15,23,42,0.08)] p-6 sm:p-7 flex flex-col justify-between overflow-hidden">
+                {/* ── 3. Hanging Institutional ID Card ── */}
+                <div className="-mt-1 relative w-64 sm:w-[285px] h-[385px] sm:h-[405px] bg-white rounded-[28px] border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(15,23,42,0.18),0_10px_20px_-5px_rgba(15,23,42,0.08)] p-6 sm:p-7 flex flex-col justify-between overflow-hidden">
                   
                   {/* Top Punch Slot Hole for Hook */}
                   <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-8 h-2 bg-slate-100 border border-slate-300 rounded-full" />
@@ -330,71 +350,44 @@ export default function InstitutionLandingHero() {
                       </div>
                       <div className="leading-tight">
                         <div className="text-[12px] font-extrabold text-slate-900 tracking-tight">alphaeduhub</div>
-                        <div className="text-[10px] font-semibold text-slate-500 tracking-tight">institution leader</div>
+                        <div className="text-[9.5px] font-semibold text-slate-500 tracking-tight uppercase">Institution Console</div>
                       </div>
                     </div>
 
-                    {/* Fun loopy line doodle SVG in corner */}
-                    <svg width="40" height="24" viewBox="0 0 48 24" fill="none" className="text-slate-900 stroke-current">
-                      <path
-                        d="M 2,12 C 14,2 26,2 25,12 C 24,20 15,19 19,10 C 23,0 42,7 46,14"
-                        strokeWidth="2.2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
+                    {/* Verified Institution Badge Pill */}
+                    <div className="flex items-center gap-1 bg-indigo-50 border border-indigo-200/80 px-2 py-0.5 rounded-full">
+                      <ShieldCheck className="w-3 h-3 text-indigo-600" />
+                      <span className="text-[9.5px] font-bold text-indigo-700">Verified</span>
+                    </div>
                   </div>
 
                   {/* Card Main Hero Body */}
                   <div className="my-auto text-left pl-1">
-                    <h2 className="text-6xl sm:text-7xl font-black text-slate-900 tracking-tight leading-none">
-                      You.
+                    <h2 className="text-5xl sm:text-6xl font-black text-slate-900 tracking-tight leading-none">
+                      Your Campus.
                     </h2>
-                    <p className="mt-2 text-xs sm:text-sm font-medium text-slate-500 tracking-tight">
-                      leading campus since 2026
+                    <p className="mt-2.5 text-xs sm:text-sm font-semibold text-slate-500 tracking-tight">
+                      unified school operations • 2026
                     </p>
+                    <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-[10px] font-semibold text-slate-600">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      Multi-Tenant Architecture Active
+                    </div>
                   </div>
 
-                  {/* Card Footer: Domain pill on left, leader avatar on right */}
+                  {/* Card Footer: Domain pill on left, institution crest on right */}
                   <div className="flex items-end justify-between pt-2">
                     {/* Domain Pill */}
                     <div className="border border-slate-300 rounded-full px-3 py-1 bg-white text-[11px] font-bold text-slate-700 shadow-xs mb-1">
                       alphaeduhub.in
                     </div>
 
-                    {/* Smiling Leader Character Illustration */}
-                    <div className="relative w-20 h-20 -mr-2 -mb-2 overflow-hidden flex items-end justify-center">
-                      <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
-                        {/* Purple T-Shirt */}
-                        <path
-                          d="M20,95 Q50,75 80,95 L85,100 L15,100 Z"
-                          fill="#4F46E5"
-                        />
-                        {/* Neck */}
-                        <rect x="42" y="65" width="16" height="15" fill="#FED7AA" />
-                        {/* Head */}
-                        <circle cx="50" cy="52" r="20" fill="#FED7AA" />
-                        {/* Eyes */}
-                        <circle cx="44" cy="50" r="2.5" fill="#0F172A" />
-                        <circle cx="56" cy="50" r="2.5" fill="#0F172A" />
-                        {/* Smile */}
-                        <path
-                          d="M44,58 Q50,65 56,58"
-                          stroke="#0F172A"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                        />
-                        {/* Cap / Hat (backward baseball cap) */}
-                        <path
-                          d="M30,46 Q50,30 70,46 Q50,36 30,46 Z"
-                          fill="#818CF8"
-                        />
-                        <path
-                          d="M26,45 C20,44 14,46 12,48 C16,49 24,47 28,46 Z"
-                          fill="#6366F1"
-                        />
-                        {/* Cap button on top */}
-                        <circle cx="50" cy="35" r="2.5" fill="#312E81" />
-                      </svg>
+                    {/* Modern Institutional Crest Graphic */}
+                    <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-700 via-indigo-600 to-indigo-500 p-0.5 shadow-md flex items-center justify-center">
+                      <div className="w-full h-full bg-indigo-950/20 backdrop-blur-xs rounded-[14px] flex flex-col items-center justify-center">
+                        <GraduationCap className="w-7 h-7 text-amber-300 drop-shadow-xs" />
+                        <span className="text-[8px] font-extrabold text-white tracking-widest uppercase mt-0.5">ERP</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -405,52 +398,52 @@ export default function InstitutionLandingHero() {
         </div>
       </main>
 
-      {/* ── SECTION: LEADER PERKS & PRIVILEGES ── */}
-      <section id="leader-perks" className="relative z-20 border-t border-slate-200/80 bg-white/70 backdrop-blur-md py-20 px-6 sm:px-8">
+      {/* ── SECTION: INSTITUTION BENEFITS & PRIVILEGES ── */}
+      <section id="institution-perks" className="relative z-20 border-t border-slate-200/80 bg-white/70 backdrop-blur-md py-20 px-6 sm:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 border border-indigo-200/60 px-3 py-1 rounded-full">
-              Exclusive Institution Privileges
+              Enterprise Institutional Privileges
             </span>
             <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Why Campus Leaders Partner With Us
+              Engineered for School Principals, Trustees & Administrators
             </h2>
             <p className="mt-3 text-slate-600 text-sm sm:text-base">
-              Everything required to modernize your institution with zero operational friction.
+              Replace fragmented registers, Excel sheets, and legacy desktop software with one high-speed platform.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Perk 1 */}
+            {/* Benefit 1 */}
             <div className="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all group">
               <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl mb-6 group-hover:scale-110 transition-transform">
                 <Zap className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Zero Setup & Migration Fees</h3>
+              <h3 className="text-xl font-bold text-slate-900">Zero-Downtime Data Migration</h3>
               <p className="mt-2.5 text-sm text-slate-600 leading-relaxed">
-                Our migration team migrates your existing student rosters, academic records, and fee schedules free of charge within 48 hours.
+                Our onboarding team migrates your existing student records, faculty rosters, and fee registers free of charge within 24 hours. Zero disruption to classes.
               </p>
             </div>
 
-            {/* Perk 2 */}
+            {/* Benefit 2 */}
             <div className="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all group">
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl mb-6 group-hover:scale-110 transition-transform">
-                <ShieldCheck className="w-6 h-6" />
+                <FileCheck2 className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Board-Compliant Architecture</h3>
+              <h3 className="text-xl font-bold text-slate-900">CBSE, ICSE & State Compliance</h3>
               <p className="mt-2.5 text-sm text-slate-600 leading-relaxed">
-                Pre-configured for CBSE, ICSE, and State Boards with automated report card generation, APAAR/UDISE+ formatting, and grading schemes.
+                Pre-configured CCE report cards, attendance registers, UDISE+/APAAR code tracking, and digital transfer certificates compliant with national education policies.
               </p>
             </div>
 
-            {/* Perk 3 */}
+            {/* Benefit 3 */}
             <div className="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all group">
               <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl mb-6 group-hover:scale-110 transition-transform">
-                <GraduationCap className="w-6 h-6" />
+                <BellRing className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Dedicated Account Architect</h3>
+              <h3 className="text-xl font-bold text-slate-900">Automated Parent Alerts & UPI</h3>
               <p className="mt-2.5 text-sm text-slate-600 leading-relaxed">
-                Direct phone and WhatsApp support channel with an assigned educational ERP specialist to guide teacher training and staff setup.
+                Instant period-absence notifications to parents via automated WhatsApp and SMS. Digital fee invoices with instant UPI QR payments and automated reconciliation.
               </p>
             </div>
           </div>
@@ -459,17 +452,17 @@ export default function InstitutionLandingHero() {
           <div className="mt-16 bg-slate-900 text-white rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
             <div>
               <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Ready to lead your campus forward?
+                Ready to empower your school with Alpha Edu Hub?
               </h3>
               <p className="mt-2 text-slate-400 text-sm sm:text-base max-w-xl">
-                Submit your institution details. Our onboarding team reviews and provisions your institutional console within 24 hours.
+                Submit your institution details. Our onboarding team validates and provisions your multi-tenant school console with priority deployment.
               </p>
             </div>
             <button
               onClick={() => setShowApplicationModal(true)}
               className="whitespace-nowrap px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full font-bold text-base shadow-lg shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all"
             >
-              Start Application →
+              Start Registration →
             </button>
           </div>
         </div>
@@ -493,8 +486,8 @@ export default function InstitutionLandingHero() {
                     α
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">Institution Application</h3>
-                    <p className="text-xs text-slate-500">Alpha Edu Hub Institutional Onboarding</p>
+                    <h3 className="text-base font-bold text-slate-900">Institution Registration</h3>
+                    <p className="text-xs text-slate-500">Alpha Edu Hub Multi-Tenant School ERP</p>
                   </div>
                 </div>
                 <button

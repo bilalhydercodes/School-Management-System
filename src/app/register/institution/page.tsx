@@ -2,9 +2,9 @@ import React from 'react';
 import InstitutionLandingHero from '@/components/registration/InstitutionLandingHero';
 
 export const metadata = {
-  title: 'Lead Your Campus | Alpha Edu Hub Institution Partner Program',
+  title: 'Register Institution — Modernize Your School | Alpha Edu Hub',
   description:
-    'Join Alpha Edu Hub as an institution leader. Transform your campus workflows, empower educators, and shape the future of digital education.',
+    'Onboard your school or college to Alpha Edu Hub. Provision an enterprise-grade ERP workspace with automated attendance, instant fee reconciliation, timetable sync, and parent communications.',
 };
 
 export default function RegisterInstitutionPage() {
