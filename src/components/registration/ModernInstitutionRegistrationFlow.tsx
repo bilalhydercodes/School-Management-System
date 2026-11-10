@@ -38,6 +38,7 @@ const DRAFT_KEY = 'alpha_institution_draft_v3';
 
 interface ModernFlowProps {
   onClose?: () => void;
+  embedded?: boolean;
 }
 
 const INSTITUTION_TYPES = [
@@ -108,7 +109,7 @@ const DESIGNATIONS = [
   'Other',
 ] as const;
 
-export default function ModernInstitutionRegistrationFlow({ onClose }: ModernFlowProps) {
+export default function ModernInstitutionRegistrationFlow({ onClose, embedded = false }: ModernFlowProps) {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isPending, startTransition] = useTransition();

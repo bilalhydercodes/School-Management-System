@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   ArrowUpRight, 
   ChevronDown, 
@@ -16,12 +16,11 @@ import {
   Building,
   Check
 } from 'lucide-react';
-import ModernInstitutionRegistrationFlow from './ModernInstitutionRegistrationFlow';
 import InstitutionPerksTicketCarousel from './InstitutionPerksTicketCarousel';
+import InstitutionRegistrationSection from './InstitutionRegistrationSection';
 
 export default function InstitutionLandingHero() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [showApplicationModal, setShowApplicationModal] = useState(false);
 
   // Smooth mouse parallax tracking
   useEffect(() => {
@@ -41,6 +40,13 @@ export default function InstitutionLandingHero() {
     const perksElement = document.getElementById('institution-perks');
     if (perksElement) {
       perksElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const scrollToRegister = () => {
+    const regElement = document.getElementById('register-section');
+    if (regElement) {
+      regElement.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -273,7 +279,7 @@ export default function InstitutionLandingHero() {
               className="mt-10 flex flex-wrap items-center gap-6"
             >
               <button
-                onClick={() => setShowApplicationModal(true)}
+                onClick={scrollToRegister}
                 className="group relative inline-flex items-center gap-3.5 bg-slate-950 hover:bg-slate-900 active:scale-[0.98] text-white pl-6 pr-3.5 py-3 rounded-full text-base font-semibold shadow-xl shadow-slate-950/15 transition-all hover:shadow-2xl hover:shadow-slate-950/20"
               >
                 <span>Register Institution</span>
@@ -399,27 +405,13 @@ export default function InstitutionLandingHero() {
         </div>
       </main>
 
-      {/* ── SECTION: EXCLUSIVE PARTNER PERKS TICKET CAROUSEL ── */}
+      {/* ── SECTION 2: EXCLUSIVE PARTNER PERKS TICKET CAROUSEL ── */}
       <div id="institution-perks">
-        <InstitutionPerksTicketCarousel onApplyClick={() => setShowApplicationModal(true)} />
+        <InstitutionPerksTicketCarousel onApplyClick={scrollToRegister} />
       </div>
 
-      {/* ── IMMERSIVE ONBOARDING EXPERIENCE MODAL ── */}
-      <AnimatePresence>
-        {showApplicationModal && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 20 }}
-              transition={{ duration: 0.28, ease: 'easeOut' }}
-              className="w-full max-w-6xl my-auto"
-            >
-              <ModernInstitutionRegistrationFlow onClose={() => setShowApplicationModal(false)} />
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* ── SECTION 3: ONBOARDING REGISTRATION & CONSULTATION ── */}
+      <InstitutionRegistrationSection />
     </div>
   );
 }
