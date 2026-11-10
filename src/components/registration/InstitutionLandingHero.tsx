@@ -16,7 +16,7 @@ import {
   Building,
   Check
 } from 'lucide-react';
-import InstitutionRegistrationWizard from './InstitutionRegistrationWizard';
+import ModernInstitutionRegistrationFlow from './ModernInstitutionRegistrationFlow';
 
 export default function InstitutionLandingHero() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -468,40 +468,18 @@ export default function InstitutionLandingHero() {
         </div>
       </section>
 
-      {/* ── APPLICATION MODAL (Preserving Form Logic & Step Wizard) ── */}
+      {/* ── IMMERSIVE ONBOARDING EXPERIENCE MODAL ── */}
       <AnimatePresence>
         {showApplicationModal && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.96, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 my-8 max-h-[90vh] flex flex-col"
+              exit={{ opacity: 0, scale: 0.96, y: 20 }}
+              transition={{ duration: 0.28, ease: 'easeOut' }}
+              className="w-full max-w-6xl my-auto"
             >
-              {/* Modal Header */}
-              <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
-                    α
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900">Institution Registration</h3>
-                    <p className="text-xs text-slate-500">Alpha Edu Hub Multi-Tenant School ERP</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowApplicationModal(false)}
-                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Modal Body with preserved wizard */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-                <InstitutionRegistrationWizard />
-              </div>
+              <ModernInstitutionRegistrationFlow onClose={() => setShowApplicationModal(false)} />
             </motion.div>
           </div>
         )}
