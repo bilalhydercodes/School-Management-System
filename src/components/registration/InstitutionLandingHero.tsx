@@ -7,14 +7,7 @@ import {
   ArrowUpRight, 
   ChevronDown, 
   ShieldCheck, 
-  GraduationCap, 
-  Zap, 
-  X,
-  School,
-  FileCheck2,
-  BellRing,
-  Building,
-  Check
+  GraduationCap
 } from 'lucide-react';
 import InstitutionPerksTicketCarousel from './InstitutionPerksTicketCarousel';
 import InstitutionRegistrationSection from './InstitutionRegistrationSection';
@@ -72,7 +65,7 @@ export default function InstitutionLandingHero() {
       {/* ── FLOATING SHAPES WITH MOUSE PARALLAX ── */}
       {/* Shape 1: Top-left pastel yellow rounded square with solid offset shadow */}
       <motion.div
-        className="absolute top-[14%] left-[6%] z-10 hidden sm:block pointer-events-none"
+        className="absolute top-[8%] left-[2%] sm:left-[3%] z-10 hidden sm:block pointer-events-none"
         animate={{
           x: mousePos.x * 18,
           y: mousePos.y * 18,
@@ -88,12 +81,12 @@ export default function InstitutionLandingHero() {
         />
       </motion.div>
 
-      {/* Shape 2: Top-center 4-point sparkle star */}
+      {/* Shape 2: Center 4-point sparkle star (moved to open center space) */}
       <motion.div
-        className="absolute top-[12%] left-[42%] z-10 pointer-events-none"
+        className="absolute top-[26%] left-[48%] sm:left-[51%] z-10 pointer-events-none"
         animate={{
-          x: mousePos.x * -14,
-          y: mousePos.y * -16,
+          x: mousePos.x * -16,
+          y: mousePos.y * -18,
         }}
         transition={{ type: 'spring', damping: 28, stiffness: 100 }}
       >
@@ -102,7 +95,7 @@ export default function InstitutionLandingHero() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.35, type: 'spring' }}
         >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="text-indigo-400 drop-shadow-xs">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" className="text-indigo-500 fill-indigo-400 drop-shadow-md">
             <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z" />
           </svg>
         </motion.div>
@@ -110,7 +103,7 @@ export default function InstitutionLandingHero() {
 
       {/* Shape 3: Right mint green circle with solid offset shadow */}
       <motion.div
-        className="absolute top-[32%] right-[5%] z-10 hidden sm:block pointer-events-none"
+        className="absolute top-[44%] right-[2%] sm:right-[3%] z-10 hidden sm:block pointer-events-none"
         animate={{
           x: mousePos.x * 24,
           y: mousePos.y * 22,
@@ -127,7 +120,7 @@ export default function InstitutionLandingHero() {
 
       {/* Shape 4: Bottom-right periwinkle rectangle with solid offset shadow */}
       <motion.div
-        className="absolute bottom-[22%] right-[6%] z-10 hidden md:block pointer-events-none"
+        className="absolute bottom-[14%] right-[4%] sm:right-[5%] z-10 hidden md:block pointer-events-none"
         animate={{
           x: mousePos.x * -18,
           y: mousePos.y * 18,
@@ -145,7 +138,7 @@ export default function InstitutionLandingHero() {
 
       {/* Shape 5: Bottom-center dashed black diamond */}
       <motion.div
-        className="absolute bottom-[10%] left-[48%] z-10 pointer-events-none hidden sm:block"
+        className="absolute bottom-[6%] left-[44%] sm:left-[46%] z-10 pointer-events-none hidden sm:block"
         animate={{
           x: mousePos.x * 16,
           y: mousePos.y * -18,
@@ -161,32 +154,34 @@ export default function InstitutionLandingHero() {
         />
       </motion.div>
 
-      {/* ── TOP HEADER / NAV ── */}
-      <header className="relative z-30 w-full max-w-7xl mx-auto px-6 sm:px-8 pt-6 pb-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-indigo-600/20 group-hover:scale-105 transition-transform">
-            <span className="font-black text-lg">α</span>
-          </div>
-          <div>
-            <span className="font-extrabold text-base tracking-tight text-slate-900">Alpha Edu Hub</span>
-            <span className="hidden sm:inline-block ml-2 text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-full">
-              Institution Onboarding
-            </span>
-          </div>
-        </Link>
-
-        <div className="flex items-center gap-4">
-          <Link
-            href="/login"
-            className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1"
-          >
-            Already an institutional user? <span className="text-indigo-600 hover:underline">Sign in →</span>
+      {/* ── TOP HEADER / NAV (FIXED TO TOP) ── */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-[#fafafc]/85 backdrop-blur-md border-b border-slate-200/60 shadow-2xs transition-all">
+        <div className="w-full max-w-7xl mx-auto px-6 sm:px-8 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-indigo-600/20 group-hover:scale-105 transition-transform">
+              <span className="font-black text-lg">α</span>
+            </div>
+            <div>
+              <span className="font-extrabold text-base tracking-tight text-slate-900">Alpha Edu Hub</span>
+              <span className="hidden sm:inline-block ml-2 text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-full">
+                Institution Onboarding
+              </span>
+            </div>
           </Link>
+
+          <div className="flex items-center gap-4">
+            <Link
+              href="/login"
+              className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1"
+            >
+              Already an institutional user? <span className="text-indigo-600 hover:underline">Sign in →</span>
+            </Link>
+          </div>
         </div>
       </header>
 
       {/* ── MAIN HERO SECTION ── */}
-      <main className="relative z-20 max-w-7xl mx-auto px-6 sm:px-8 pt-6 sm:pt-12 pb-24 min-h-[calc(100vh-80px)] flex flex-col justify-center">
+      <main className="relative z-20 max-w-7xl mx-auto px-6 sm:px-8 pt-28 sm:pt-32 pb-20 min-h-[calc(100vh-64px)] flex flex-col justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
           {/* ── LEFT COLUMN: HEADLINE, COPY & CTA ── */}
@@ -204,22 +199,22 @@ export default function InstitutionLandingHero() {
               </span>
             </motion.div>
 
-            {/* Giant Bold Headline tailored directly for Alpha Edu Hub */}
+            {/* Scaled & Refined Bold Headline */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="space-y-1 sm:space-y-2"
             >
-              <h1 className="text-5xl sm:text-6xl lg:text-[72px] font-black text-slate-900 tracking-[-0.03em] leading-[1.06]">
+              <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-black text-slate-900 tracking-[-0.03em] leading-[1.12]">
                 Modernize Your{' '}
                 <span className="relative inline-block px-1">
                   School.
                   {/* Highlighter effect behind 'School.' */}
-                  <span className="absolute left-0 bottom-1.5 -z-10 w-full h-3.5 sm:h-5 bg-indigo-100/90 rounded-sm" />
+                  <span className="absolute left-0 bottom-1 -z-10 w-full h-3 sm:h-4 bg-indigo-100/90 rounded-xs" />
                 </span>
               </h1>
-              <h1 className="text-5xl sm:text-6xl lg:text-[72px] font-black text-slate-900 tracking-[-0.03em] leading-[1.06]">
+              <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-black text-slate-900 tracking-[-0.03em] leading-[1.12]">
                 Automate Every{' '}
                 <span className="relative inline-block text-indigo-600">
                   Workflow.
@@ -227,7 +222,7 @@ export default function InstitutionLandingHero() {
                   <svg
                     viewBox="0 0 200 14"
                     fill="none"
-                    className="absolute -bottom-2.5 left-0 w-full h-3 sm:h-4 text-slate-900 stroke-current overflow-visible"
+                    className="absolute -bottom-2 left-0 w-full h-3 sm:h-3.5 text-slate-900 stroke-current overflow-visible"
                   >
                     <path
                       d="M 2,7 C 45,2 105,12 198,5"
@@ -240,43 +235,22 @@ export default function InstitutionLandingHero() {
               </h1>
             </motion.div>
 
-            {/* Subtitle explicitly communicating Alpha Edu Hub value proposition */}
+            {/* Subtitle */}
             <motion.p
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="mt-8 text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed"
+              className="mt-6 sm:mt-7 text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed"
             >
               Provision a dedicated multi-tenant ERP workspace for your school or college. Streamline student admissions, daily attendance, automated fee collection, and parent communications in one unified platform.
             </motion.p>
-
-            {/* Feature highlights bullets */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.35 }}
-              className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm font-semibold text-slate-600"
-            >
-              <div className="flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-emerald-600" />
-                <span>CBSE, ICSE & State Boards</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-emerald-600" />
-                <span>Zero Migration Downtime</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-emerald-600" />
-                <span>Instant WhatsApp Alerts</span>
-              </div>
-            </motion.div>
 
             {/* CTAs */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="mt-10 flex flex-wrap items-center gap-6"
+              className="mt-8 sm:mt-10 flex flex-wrap items-center gap-6"
             >
               <button
                 onClick={scrollToRegister}
@@ -298,8 +272,8 @@ export default function InstitutionLandingHero() {
             </motion.div>
           </div>
 
-          {/* ── RIGHT COLUMN: HANGING ID BADGE WITH PENDULUM SWING ── */}
-          <div className="lg:col-span-5 relative flex justify-center lg:justify-end items-start pt-6 lg:pt-0">
+          {/* ── RIGHT COLUMN: HANGING ID BADGE WITH PENDULUM SWING (EXTENDED STRAP TO HEADER) ── */}
+          <div className="lg:col-span-5 relative flex justify-center lg:justify-end items-start pt-0 -mt-16 sm:-mt-24 lg:-mt-32">
             {/* Lanyard & ID Card Pendulum Swing Assembly */}
             <motion.div
               initial={{ y: -160, opacity: 0 }}
@@ -319,8 +293,8 @@ export default function InstitutionLandingHero() {
                 }}
                 className="flex flex-col items-center cursor-grab active:cursor-grabbing select-none"
               >
-                {/* ── 1. Black Woven Lanyard Strap ── */}
-                <div className="relative w-8 sm:w-9 h-28 sm:h-36 bg-[#18181b] shadow-md rounded-b-[2px] flex items-center justify-center overflow-hidden">
+                {/* ── 1. Black Woven Lanyard Strap (Extending to Top Fixed Header) ── */}
+                <div className="relative w-8 sm:w-9 h-56 sm:h-68 lg:h-76 bg-[#18181b] shadow-md rounded-b-[2px] flex items-center justify-center overflow-hidden">
                   {/* Woven fabric texture lines */}
                   <div 
                     className="absolute inset-0 opacity-20"
