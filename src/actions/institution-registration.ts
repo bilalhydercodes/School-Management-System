@@ -162,8 +162,43 @@ export async function submitInstitutionRegistrationAction(
 }
 
 /**
- * Fetch application details by ID for the public status page
+ * Record a 30-minute institutional consultation meeting request from the Cal.com scheduler
  */
+export async function bookConsultationMeetingAction(input: {
+  name: string;
+  institutionName: string;
+  email: string;
+  dateStr: string;
+  timeSlot: string;
+}) {
+  try {
+    const appNumber = `CNS-${Date.now().toString().slice(-6)}`;
+    const application = await prisma.institutionApplication.create({
+      data: {
+        applicationNumber: appNumber,
+        institutionName: input.institutionName,
+        institutionType: 'Consultation Inquiry',
+        officialEmail: input.email.toLowerCase().trim(),
+        officialPhone: 'Pending Consultation',
+        address: 'Online Consultation',
+        city: 'Online',
+        state: 'Online',
+        postalCode: '000000',
+        administratorName: input.name,
+        administratorEmail: input.email.toLowerCase().trim(),
+        administratorPhone: 'Pending Consultation',
+        administratorDesignation: 'Prospective Campus Leader',
+        academicLevels: [`Consultation: ${input.dateStr} at ${input.timeSlot}`],
+        status: 'PENDING',
+      },
+    });
+
+    return { success: true, applicationId: application.id };
+  } catch (err: unknown) {
+    console.error('[BOOK-CONSULTATION-ERROR]', err);
+    return { success: false, error: 'Failed to record consultation booking.' };
+  }
+}
 export async function getApplicationStatusAction(applicationId: string) {
   try {
     const application = await prisma.institutionApplication.findUnique({

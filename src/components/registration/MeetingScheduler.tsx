@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Clock, 
@@ -14,8 +14,10 @@ import {
   Building,
   Mail,
   Phone,
-  CalendarCheck
+  CalendarCheck,
+  Loader2
 } from 'lucide-react';
+import { bookConsultationMeetingAction } from '@/actions/institution-registration';
 
 interface MeetingSchedulerProps {
   onFormSwitch?: () => void;
@@ -57,17 +59,37 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
     phone: '',
   });
 
+  const [isPending, startTransition] = useTransition();
+  const [bookingError, setBookingError] = useState<string | null>(null);
+
   const slots = timeFormat === '12h' ? TIME_SLOTS_12H : TIME_SLOTS_24H;
 
   const handleSlotClick = (slot: string) => {
     setSelectedSlot(slot);
     setShowBookingForm(true);
+    setBookingError(null);
   };
 
   const handleConfirmBooking = (e: React.FormEvent) => {
     e.preventDefault();
     if (!bookingData.name || !bookingData.email || !bookingData.institutionName) return;
-    setIsBooked(true);
+    setBookingError(null);
+
+    startTransition(async () => {
+      const res = await bookConsultationMeetingAction({
+        name: bookingData.name,
+        institutionName: bookingData.institutionName,
+        email: bookingData.email,
+        dateStr: `Nov ${selectedDay}, 2026`,
+        timeSlot: selectedSlot,
+      });
+
+      if (res.success) {
+        setIsBooked(true);
+      } else {
+        setBookingError(res.error || 'Failed to record consultation booking. Please try again.');
+      }
+    });
   };
 
   return (
@@ -370,12 +392,28 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
                       />
                     </div>
 
+                    {bookingError && (
+                      <p className="text-[11px] font-bold text-rose-600 bg-rose-50 p-2 rounded-lg border border-rose-200">
+                        {bookingError}
+                      </p>
+                    )}
+
                     <button
                       type="submit"
-                      className="w-full mt-3 py-2.5 px-4 bg-slate-950 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5"
+                      disabled={isPending}
+                      className="w-full mt-3 py-2.5 px-4 bg-slate-950 hover:bg-slate-800 disabled:opacity-60 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5"
                     >
-                      <CalendarCheck className="w-3.5 h-3.5" />
-                      <span>Confirm Consultation</span>
+                      {isPending ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Recording Consultation...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CalendarCheck className="w-3.5 h-3.5" />
+                          <span>Confirm Consultation</span>
+                        </>
+                      )}
                     </button>
 
                     <button
