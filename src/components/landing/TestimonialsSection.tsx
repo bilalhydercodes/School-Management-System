@@ -1,114 +1,289 @@
-import React from 'react';
+'use client';
+
+import React, { useRef, useState, useEffect } from 'react';
+import { Star, CheckCircle2, ChevronLeft, ChevronRight, Award } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface Testimonial {
   id: string;
   quote: string;
   name: string;
+  role: string;
   institution: string;
-  avatarVector: React.ReactNode;
+  affiliation: string;
+  statsHighlight: string;
+  gradientBg: string;
+  initials: string;
 }
 
 const testimonials: Testimonial[] = [
   {
     id: 'sharma',
     quote:
-      '“Alpha Edu Hub has completely transformed how we manage our school. It’s simple, powerful and reliable.”',
-    name: 'Principal Sharma',
-    institution: 'Green Valley School',
-    avatarVector: (
-      <svg viewBox="0 0 48 48" className="w-full h-full">
-        <circle cx="24" cy="24" r="24" fill="#e2e8f0" />
-        <circle cx="24" cy="18" r="8" fill="#fca5a5" />
-        <path d="M16 18 Q16 11 24 11 Q32 11 32 18 Q30 13 24 13 Q18 13 16 18 Z" fill="#1e293b" />
-        <path d="M12 40 Q24 30 36 40 Z" fill="#0284c7" />
-        <polygon points="21,34 27,34 24,40" fill="#ffffff" />
-      </svg>
-    ),
+      'Transitioning 2,400 students to Alpha Edu Hub reduced our monthly fee reconciliation time from two weeks to under 4 hours. The automated SMS alerts to parents eliminated late fee delays completely.',
+    name: 'Dr. Ramesh Sharma',
+    role: 'Executive Principal',
+    institution: 'Green Valley Senior Academy',
+    affiliation: 'CBSE #213009',
+    statsHighlight: '98.4% On-time Fee Collection',
+    gradientBg: 'from-blue-600 via-indigo-600 to-sky-500',
+    initials: 'RS',
   },
   {
     id: 'mehta',
     quote:
-      '“The platform makes communication with parents so easy. Our teachers love it!”',
-    name: 'Ms. Priya Mehta',
-    institution: 'Bright Future Academy',
-    avatarVector: (
-      <svg viewBox="0 0 48 48" className="w-full h-full">
-        <circle cx="24" cy="24" r="24" fill="#fce7f3" />
-        <circle cx="24" cy="19" r="8" fill="#fca5a5" />
-        <path d="M15 22 Q13 32 18 36 Q19 28 17 21 Z" fill="#0f172a" />
-        <path d="M33 22 Q35 32 30 36 Q29 28 31 21 Z" fill="#0f172a" />
-        <circle cx="24" cy="15" r="9" fill="#0f172a" />
-        <path d="M12 42 Q24 32 36 42 Z" fill="#ec4899" />
-      </svg>
-    ),
+      'Our teachers used to spend the first 20 minutes of every period manually logging attendance. With the 1-click roster and timetable sync, we saved over 120 instructional hours across the term.',
+    name: 'Priya Mehta',
+    role: 'Vice Principal & Academic Dean',
+    institution: 'Bright Future World School',
+    affiliation: 'ICSE Board #KA042',
+    statsHighlight: '120+ Hours Saved / Term',
+    gradientBg: 'from-emerald-600 via-teal-600 to-cyan-500',
+    initials: 'PM',
   },
   {
     id: 'kumar',
     quote:
-      '“Excellent support and great features. Highly recommended for any school looking to go digital.”',
-    name: 'Mr. Rakesh Kumar',
-    institution: 'Delhi Public School',
-    avatarVector: (
-      <svg viewBox="0 0 48 48" className="w-full h-full">
-        <circle cx="24" cy="24" r="24" fill="#fef3c7" />
-        <circle cx="24" cy="18" r="8" fill="#fca5a5" />
-        <path d="M16 17 Q17 11 24 11 Q31 11 32 17 Q30 13 24 13 Q18 13 16 17 Z" fill="#0f172a" />
-        <path d="M11 41 Q24 31 37 41 Z" fill="#0f172a" />
-        <polygon points="21,34 27,34 24,41" fill="#1d8cfd" />
-      </svg>
-    ),
+      'As an administrator managing three campuses, having unified multi-tenant visibility into staff attendance, admissions, and exam scorecards in real-time has made Alpha Edu Hub indispensable.',
+    name: 'Rakesh Kumar',
+    role: 'Administrative Director',
+    institution: 'Delhi Public School Franchisee',
+    affiliation: 'Multi-Campus Network',
+    statsHighlight: '3 Campuses Unified',
+    gradientBg: 'from-purple-600 via-indigo-600 to-blue-500',
+    initials: 'RK',
+  },
+  {
+    id: 'mary',
+    quote:
+      'The automated report card engine aligned perfectly with our state grading criteria. What previously took our staff two full weekends was generated, validated, and signed digitally in under 15 minutes.',
+    name: 'Sister Mary Thomas',
+    role: 'Headmistress',
+    institution: "St. Joseph's Convent High School",
+    affiliation: 'State Board Karnataka',
+    statsHighlight: '15-Minute Report Cards',
+    gradientBg: 'from-amber-600 via-orange-600 to-rose-500',
+    initials: 'SM',
+  },
+  {
+    id: 'kulkarni',
+    quote:
+      'Transparency with parents has skyrocketed. Fee collections via UPI QR codes now happen within 48 hours of invoice generation, and incoming parent fee queries dropped by 65%.',
+    name: 'Anand Kulkarni',
+    role: 'Managing Trustee',
+    institution: 'Apex Global International School',
+    affiliation: 'CBSE Affiliated',
+    statsHighlight: '65% Fewer Parent Inquiries',
+    gradientBg: 'from-cyan-600 via-blue-600 to-indigo-600',
+    initials: 'AK',
   },
 ];
 
 export default function TestimonialsSection() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const checkScrollability = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+
+    const cardWidth = 580;
+    const index = Math.round(scrollLeft / cardWidth);
+    setActiveIndex(Math.min(Math.max(index, 0), testimonials.length - 1));
+  };
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    checkScrollability();
+    el.addEventListener('scroll', checkScrollability, { passive: true });
+    window.addEventListener('resize', checkScrollability);
+    return () => {
+      el.removeEventListener('scroll', checkScrollability);
+      window.removeEventListener('resize', checkScrollability);
+    };
+  }, []);
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const scrollAmount = Math.min(el.clientWidth * 0.75, 580);
+    el.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
+
+  const scrollToCard = (index: number) => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const target = el.children[index] as HTMLElement;
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  };
+
   return (
-    <section id="testimonials" className="py-16 sm:py-24 bg-[#f8fbff]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-[30px] sm:text-[38px] font-black text-slate-900 tracking-[-0.03em] leading-tight">
-            What Schools Say <span className="text-[#1d8cfd]">About Us</span>
-          </h2>
-          <p className="mt-3 text-[14px] sm:text-[15px] text-slate-500 max-w-lg mx-auto leading-relaxed">
-            Trusted by educational institutions across the country.
-          </p>
-        </div>
+    <section
+      id="testimonials"
+      suppressHydrationWarning
+      className="relative min-h-[calc(100vh-56px)] flex flex-col justify-between py-10 sm:py-14 lg:py-16 bg-gradient-to-b from-[#f8fbff] via-white to-[#f8fbff] overflow-hidden"
+    >
+      {/* Background Gamma-style subtle glow rings */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[850px] h-[400px] bg-gradient-to-r from-blue-200/25 via-cyan-200/20 to-indigo-200/25 blur-3xl rounded-full pointer-events-none -z-10" />
 
-        {/* 3 Testimonial Cards */}
-        <div className="mt-12 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-7">
-          {testimonials.map((t) => (
-            <div
+      {/* ─── 1. TOP HEADER (SHRINK-0) ─── */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 shrink-0">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-end pb-4 sm:pb-6"
+        >
+          {/* Left Column: Big Bold Title */}
+          <div className="lg:col-span-6 text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-[11px] font-bold text-[#0B72E7] mb-2.5 shadow-2xs">
+              <Award className="w-3.5 h-3.5" />
+              <span>VERIFIED INSTITUTIONAL REVIEWS</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-[#0A1344] tracking-tight leading-[1.15]">
+              Join our community of{' '}
+              <span className="text-[#0B72E7]">10,000+ school leaders</span>
+            </h2>
+          </div>
+
+          {/* Right Column: Narrative Subtitle */}
+          <div className="lg:col-span-6 text-left lg:text-left">
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal max-w-xl">
+              Alpha Edu Hub is transforming how educational institutions operate across India.
+              Hear how principals, academic deans, and trustees have automated their campuses.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ─── 2. CENTER CAROUSEL (FLEX-1 EXPANDED IN VIEWPORT) ─── */}
+      <div className="relative w-full my-auto flex-1 flex flex-col justify-center py-4">
+        {/* Left & Right Edge Gradient Fade Masks */}
+        <div className="hidden sm:block absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-[#f8fbff] to-transparent pointer-events-none z-10" />
+        <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-[#f8fbff] to-transparent pointer-events-none z-10" />
+
+        {/* Scrollable Track with Calibrated Card Proportions */}
+        <div
+          ref={scrollContainerRef}
+          className="flex items-stretch gap-5 sm:gap-6 overflow-x-auto scrollbar-none px-4 sm:px-12 lg:px-20 py-2 snap-x snap-mandatory scroll-smooth"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {testimonials.map((t, idx) => (
+            <motion.div
               key={t.id}
-              className="bg-white rounded-2xl p-7 border border-slate-100 shadow-[0_4px_20px_rgba(15,23,42,0.03)] flex flex-col justify-between hover:shadow-[0_8px_30px_rgba(15,23,42,0.06)] transition-all duration-200 text-left"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: idx * 0.08 }}
+              className="snap-center shrink-0 w-[88vw] sm:w-[560px] lg:w-[600px] min-h-[220px] sm:min-h-[240px] bg-[#f0f5fc] hover:bg-[#eaf2fc] border border-blue-100/90 rounded-3xl p-6 sm:p-8 transition-all duration-300 shadow-[0_6px_24px_rgba(11,114,231,0.05)] hover:shadow-[0_16px_36px_rgba(11,114,231,0.1)] flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 text-left group"
             >
-              <p className="text-[14px] sm:text-[14.5px] text-slate-600 leading-relaxed italic">
-                {t.quote}
-              </p>
-
-              <div className="mt-7 pt-4 border-t border-slate-50 flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-full overflow-hidden relative border-2 border-blue-100 flex-shrink-0">
-                  {t.avatarVector}
+              {/* Gamma-style Circular Avatar Halo on Left */}
+              <div className="shrink-0 relative">
+                <div
+                  className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr ${t.gradientBg} p-1 shadow-md flex items-center justify-center`}
+                >
+                  <div className="w-full h-full rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center border-2 border-white/60 text-white font-black text-xl sm:text-2xl font-mono tracking-tight">
+                    {t.initials}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-[14px] font-bold text-slate-900 leading-tight">
-                    {t.name}
-                  </h3>
-                  <p className="text-[12px] font-medium text-slate-400 leading-tight mt-0.5">
-                    {t.institution}
-                  </p>
+                {/* Verified Check Badge */}
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white shadow-xs border border-emerald-200 flex items-center justify-center text-emerald-600">
+                  <CheckCircle2 className="w-4 h-4 fill-emerald-500 text-white stroke-[2]" />
                 </div>
               </div>
-            </div>
+
+              {/* Right Side: Quote Text & Author Signature */}
+              <div className="flex-1 min-w-0">
+                {/* Stars + Impact Tag */}
+                <div className="flex flex-wrap items-center gap-2 mb-2.5">
+                  <div className="flex items-center text-amber-400">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-[10.5px] font-bold text-[#0B72E7] bg-white px-2 py-0.5 rounded-full border border-blue-100 shadow-2xs">
+                    {t.statsHighlight}
+                  </span>
+                </div>
+
+                {/* Quote Text */}
+                <p className="text-[14px] sm:text-[15px] font-bold text-[#0A1344] leading-relaxed">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+
+                {/* Author Signature */}
+                <div className="mt-3.5 pt-2.5 border-t border-blue-200/50 flex flex-wrap items-baseline gap-1.5 text-xs text-slate-600">
+                  <span className="font-extrabold text-[#0A1344] text-[13px]">{t.name}</span>
+                  <span className="text-slate-400">•</span>
+                  <span className="text-[#0B72E7] font-semibold">{t.role}</span>
+                  <span className="text-slate-400">•</span>
+                  <span className="text-slate-500 truncate">{t.institution} ({t.affiliation})</span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── 3. BOTTOM CAROUSEL NAVIGATION CONTROLS (SHRINK-0) ─── */}
+      <div className="shrink-0 pt-2 pb-2 flex items-center justify-center gap-4">
+        <button
+          type="button"
+          onClick={() => handleScroll('left')}
+          disabled={!canScrollLeft}
+          aria-label="Previous testimonial"
+          className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer shadow-xs ${
+            canScrollLeft
+              ? 'bg-white border-slate-200 text-slate-700 hover:text-[#0B72E7] hover:border-blue-300 hover:bg-blue-50/50 active:scale-95'
+              : 'bg-slate-100/70 border-slate-200/50 text-slate-300 cursor-not-allowed'
+          }`}
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        {/* Dots Indicator */}
+        <div className="flex items-center gap-1.5 px-2">
+          {testimonials.map((t, idx) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => scrollToCard(idx)}
+              aria-label={`Go to slide ${idx + 1}`}
+              className={`transition-all duration-200 cursor-pointer rounded-full ${
+                activeIndex === idx
+                  ? 'w-6 h-2 bg-[#0B72E7]'
+                  : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
+              }`}
+            />
           ))}
         </div>
 
-        {/* Carousel Pagination Dots */}
-        <div className="mt-9 flex items-center justify-center gap-2" aria-hidden="true">
-          <span className="w-6 h-2 rounded-full bg-[#1d8cfd] transition-all" />
-          <span className="w-2 h-2 rounded-full bg-slate-200" />
-          <span className="w-2 h-2 rounded-full bg-slate-200" />
-          <span className="w-2 h-2 rounded-full bg-slate-200" />
-        </div>
+        <button
+          type="button"
+          onClick={() => handleScroll('right')}
+          disabled={!canScrollRight}
+          aria-label="Next testimonial"
+          className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer shadow-xs ${
+            canScrollRight
+              ? 'bg-white border-slate-200 text-slate-700 hover:text-[#0B72E7] hover:border-blue-300 hover:bg-blue-50/50 active:scale-95'
+              : 'bg-slate-100/70 border-slate-200/50 text-slate-300 cursor-not-allowed'
+          }`}
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
     </section>
   );

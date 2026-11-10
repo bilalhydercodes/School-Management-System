@@ -2,7 +2,9 @@ import React from 'react';
 
 export default function SchoolIllustration({ className = '' }: { className?: string }) {
   return (
-    <div className={`relative w-full max-w-[620px] aspect-[1.25/1] select-none ${className}`}>
+    <div className={`relative w-full max-w-[460px] sm:max-w-[500px] lg:max-w-[540px] xl:max-w-[580px] aspect-[1.25/1] select-none ${className}`}>
+      {/* Ground ambient shadow for floating grounding */}
+      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-[85%] h-5 bg-sky-900/10 rounded-full blur-md -z-10" />
       <svg
         viewBox="0 0 600 480"
         fill="none"

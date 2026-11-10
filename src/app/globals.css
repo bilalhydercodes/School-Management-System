@@ -17,13 +17,16 @@
     --brand-border: #e2e8f0;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     font-family: var(--font-plus-jakarta-sans, 'Plus Jakarta Sans'), 'Noto Sans Kannada', 'Tunga', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--brand-subtle);
     color: var(--brand-dark);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-size: 14px;
     line-height: 1.5;
   }
 }
@@ -89,4 +92,38 @@ main > * {
 aside {
   will-change: transform;
 }
+
+/* ─── Landing Page Interactive Elements (Gamma Inspiration) ──────────────── */
+@keyframes scroll-wheel {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(7px);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-scroll-wheel {
+  animation: scroll-wheel 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes float-subtle {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+.animate-float-subtle {
+  animation: float-subtle 7s ease-in-out infinite;
+}
+
 

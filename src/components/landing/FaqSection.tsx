@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, HelpCircle, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface FAQ {
   id: string;
@@ -13,47 +14,47 @@ interface FAQ {
 const leftFaqs: FAQ[] = [
   {
     id: 'faq-1',
-    question: 'Is the software easy to use?',
+    question: 'How fast can our school get onboarded with Alpha Edu Hub?',
     answer:
-      'Yes, Alpha Edu Hub ERP is designed with an intuitive, clean interface for administrators, teachers, parents, and students. Most schools get up and running with minimal training.',
+      'Most schools can be completely onboarded within 24 to 48 hours. Our automated CSV/Excel migration engine imports all your student profiles, faculty records, grade sections, and existing fee balances in minutes.',
   },
   {
     id: 'faq-2',
-    question: 'Can we migrate our existing data?',
+    question: 'Can we migrate historical grades and past fee records?',
     answer:
-      'Yes! We provide bulk Excel/CSV import tools along with automated migration assistance to seamlessly import all student records, faculty data, fee structures, and historical grades.',
+      'Yes! We provide dedicated bulk migration tools and guided onboarding assistance to seamlessly transfer student historical data, past fee receipts, attendance archives, and library inventories from your legacy software or spreadsheets.',
   },
   {
     id: 'faq-3',
-    question: 'Is our data secure?',
+    question: 'Is student data isolated and protected against data leaks?',
     answer:
-      'Security is our highest priority. All data is protected with bank-grade 256-bit encryption in transit and at rest, multi-tenant database isolation, automated daily backups, and strict role-based access control.',
+      'Security is our highest priority. All data is protected with bank-grade 256-bit encryption in transit and at rest, strict multi-tenant database isolation, automated daily off-site backups, and fine-grained role-based access control.',
   },
 ];
 
 const rightFaqs: FAQ[] = [
   {
     id: 'faq-4',
-    question: 'Can parents access the platform?',
+    question: 'Can parents access real-time notifications and payment receipts?',
     answer:
-      'Yes, parents receive dedicated web and mobile access to track real-time attendance, homework assignments, report cards, fee dues, bus tracking, and direct teacher communications.',
+      'Yes! Parents receive secure credentials to access their student’s attendance status, homework assignments, exam report cards, and digital fee receipts with instant Razorpay/UPI integration and SMS confirmations.',
   },
   {
     id: 'faq-5',
-    question: 'Do you provide customer support?',
+    question: 'What level of support and training do you provide to teachers?',
     answer:
-      'We provide dedicated 24/7 technical assistance, onboarding workshops for staff, live chat support, and an extensive documentation knowledge base.',
+      'We provide dedicated 24/7 technical assistance, virtual and on-campus onboarding workshops for staff, interactive video walkthroughs, and responsive live chat support.',
   },
   {
     id: 'faq-6',
-    question: 'Can it be customized for our school?',
+    question: 'Does Alpha Edu Hub support custom board grading (CBSE / ICSE / State)?',
     answer:
-      'Yes, the platform includes custom branding, grading scales (CBSE, ICSE, State Boards), fee structures, timetable algorithms, and configurable approval workflows tailored to your institution.',
+      'Yes! The grading and report engine supports CBSE CCE guidelines, ICSE percentile rubrics, state board marks distributions, and custom GPA scales with automated scorecard generation.',
   },
 ];
 
 export default function FaqSection() {
-  const [openIds, setOpenIds] = useState<Record<string, boolean>>({});
+  const [openIds, setOpenIds] = useState<Record<string, boolean>>({ 'faq-1': true });
 
   const toggleFaq = (id: string) => {
     setOpenIds((prev) => ({
@@ -62,70 +63,99 @@ export default function FaqSection() {
     }));
   };
 
-  const renderFaqItem = (faq: FAQ) => {
+  const renderFaqItem = (faq: FAQ, idx: number) => {
     const isOpen = !!openIds[faq.id];
     return (
-      <div
+      <motion.div
         key={faq.id}
-        className="bg-white border border-slate-200/90 rounded-xl overflow-hidden transition-all duration-200 hover:border-blue-300 shadow-xs"
+        initial={{ opacity: 0, y: 15 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
+        className={`bg-white border rounded-2xl overflow-hidden transition-all duration-200 shadow-2xs ${
+          isOpen ? 'border-blue-300 ring-2 ring-blue-50' : 'border-slate-200/90 hover:border-slate-300'
+        }`}
       >
         <button
           type="button"
           onClick={() => toggleFaq(faq.id)}
-          className="w-full px-5 py-4 flex items-center justify-between text-left gap-4 transition-colors"
+          className="w-full px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between text-left gap-4 transition-colors cursor-pointer"
           aria-expanded={isOpen}
         >
-          <span className="text-[14px] sm:text-[15px] font-semibold text-slate-800 leading-snug">
+          <span className="text-[14.5px] sm:text-[15.5px] font-bold text-[#0A1344] leading-snug">
             {faq.question}
           </span>
-          <span className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-400 group-hover:text-blue-600 transition-colors">
+          <span
+            className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+              isOpen ? 'bg-[#0B72E7] text-white' : 'bg-slate-100 text-slate-500'
+            }`}
+          >
             {isOpen ? (
-              <Minus className="w-4 h-4 text-blue-600 stroke-[2.5]" />
+              <Minus className="w-4 h-4 stroke-[2.5]" />
             ) : (
-              <Plus className="w-4 h-4 text-slate-500 stroke-[2.5]" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
             )}
           </span>
         </button>
 
-        {isOpen && (
-          <div className="px-5 pb-4 pt-1 text-[13px] sm:text-[13.5px] text-slate-600 leading-relaxed border-t border-slate-100/80 animate-in fade-in duration-200">
-            {faq.answer}
-          </div>
-        )}
-      </div>
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="px-5 sm:px-6 pb-5 pt-1 text-[13.5px] sm:text-[14px] text-slate-600 leading-relaxed border-t border-slate-100"
+            >
+              {faq.answer}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     );
   };
 
   return (
-    <section id="faq" className="py-16 sm:py-24 bg-white">
+    <section id="faq" className="relative py-16 sm:py-20 lg:py-24 bg-white overflow-hidden" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header with "View All FAQs" Button */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 border-b border-slate-100 pb-8">
+        {/* Header with "View All FAQs" Button with Scroll Reveal */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 border-b border-slate-100 pb-8"
+        >
           <div>
-            <h2 className="text-[30px] sm:text-[38px] font-black text-slate-900 tracking-[-0.03em] leading-tight">
-              Frequently <span className="text-[#1d8cfd]">Asked Questions</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-[12px] font-bold text-[#0B72E7] mb-3 shadow-2xs">
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>FREQUENT QUESTIONS</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#0A1344] tracking-tight leading-tight">
+              Frequently <span className="text-[#0B72E7]">Asked Questions</span>
             </h2>
-            <p className="mt-2 text-[14px] sm:text-[15px] text-slate-500 max-w-lg leading-relaxed">
-              Everything you need to know about our school management software.
+            <p className="mt-2 text-base text-slate-600 max-w-lg leading-relaxed">
+              Everything principals and administrative teams need to know about Alpha Edu Hub ERP.
             </p>
           </div>
           <div>
             <Link
               href="/faq"
-              className="inline-flex items-center justify-center px-4 py-2 text-[13.5px] font-semibold text-[#1d8cfd] bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 text-[14px] font-bold text-[#0B72E7] bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors shadow-2xs"
             >
-              View All FAQs
+              <span>View Knowledge Base</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-        </div>
+        </motion.div>
 
         {/* 2-Column FAQ Grid */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
           {/* Left Column */}
-          <div className="space-y-4">{leftFaqs.map(renderFaqItem)}</div>
+          <div className="space-y-4">{leftFaqs.map((faq, idx) => renderFaqItem(faq, idx))}</div>
 
           {/* Right Column */}
-          <div className="space-y-4">{rightFaqs.map(renderFaqItem)}</div>
+          <div className="space-y-4">{rightFaqs.map((faq, idx) => renderFaqItem(faq, idx + 3))}</div>
         </div>
       </div>
     </section>

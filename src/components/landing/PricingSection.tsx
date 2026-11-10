@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { Check, Sparkles, ArrowRight, X, Building2, Mail, Phone, User, Users, CheckCircle2, Send } from 'lucide-react';
 
 export interface PricingPlan {
@@ -113,42 +114,54 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
   };
 
   return (
-    <section id="pricing" className="py-16 sm:py-24 bg-[#f8fbff] relative overflow-hidden">
+    <section id="pricing" className="py-14 sm:py-18 lg:py-24 bg-gradient-to-b from-[#e6f2fd] via-[#edf6fe] to-[#e4f1fd] border-t border-b border-blue-100/80 relative overflow-hidden">
       {/* Background Soft Sky Accent Orbs */}
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-blue-100/40 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-gradient-to-r from-blue-300/25 via-cyan-200/20 to-sky-300/25 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-200/25 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-cyan-200/20 rounded-full blur-3xl pointer-events-none -z-10" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-100/80 text-[#1d8cfd] text-[12px] font-bold uppercase tracking-wider mb-4 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#1d8cfd]" />
-            <span>Pricing — Coming Soon</span>
+        {/* Section Header with Scroll Reveal */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center max-w-2xl mx-auto"
+        >
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-[#0B72E7] text-xs font-bold uppercase tracking-wider mb-3 shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-[#0B72E7]" />
+            <span>TRANSPARENT INSTITUTIONAL PLANS</span>
           </div>
 
-          <h2 className="text-[30px] sm:text-[38px] lg:text-[42px] font-black text-slate-900 tracking-[-0.03em] leading-tight">
-            Institutional Plans{' '}
-            <span className="text-[#1d8cfd]">Launching Soon</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-[#0A1344] tracking-[-0.03em] leading-tight">
+            Predictable Pricing for{' '}
+            <span className="text-[#0B72E7]">Every School</span>
           </h2>
-          <p className="mt-3.5 text-[14.5px] sm:text-[16px] text-slate-500 max-w-xl mx-auto leading-relaxed">
-            Transparent per-student pricing packages and special introductory offers are coming soon. Get in touch today for early access and priority onboarding.
+          <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-xl mx-auto leading-relaxed font-normal">
+            Transparent per-student pricing packages and early partner discounts. Connect with our campus team for priority deployment.
           </p>
-        </div>
+        </motion.div>
 
-        {/* 3 Pricing Cards Grid */}
+        {/* 3 Pricing Cards Grid with Staggered Scroll Reveal */}
         <div className="mt-12 sm:mt-16 grid grid-cols-1 lg:grid-cols-3 gap-7 lg:gap-8 items-stretch max-w-6xl mx-auto">
-          {activePlans.map((plan) => (
-            <div
+          {activePlans.map((plan, idx) => (
+            <motion.div
               key={plan.id}
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.5, delay: idx * 0.12, ease: [0.22, 1, 0.36, 1] }}
               className={`relative rounded-3xl bg-white flex flex-col justify-between transition-all duration-200 text-left ${
                 plan.isPopular
-                  ? 'border-2 border-[#1d8cfd] shadow-[0_12px_40px_rgba(29,140,253,0.12)] hover:shadow-[0_18px_50px_rgba(29,140,253,0.18)] hover:-translate-y-1 z-20'
+                  ? 'border-2 border-[#0B72E7] shadow-[0_12px_40px_rgba(11,114,231,0.12)] hover:shadow-[0_18px_50px_rgba(11,114,231,0.18)] hover:-translate-y-1 z-20'
                   : 'border border-slate-200/90 shadow-[0_4px_25px_rgba(15,23,42,0.04)] hover:border-slate-300 hover:shadow-[0_10px_35px_rgba(15,23,42,0.08)] hover:-translate-y-1'
               }`}
             >
               {/* Popular Top Badge for Prime */}
               {plan.isPopular && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#1d8cfd] text-white text-[11px] font-extrabold uppercase tracking-wider shadow-[0_2px_8px_rgba(29,140,253,0.4)]">
+                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0B72E7] text-white text-[11px] font-extrabold uppercase tracking-wider shadow-[0_2px_8px_rgba(11,114,231,0.4)]">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Most Popular</span>
                   </div>
@@ -170,7 +183,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                 {/* Price Display */}
                 <div className="mt-6 flex flex-col gap-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-[30px] sm:text-[34px] font-black tracking-tight leading-none bg-gradient-to-r from-blue-600 via-[#1d8cfd] to-indigo-600 bg-clip-text text-transparent">
+                    <span className="text-[30px] sm:text-[34px] font-black tracking-tight leading-none bg-gradient-to-r from-blue-600 via-[#0B72E7] to-indigo-600 bg-clip-text text-transparent">
                       {plan.price || 'Coming Soon'}
                     </span>
                   </div>
@@ -195,7 +208,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                   <ul className="space-y-3.5" role="list">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-center gap-3">
-                        <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                        <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0 shadow-xs">
                           <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                         </div>
                         <span className="text-[13.5px] font-medium text-slate-700">
@@ -215,7 +228,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                     onClick={() => setQuoteModalOpen(true)}
                     className={
                       plan.isPopular
-                        ? 'w-full py-3.5 px-5 rounded-xl font-bold text-[14.5px] text-white bg-[#1d8cfd] hover:bg-blue-600 active:bg-blue-700 shadow-[0_4px_14px_rgba(29,140,253,0.35)] hover:shadow-[0_6px_20px_rgba(29,140,253,0.45)] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer'
+                        ? 'w-full py-3.5 px-5 rounded-xl font-bold text-[14.5px] text-white bg-[#0B72E7] hover:bg-blue-600 active:bg-blue-700 shadow-[0_4px_14px_rgba(11,114,231,0.35)] hover:shadow-[0_6px_20px_rgba(11,114,231,0.45)] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer'
                         : 'w-full py-3.5 px-5 rounded-xl font-semibold text-[14px] text-slate-700 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 active:bg-blue-100 border border-slate-200/80 transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer'
                     }
                   >
@@ -225,7 +238,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                 ) : plan.isPopular ? (
                   <Link
                     href={plan.ctaHref || '/login'}
-                    className="w-full py-3.5 px-5 rounded-xl font-bold text-[14.5px] text-white bg-[#1d8cfd] hover:bg-blue-600 active:bg-blue-700 shadow-[0_4px_14px_rgba(29,140,253,0.35)] hover:shadow-[0_6px_20px_rgba(29,140,253,0.45)] transition-all duration-150 flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-5 rounded-xl font-bold text-[14.5px] text-white bg-[#0B72E7] hover:bg-blue-600 active:bg-blue-700 shadow-[0_4px_14px_rgba(11,114,231,0.35)] hover:shadow-[0_6px_20px_rgba(11,114,231,0.45)] transition-all duration-150 flex items-center justify-center gap-2"
                   >
                     <span>{plan.ctaLabel}</span>
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -240,7 +253,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                   </Link>
                 )}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -273,7 +286,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
             {/* Modal Header */}
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 text-[#1d8cfd] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 text-[#0B72E7] flex items-center justify-center">
                   <Building2 className="w-5 h-5" />
                 </div>
                 <div>
@@ -311,7 +324,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                   <button
                     type="button"
                     onClick={resetQuoteModal}
-                    className="mt-6 px-6 py-2.5 rounded-xl font-semibold text-[13.5px] text-white bg-[#1d8cfd] hover:bg-blue-600 shadow-xs transition-colors"
+                    className="mt-6 px-6 py-2.5 rounded-xl font-semibold text-[13.5px] text-white bg-[#0B72E7] hover:bg-blue-600 shadow-xs transition-colors"
                   >
                     Done
                   </button>
@@ -330,7 +343,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                         placeholder="e.g. Delhi Public School"
                         value={formData.schoolName}
                         onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
-                        className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-[13.5px] text-slate-900 focus:outline-none focus:border-[#1d8cfd] focus:ring-2 focus:ring-blue-100 transition-all"
+                        className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-[13.5px] text-slate-900 focus:outline-none focus:border-[#0B72E7] focus:ring-2 focus:ring-blue-100 transition-all"
                       />
                     </div>
                   </div>
@@ -348,7 +361,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                           placeholder="Your Name"
                           value={formData.contactPerson}
                           onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                          className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-[13.5px] text-slate-900 focus:outline-none focus:border-[#1d8cfd] focus:ring-2 focus:ring-blue-100 transition-all"
+                          className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-[13.5px] text-slate-900 focus:outline-none focus:border-[#0B72E7] focus:ring-2 focus:ring-blue-100 transition-all"
                         />
                       </div>
                     </div>
@@ -362,7 +375,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                         <select
                           value={formData.studentCount}
                           onChange={(e) => setFormData({ ...formData, studentCount: e.target.value })}
-                          className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-[13.5px] text-slate-900 focus:outline-none focus:border-[#1d8cfd] focus:ring-2 focus:ring-blue-100 transition-all bg-white"
+                          className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-[13.5px] text-slate-900 focus:outline-none focus:border-[#0B72E7] focus:ring-2 focus:ring-blue-100 transition-all bg-white"
                         >
                           <option value="under-500">Under 500 Students</option>
                           <option value="500-1000">500 - 1,000 Students</option>
@@ -386,7 +399,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                           placeholder="principal@school.edu"
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-[13.5px] text-slate-900 focus:outline-none focus:border-[#1d8cfd] focus:ring-2 focus:ring-blue-100 transition-all"
+                          className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-[13.5px] text-slate-900 focus:outline-none focus:border-[#0B72E7] focus:ring-2 focus:ring-blue-100 transition-all"
                         />
                       </div>
                     </div>
@@ -403,7 +416,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                           placeholder="+91 98765 43210"
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-[13.5px] text-slate-900 focus:outline-none focus:border-[#1d8cfd] focus:ring-2 focus:ring-blue-100 transition-all"
+                          className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-[13.5px] text-slate-900 focus:outline-none focus:border-[#0B72E7] focus:ring-2 focus:ring-blue-100 transition-all"
                         />
                       </div>
                     </div>
@@ -418,7 +431,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                       placeholder="e.g. Custom domain requirements, CBSE grading scale, data migration assistance..."
                       value={formData.notes}
                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      className="w-full p-3 rounded-xl border border-slate-200 text-[13px] text-slate-900 focus:outline-none focus:border-[#1d8cfd] focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+                      className="w-full p-3 rounded-xl border border-slate-200 text-[13px] text-slate-900 focus:outline-none focus:border-[#0B72E7] focus:ring-2 focus:ring-blue-100 transition-all resize-none"
                     />
                   </div>
 
@@ -432,7 +445,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
                     </button>
                     <button
                       type="submit"
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-[13.5px] text-white bg-[#1d8cfd] hover:bg-blue-600 shadow-[0_3px_12px_rgba(29,140,253,0.3)] transition-all cursor-pointer"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-[13.5px] text-white bg-[#0B72E7] hover:bg-blue-600 shadow-[0_3px_12px_rgba(11,114,231,0.3)] transition-all cursor-pointer"
                     >
                       <Send className="w-3.5 h-3.5" />
                       <span>Submit Request</span>

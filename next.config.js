@@ -65,6 +65,10 @@ const nextConfig = {
     return config;
   },
   async headers() {
+    // Never cache static files or webpack chunks in development to prevent HMR chunk mismatch
+    if (process.env.NODE_ENV !== 'production') {
+      return [];
+    }
     return [
       {
         source: '/(.*)',
