@@ -65,7 +65,7 @@ function InstitutionalTelemetryCard() {
     <motion.div
       initial={{ opacity: 0, scale: 0.95, y: 20 }}
       whileInView={{ opacity: 1, scale: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
+      viewport={{ once: false, margin: '-40px' }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       className="relative w-full max-w-[480px]"
     >
@@ -110,7 +110,7 @@ function InstitutionalTelemetryCard() {
               key={idx}
               initial={{ opacity: 0, x: 10 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false }}
               transition={{ duration: 0.35, delay: 0.15 + idx * 0.08 }}
               className="p-3 rounded-xl bg-slate-50/80 border border-slate-100 hover:border-blue-200 hover:bg-white transition-all text-left group"
             >
@@ -188,7 +188,7 @@ export default function CommunitySection({ stats }: { stats?: CommunityStatsProp
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-50px' }}
+          viewport={{ once: false, margin: '-50px' }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="relative overflow-hidden rounded-3xl sm:rounded-[36px] bg-gradient-to-br from-[#0B1536] via-[#0E204E] to-[#0A1A3D] text-white p-7 sm:p-12 lg:p-16 shadow-[0_25px_60px_rgba(11,21,54,0.18)] border border-blue-900/40"
         >
@@ -203,7 +203,7 @@ export default function CommunitySection({ stats }: { stats?: CommunityStatsProp
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false }}
                 transition={{ duration: 0.4 }}
                 className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[12px] font-bold text-cyan-300 tracking-wide mb-5"
               >
@@ -214,7 +214,7 @@ export default function CommunitySection({ stats }: { stats?: CommunityStatsProp
               <motion.h2
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false }}
                 transition={{ duration: 0.5, delay: 0.08 }}
                 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-[1.15]"
               >
@@ -228,7 +228,7 @@ export default function CommunitySection({ stats }: { stats?: CommunityStatsProp
               <motion.p
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false }}
                 transition={{ duration: 0.5, delay: 0.16 }}
                 className="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal"
               >
@@ -245,7 +245,7 @@ export default function CommunitySection({ stats }: { stats?: CommunityStatsProp
                       key={stat.label}
                       initial={{ opacity: 0, y: 18 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
+                      viewport={{ once: false }}
                       transition={{ duration: 0.45, delay: 0.2 + idx * 0.08 }}
                       className="p-4 sm:p-5 rounded-2xl bg-white/[0.06] backdrop-blur-sm border border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.09] transition-all"
                     >

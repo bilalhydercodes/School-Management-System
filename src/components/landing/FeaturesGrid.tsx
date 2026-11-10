@@ -353,7 +353,7 @@ export default function FeaturesGrid() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
+          viewport={{ once: false, margin: '-40px' }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="text-center max-w-3xl mx-auto"
         >
@@ -410,7 +410,7 @@ export default function FeaturesGrid() {
                 key={feature.id}
                 initial={{ opacity: 0, y: 22 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-30px' }}
+                viewport={{ once: false, margin: '-30px' }}
                 transition={{ duration: 0.45, delay: (idx % 4) * 0.08, ease: [0.22, 1, 0.36, 1] }}
                 className="group relative bg-white rounded-2xl p-5 border border-white/80 shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.14)] transition-all duration-200 hover:-translate-y-1.5 flex flex-col justify-between"
               >

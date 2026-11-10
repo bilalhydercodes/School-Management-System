@@ -70,7 +70,7 @@ export default function FaqSection() {
         key={faq.id}
         initial={{ opacity: 0, y: 15 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: false }}
         transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
         className={`bg-white border rounded-2xl overflow-hidden transition-all duration-200 shadow-2xs ${
           isOpen ? 'border-blue-300 ring-2 ring-blue-50' : 'border-slate-200/90 hover:border-slate-300'
@@ -122,7 +122,7 @@ export default function FaqSection() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
+          viewport={{ once: false, margin: '-40px' }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 border-b border-slate-100 pb-8"
         >

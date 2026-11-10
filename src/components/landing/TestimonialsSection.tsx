@@ -142,7 +142,7 @@ export default function TestimonialsSection() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
+          viewport={{ once: false, margin: '-40px' }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-end pb-4 sm:pb-6"
         >
@@ -186,7 +186,7 @@ export default function TestimonialsSection() {
               key={t.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false }}
               transition={{ duration: 0.45, delay: idx * 0.08 }}
               className="snap-center shrink-0 w-[88vw] sm:w-[560px] lg:w-[600px] min-h-[220px] sm:min-h-[240px] bg-[#f0f5fc] hover:bg-[#eaf2fc] border border-blue-100/90 rounded-3xl p-6 sm:p-8 transition-all duration-300 shadow-[0_6px_24px_rgba(11,114,231,0.05)] hover:shadow-[0_16px_36px_rgba(11,114,231,0.1)] flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 text-left group"
             >

@@ -93,7 +93,8 @@ export default function HeroSection() {
           <motion.div
             variants={containerVariants}
             initial="hidden"
-            animate="visible"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.2 }}
             className="lg:col-span-6 xl:col-span-6 flex flex-col justify-center text-left"
           >
             {/* Top Pill Badge */}
@@ -178,7 +179,8 @@ export default function HeroSection() {
           <motion.div
             style={{ y: tabletParallaxY }}
             initial={{ opacity: 0, scale: 0.96, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
             className="lg:col-span-6 xl:col-span-6 flex justify-center items-center relative mt-4 lg:mt-0"
           >
@@ -189,7 +191,8 @@ export default function HeroSection() {
         {/* ─── BOTTOM BLOCK: GOAL TABS + SCROLL INDICATOR ─── */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.2 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           className="w-full shrink-0 pt-2 pb-1"
         >

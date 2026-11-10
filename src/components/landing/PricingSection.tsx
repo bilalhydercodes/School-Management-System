@@ -125,7 +125,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
+          viewport={{ once: false, margin: '-40px' }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="text-center max-w-2xl mx-auto"
         >
@@ -150,7 +150,7 @@ export default function PricingSection({ plans: initialPlans }: PricingSectionPr
               key={plan.id}
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
+              viewport={{ once: false, margin: '-40px' }}
               transition={{ duration: 0.5, delay: idx * 0.12, ease: [0.22, 1, 0.36, 1] }}
               className={`relative rounded-3xl bg-white flex flex-col justify-between transition-all duration-200 text-left ${
                 plan.isPopular

@@ -14,7 +14,7 @@ export default function FinalCtaSection() {
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.98 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, margin: '-40px' }}
+          viewport={{ once: false, margin: '-40px' }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="relative overflow-hidden bg-gradient-to-r from-[#1d8cfd] via-[#1a84f3] to-[#0284c7] rounded-3xl sm:rounded-[36px] p-8 sm:p-12 lg:p-14 shadow-[0_15px_40px_rgba(29,140,253,0.3)]"
         >
@@ -32,7 +32,7 @@ export default function FinalCtaSection() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false }}
                 transition={{ duration: 0.4 }}
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-xs text-[12px] font-bold text-white tracking-wide mb-3 border border-white/30"
               >
@@ -43,7 +43,7 @@ export default function FinalCtaSection() {
               <motion.h2
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight"
               >
@@ -55,7 +55,7 @@ export default function FinalCtaSection() {
               <motion.p
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false }}
                 transition={{ duration: 0.5, delay: 0.15 }}
                 className="mt-3 text-sm sm:text-base text-blue-50 font-medium leading-relaxed max-w-xl"
               >
@@ -66,7 +66,7 @@ export default function FinalCtaSection() {
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false }}
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="mt-5 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-blue-100 font-medium"
               >
@@ -88,7 +88,7 @@ export default function FinalCtaSection() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
+              viewport={{ once: false }}
               transition={{ duration: 0.45, delay: 0.2 }}
               className="flex-shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
             >

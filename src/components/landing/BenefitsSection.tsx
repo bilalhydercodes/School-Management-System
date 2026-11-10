@@ -57,7 +57,7 @@ export default function BenefitsSection() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
+              viewport={{ once: false, margin: '-40px' }}
               transition={{ duration: 0.5 }}
             >
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-[11px] font-bold text-[#0B72E7] mb-3 shadow-2xs">
@@ -84,7 +84,7 @@ export default function BenefitsSection() {
                       key={benefit.id}
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
+                      viewport={{ once: false }}
                       transition={{ duration: 0.45, delay: idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
                       onClick={() => setActiveBenefit(benefit.id)}
                       className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 group ${
@@ -118,7 +118,7 @@ export default function BenefitsSection() {
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false }}
               transition={{ duration: 0.5, delay: 0.3 }}
               className="mt-6 pt-1"
             >
@@ -137,7 +137,7 @@ export default function BenefitsSection() {
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 25 }}
               whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
+              viewport={{ once: false, margin: '-50px' }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="w-full"
             >
