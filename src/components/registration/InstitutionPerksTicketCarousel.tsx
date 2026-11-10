@@ -290,14 +290,18 @@ export default function InstitutionPerksTicketCarousel({ onApplyClick }: Carouse
         const trackWidth = trackRef.current.scrollWidth;
         const windowWidth = window.innerWidth;
         // Total horizontal translation required to bring the last card comfortably into view
-        const distance = Math.max(0, trackWidth - windowWidth + 80);
+        const distance = Math.max(0, trackWidth - windowWidth + 60);
         setMaxScroll(distance);
       }
     };
 
     calculateDistance();
+    const timer = setTimeout(calculateDistance, 200);
     window.addEventListener('resize', calculateDistance);
-    return () => window.removeEventListener('resize', calculateDistance);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', calculateDistance);
+    };
   }, []);
 
   // Track vertical scroll within this 300vh section container
@@ -323,8 +327,8 @@ export default function InstitutionPerksTicketCarousel({ onApplyClick }: Carouse
       className="relative bg-[#0B0F19] text-white selection:bg-indigo-900 selection:text-white"
       style={{ height: '320vh' }}
     >
-      {/* ── STICKY VIEWPORT PINNED AT TOP ── */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between py-8 sm:py-10 select-none">
+      {/* ── STICKY VIEWPORT PINNED AT TOP (CLEARS 64px FIXED HEADER WITH pt-20/pt-24) ── */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between pt-20 pb-5 sm:pt-24 sm:pb-7 select-none">
         
         {/* Technical dot-matrix background grid */}
         <div
@@ -340,7 +344,7 @@ export default function InstitutionPerksTicketCarousel({ onApplyClick }: Carouse
         <div className="absolute bottom-10 right-0 w-96 h-96 bg-emerald-600/10 rounded-full blur-[110px] pointer-events-none" />
 
         {/* Top subtle category pill */}
-        <div className="relative z-10 px-6 sm:px-12 flex items-center justify-between">
+        <div className="relative z-10 px-6 sm:px-12 flex items-center justify-between shrink-0">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-mono font-bold tracking-[0.2em] text-indigo-300 uppercase">
             <Sparkles className="w-3 h-3 text-amber-300" />
             <span>PARTNER PRIVILEGES</span>
@@ -352,45 +356,45 @@ export default function InstitutionPerksTicketCarousel({ onApplyClick }: Carouse
         </div>
 
         {/* ── HORIZONTAL SCROLLING TRACK (TRANSFORMS SIDEWAYS ON VERTICAL SCROLL) ── */}
-        <div className="relative z-10 my-auto w-full overflow-hidden">
+        <div className="relative z-10 my-auto w-full overflow-hidden py-1">
           <motion.div
             ref={trackRef}
             style={{ x }}
-            className="flex items-center gap-8 sm:gap-10 pl-6 sm:pl-16 pr-16 sm:pr-32 w-max"
+            className="flex items-center gap-7 sm:gap-9 pl-6 sm:pl-16 pr-16 sm:pr-32 w-max"
           >
             {/* ── 1. TITLE & CTA PANEL (FIRST ITEM IN HORIZONTAL TRACK) ── */}
-            <div className="w-[340px] sm:w-[420px] shrink-0 flex flex-col justify-between h-[520px] sm:h-[580px] p-4 sm:p-6 text-left">
+            <div className="w-[300px] sm:w-[350px] lg:w-[380px] shrink-0 flex flex-col justify-between h-[440px] sm:h-[470px] lg:h-[490px] p-4 sm:p-6 text-left">
               <div>
-                <span className="text-xs font-mono font-extrabold tracking-[0.22em] text-indigo-400 uppercase block mb-3">
+                <span className="text-xs font-mono font-extrabold tracking-[0.22em] text-indigo-400 uppercase block mb-2 sm:mb-3">
                   EXCLUSIVE PRIVILEGES
                 </span>
-                <h2 className="text-5xl sm:text-6xl lg:text-[68px] font-black text-white tracking-[-0.03em] leading-[1.04]">
+                <h2 className="text-4xl sm:text-5xl lg:text-[56px] font-black text-white tracking-[-0.03em] leading-[1.05]">
                   Exclusive
                   <br />
                   Partner
                   <br />
                   Perks
                 </h2>
-                <p className="mt-6 text-sm sm:text-base text-slate-400 max-w-sm leading-relaxed">
+                <p className="mt-4 sm:mt-5 text-xs sm:text-sm text-slate-400 max-w-sm leading-relaxed">
                   5 premium institutional privileges unlocked the moment you onboard your campus to Alpha Edu Hub.
                 </p>
 
                 {/* Apply Now Pill CTA */}
-                <div className="mt-8">
+                <div className="mt-6 sm:mt-8">
                   <button
                     onClick={onApplyClick}
-                    className="group inline-flex items-center gap-3.5 bg-white hover:bg-slate-100 text-slate-950 pl-6 pr-3.5 py-3 rounded-full text-base font-bold shadow-2xl transition-all hover:scale-105 active:scale-95"
+                    className="group inline-flex items-center gap-3 bg-white hover:bg-slate-100 text-slate-950 pl-5 pr-3 py-2.5 sm:pl-6 sm:pr-3.5 sm:py-3 rounded-full text-sm sm:text-base font-bold shadow-2xl transition-all hover:scale-105 active:scale-95"
                   >
                     <span>Apply Now</span>
-                    <span className="w-8 h-8 rounded-full bg-slate-950 text-white flex items-center justify-center font-bold text-xs transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                      <ArrowUpRight className="w-4 h-4" />
+                    <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950 text-white flex items-center justify-center font-bold text-xs transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                      <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </span>
                   </button>
                 </div>
               </div>
 
               {/* Scroll instruction indicator */}
-              <div className="pt-6 border-t border-white/10 flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-slate-400">
+              <div className="pt-4 sm:pt-6 border-t border-white/10 flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-slate-400">
                 <span>SCROLL DOWN</span>
                 <span className="text-indigo-400 font-extrabold">──────→</span>
               </div>
@@ -400,11 +404,11 @@ export default function InstitutionPerksTicketCarousel({ onApplyClick }: Carouse
             {PERKS.map((perk) => (
               <div
                 key={perk.id}
-                className="shrink-0 w-[340px] sm:w-[390px] lg:w-[420px] h-[520px] sm:h-[570px] lg:h-[590px] rounded-[32px] overflow-hidden flex flex-col shadow-[0_30px_70px_-15px_rgba(0,0,0,0.6)] relative select-none hover:-translate-y-2 transition-transform duration-300"
+                className="shrink-0 w-[310px] sm:w-[350px] lg:w-[370px] h-[440px] sm:h-[470px] lg:h-[490px] rounded-[28px] overflow-hidden flex flex-col shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] relative select-none hover:-translate-y-2 transition-transform duration-300"
               >
                 {/* ── TOP HALF OF TICKET (PASTEL HEADER & 3D ASSET) ── */}
                 <div
-                  className="relative h-[270px] sm:h-[295px] lg:h-[310px] p-7 sm:p-8 flex flex-col justify-between"
+                  className="relative h-[215px] sm:h-[230px] lg:h-[240px] p-5 sm:p-6 flex flex-col justify-between"
                   style={{ backgroundColor: perk.themeBg }}
                 >
                   {/* Top Row: Number & Admit One Badge */}
@@ -412,13 +416,13 @@ export default function InstitutionPerksTicketCarousel({ onApplyClick }: Carouse
                     <span className="text-xs font-mono font-black tracking-wider text-slate-900">
                       {perk.number}
                     </span>
-                    <span className="border-2 border-slate-900 rounded-full px-3 py-0.5 text-[10px] font-black tracking-widest text-slate-900 uppercase">
+                    <span className="border-2 border-slate-900 rounded-full px-2.5 py-0.5 text-[10px] font-black tracking-widest text-slate-900 uppercase">
                       {perk.themeTag}
                     </span>
                   </div>
 
                   {/* Centered Enlarged 3D Graphic */}
-                  <div className="my-auto flex items-center justify-center z-10 py-1">
+                  <div className="my-auto flex items-center justify-center z-10 py-0.5">
                     {perk.renderIllustration()}
                   </div>
                 </div>
@@ -426,25 +430,25 @@ export default function InstitutionPerksTicketCarousel({ onApplyClick }: Carouse
                 {/* ── TICKET NOTCH & PERFORATION DIVIDER ── */}
                 <div className="relative h-0 z-20 flex items-center justify-between">
                   {/* Left circular notch cutout matching background */}
-                  <div className="w-8 h-8 rounded-full bg-[#0B0F19] -ml-4 shadow-inner" />
+                  <div className="w-7 h-7 rounded-full bg-[#0B0F19] -ml-3.5 shadow-inner" />
                   {/* Dashed perforated coupon tear line */}
-                  <div className="flex-1 border-b-2 border-dashed border-slate-300/90 mx-1.5" />
+                  <div className="flex-1 border-b-2 border-dashed border-slate-300/90 mx-1" />
                   {/* Right circular notch cutout matching background */}
-                  <div className="w-8 h-8 rounded-full bg-[#0B0F19] -mr-4 shadow-inner" />
+                  <div className="w-7 h-7 rounded-full bg-[#0B0F19] -mr-3.5 shadow-inner" />
                 </div>
 
                 {/* ── BOTTOM HALF OF TICKET (WHITE CARD WITH COPY) ── */}
-                <div className="flex-1 bg-white p-7 sm:p-8 flex flex-col justify-between text-left">
+                <div className="flex-1 bg-white p-5 sm:p-6 flex flex-col justify-between text-left">
                   <div>
-                    <h3 className="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-snug">
+                    <h3 className="text-base sm:text-lg font-black text-slate-950 tracking-tight leading-snug">
                       {perk.title}
                     </h3>
-                    <p className="mt-3.5 text-xs sm:text-[14px] text-slate-600 font-medium leading-relaxed">
+                    <p className="mt-2.5 text-xs sm:text-[13px] text-slate-600 font-medium leading-relaxed">
                       {perk.description}
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-400">
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-400">
                     <span>Alpha Edu Hub Privilege</span>
                     <span className="text-indigo-600 font-extrabold">Verified ✓</span>
                   </div>
@@ -455,10 +459,10 @@ export default function InstitutionPerksTicketCarousel({ onApplyClick }: Carouse
         </div>
 
         {/* ── BOTTOM PROGRESS BAR & HINT ── */}
-        <div className="relative z-10 px-6 sm:px-12 flex items-center justify-between">
+        <div className="relative z-10 px-6 sm:px-12 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <span className="text-[11px] font-mono font-bold tracking-widest text-slate-400">PROGRESS</span>
-            <div className="w-48 sm:w-64 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div className="w-40 sm:w-56 h-1.5 bg-slate-800 rounded-full overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-indigo-400 to-indigo-600 rounded-full"
                 style={{

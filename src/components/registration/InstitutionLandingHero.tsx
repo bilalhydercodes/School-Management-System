@@ -14,6 +14,7 @@ import InstitutionRegistrationSection from './InstitutionRegistrationSection';
 
 export default function InstitutionLandingHero() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isDarkNav, setIsDarkNav] = useState(false);
 
   // Smooth mouse parallax tracking
   useEffect(() => {
@@ -27,6 +28,23 @@ export default function InstitutionLandingHero() {
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Detect when user is scrolled over the dark Section 2 (#institution-perks)
+  useEffect(() => {
+    const perksEl = document.getElementById('institution-perks');
+    if (!perksEl) return;
+
+    const handleScroll = () => {
+      const rect = perksEl.getBoundingClientRect();
+      // When the perks section is active in the viewport under the navbar
+      const inDarkSection = rect.top <= 64 && rect.bottom >= 64;
+      setIsDarkNav(inDarkSection);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const scrollToPerks = () => {
@@ -44,17 +62,35 @@ export default function InstitutionLandingHero() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#fafafc] text-slate-900 selection:bg-indigo-100 selection:text-indigo-900 font-sans overflow-x-hidden">
-      {/* ── TOP HEADER / NAV (FIXED SOLID HEADER TO TOP) ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#fafafc] border-b border-slate-200/80 shadow-2xs">
+    <div className="relative min-h-screen bg-[#fafafc] text-slate-900 selection:bg-indigo-100 selection:text-indigo-900 font-sans overflow-x-clip">
+      {/* ── TOP HEADER / NAV (FIXED ADAPTIVE HEADER) ── */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
+          isDarkNav
+            ? 'bg-[#0B0F19]/95 border-b border-white/10 text-white backdrop-blur-md shadow-lg shadow-black/25'
+            : 'bg-[#fafafc] border-b border-slate-200/80 text-slate-900 shadow-2xs'
+        }`}
+      >
         <div className="w-full max-w-7xl mx-auto px-6 sm:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-indigo-600/20 group-hover:scale-105 transition-transform">
               <span className="font-black text-lg">α</span>
             </div>
             <div>
-              <span className="font-extrabold text-base tracking-tight text-slate-900">Alpha Edu Hub</span>
-              <span className="hidden sm:inline-block ml-2 text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-full">
+              <span
+                className={`font-extrabold text-base tracking-tight transition-colors duration-300 ${
+                  isDarkNav ? 'text-white' : 'text-slate-900'
+                }`}
+              >
+                Alpha Edu Hub
+              </span>
+              <span
+                className={`hidden sm:inline-block ml-2 text-[11px] font-semibold px-2 py-0.5 rounded-full transition-colors duration-300 ${
+                  isDarkNav
+                    ? 'text-indigo-300 bg-indigo-950/70 border border-indigo-500/30'
+                    : 'text-indigo-700 bg-indigo-50 border border-indigo-200/60'
+                }`}
+              >
                 Institution Onboarding
               </span>
             </div>
@@ -63,9 +99,16 @@ export default function InstitutionLandingHero() {
           <div className="flex items-center gap-4">
             <Link
               href="/login"
-              className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1"
+              className={`text-xs sm:text-sm font-semibold transition-colors duration-300 flex items-center gap-1 ${
+                isDarkNav
+                  ? 'text-slate-300 hover:text-white'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
-              Already an institutional user? <span className="text-indigo-600 hover:underline">Sign in →</span>
+              Already an institutional user?{' '}
+              <span className={isDarkNav ? 'text-indigo-400 hover:underline' : 'text-indigo-600 hover:underline'}>
+                Sign in →
+              </span>
             </Link>
           </div>
         </div>
