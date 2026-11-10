@@ -1,12 +1,12 @@
 import React from 'react';
-import InstitutionRegistrationWizard from '@/components/registration/InstitutionRegistrationWizard';
+import InstitutionLandingHero from '@/components/registration/InstitutionLandingHero';
 
 export const metadata = {
-  title: 'Register Institution — Alpha Edu Hub',
+  title: 'Register Institution — Modernize Your School | Alpha Edu Hub',
   description:
-    'Register your school or college on Alpha Edu Hub. Complete our onboarding application to establish your multi-tenant institution workspace.',
+    'Onboard your school or college to Alpha Edu Hub. Provision an enterprise-grade ERP workspace with automated attendance, instant fee reconciliation, timetable sync, and parent communications.',
 };
 
 export default function RegisterInstitutionPage() {
-  return <InstitutionRegistrationWizard />;
+  return <InstitutionLandingHero />;
 }
