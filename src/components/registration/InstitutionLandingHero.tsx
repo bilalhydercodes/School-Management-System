@@ -338,8 +338,8 @@ export default function InstitutionLandingHero() {
                   }}
                   className="flex flex-col items-center cursor-grab active:cursor-grabbing select-none"
                 >
-                  {/* ── 1. Black Woven Lanyard Strap (Extending to Top Fixed Header) ── */}
-                  <div className="relative w-8 sm:w-9 h-48 sm:h-56 lg:h-64 bg-[#18181b] shadow-md rounded-b-[2px] flex items-center justify-center overflow-hidden">
+                  {/* ── 1. Black Woven Lanyard Strap (Extending to Top Fixed Header, 1/10 reduced) ── */}
+                  <div className="relative w-8 sm:w-9 h-44 sm:h-52 lg:h-[232px] bg-[#18181b] shadow-md rounded-b-[2px] flex items-center justify-center overflow-hidden">
                     {/* Woven fabric texture lines */}
                     <div 
                       className="absolute inset-0 opacity-20"
@@ -389,23 +389,19 @@ export default function InstitutionLandingHero() {
 
                     {/* Card Main Hero Body */}
                     <div className="my-auto text-left pl-1">
-                      <h2 className="text-5xl sm:text-6xl font-black text-slate-900 tracking-tight leading-none">
-                        Your Campus.
+                      <h2 className="text-6xl sm:text-7xl font-black text-slate-900 tracking-tight leading-none">
+                        You.
                       </h2>
-                      <p className="mt-2.5 text-xs sm:text-sm font-semibold text-slate-500 tracking-tight">
-                        unified school operations • 2026
+                      <p className="mt-2.5 text-xs sm:text-sm font-medium text-slate-500 tracking-tight">
+                        leading campus since 2026
                       </p>
-                      <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-[10px] font-semibold text-slate-600">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        Multi-Tenant Architecture Active
-                      </div>
                     </div>
 
                     {/* Card Footer: Domain pill on left, institution crest on right */}
                     <div className="flex items-end justify-between pt-2">
                       {/* Domain Pill */}
                       <div className="border border-slate-300 rounded-full px-3 py-1 bg-white text-[11px] font-bold text-slate-700 shadow-xs mb-1">
-                        alphaeduhub.in
+                        institute.in
                       </div>
 
                       {/* Modern Institutional Crest Graphic */}
