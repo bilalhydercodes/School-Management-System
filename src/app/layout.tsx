@@ -212,6 +212,17 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                  for (var r of regs) { r.unregister(); }
+                });
+              }
+            `,
+          }}
+        />
       </head>
       <body className={`${plusJakartaSans.variable} font-sans min-h-screen bg-brand-subtle text-brand-dark antialiased`} suppressHydrationWarning>
         <Suspense fallback={null}>
