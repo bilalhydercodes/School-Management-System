@@ -17,6 +17,9 @@ import {
   ShieldCheck,
   ArrowRight,
   Sparkles,
+  Shield,
+  GraduationCap,
+  User,
 } from 'lucide-react';
 import BrandLoader from '@/components/ui/BrandLoader';
 import { isSupabaseConfigured, signInWithGoogleSupabase } from '@/lib/supabase';
@@ -292,11 +295,10 @@ function LoginForm() {
               <form onSubmit={handleCredentialsSubmit} className="space-y-4">
                 {/* Field 1: Email Address Input */}
                 <div>
-                  <div className="relative flex items-center group">
-                    <Mail
-                      className="absolute left-4.5 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors pointer-events-none"
-                      strokeWidth={1.8}
-                    />
+                  <div className="relative group">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-[18px] text-slate-400 group-focus-within:text-blue-600 transition-colors z-10">
+                      <Mail className="w-[18px] h-[18px]" strokeWidth={1.8} />
+                    </div>
                     <input
                       id="email-input"
                       type="text"
@@ -315,11 +317,10 @@ function LoginForm() {
 
                 {/* Field 2: Password Input */}
                 <div>
-                  <div className="relative flex items-center group">
-                    <Lock
-                      className="absolute left-4.5 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors pointer-events-none"
-                      strokeWidth={1.8}
-                    />
+                  <div className="relative group">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-[18px] text-slate-400 group-focus-within:text-blue-600 transition-colors z-10">
+                      <Lock className="w-[18px] h-[18px]" strokeWidth={1.8} />
+                    </div>
                     <input
                       id="password-input"
                       type={showPassword ? 'text' : 'password'}
@@ -333,18 +334,20 @@ function LoginForm() {
                       placeholder="Password"
                       className="w-full h-[52px] pl-12 pr-12 rounded-full border border-slate-200 bg-slate-50/50 hover:bg-white focus:bg-white text-sm sm:text-[14.5px] text-slate-900 placeholder-slate-400 font-medium transition-all shadow-2xs hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100/70 focus:outline-none"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 p-1 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showPassword ? (
-                        <Eye className="w-4 h-4" strokeWidth={1.8} />
-                      ) : (
-                        <EyeOff className="w-4 h-4" strokeWidth={1.8} />
-                      )}
-                    </button>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 z-10">
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? (
+                          <Eye className="w-4 h-4" strokeWidth={1.8} />
+                        ) : (
+                          <EyeOff className="w-4 h-4" strokeWidth={1.8} />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   {/* Forgotten Password Link */}
@@ -453,9 +456,9 @@ function LoginForm() {
                         setPassword('Admin@123');
                         if (errorMessage) setErrorMessage(null);
                       }}
-                      className="px-2.5 py-2 rounded-xl bg-slate-50 hover:bg-indigo-50/70 border border-slate-200/80 hover:border-indigo-200 text-xs font-semibold text-slate-700 hover:text-indigo-700 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs active:scale-[0.98]"
+                      className="px-2.5 py-2 rounded-xl bg-slate-50 hover:bg-indigo-50/80 border border-slate-200/80 hover:border-indigo-300 text-xs font-semibold text-slate-700 hover:text-indigo-700 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs active:scale-[0.98] group"
                     >
-                      <span className="text-sm">🛡️</span>
+                      <Shield className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 transition-colors" />
                       <span>Admin</span>
                     </button>
                     <button
@@ -465,9 +468,9 @@ function LoginForm() {
                         setPassword('Teacher@123');
                         if (errorMessage) setErrorMessage(null);
                       }}
-                      className="px-2.5 py-2 rounded-xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-200/80 hover:border-emerald-200 text-xs font-semibold text-slate-700 hover:text-emerald-700 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs active:scale-[0.98]"
+                      className="px-2.5 py-2 rounded-xl bg-slate-50 hover:bg-emerald-50/80 border border-slate-200/80 hover:border-emerald-300 text-xs font-semibold text-slate-700 hover:text-emerald-700 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs active:scale-[0.98] group"
                     >
-                      <span className="text-sm">👩‍🏫</span>
+                      <GraduationCap className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
                       <span>Teacher</span>
                     </button>
                     <button
@@ -477,9 +480,9 @@ function LoginForm() {
                         setPassword('Student@123');
                         if (errorMessage) setErrorMessage(null);
                       }}
-                      className="px-2.5 py-2 rounded-xl bg-slate-50 hover:bg-sky-50/70 border border-slate-200/80 hover:border-sky-200 text-xs font-semibold text-slate-700 hover:text-sky-700 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs active:scale-[0.98]"
+                      className="px-2.5 py-2 rounded-xl bg-slate-50 hover:bg-sky-50/80 border border-slate-200/80 hover:border-sky-300 text-xs font-semibold text-slate-700 hover:text-sky-700 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs active:scale-[0.98] group"
                     >
-                      <span className="text-sm">👨‍🎓</span>
+                      <User className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 transition-colors" />
                       <span>Student</span>
                     </button>
                   </div>
