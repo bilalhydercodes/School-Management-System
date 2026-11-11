@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import AdminHeroBanner from './AdminHeroBanner';
 import AdminQuickActions from './AdminQuickActions';
@@ -9,7 +10,15 @@ import { publishNoticeAction, type PublishNoticeInput } from '@/actions/admin/no
 import { Plus, X, Send, Megaphone, AlertCircle, ChevronRight, MessageSquareHeart } from 'lucide-react';
 import AdminModal from './ui/AdminModal';
 import AdminButton from './ui/AdminButton';
-import AIInsightsWidget from '@/components/ai/AIInsightsWidget';
+
+const AIInsightsWidget = dynamic(() => import('@/components/ai/AIInsightsWidget'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-32 rounded-2xl bg-white border border-slate-200/80 animate-pulse flex items-center justify-center p-6">
+      <div className="h-4 w-40 bg-slate-200/70 rounded-full" />
+    </div>
+  ),
+});
 
 export interface AdminDashboardClientProps {
   schoolName: string;

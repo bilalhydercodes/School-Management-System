@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useTransition, Suspense, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Mail,
@@ -17,8 +19,20 @@ import {
   Sparkles,
 } from 'lucide-react';
 import BrandLoader from '@/components/ui/BrandLoader';
-import Phone3D from '@/components/login/Phone3D';
 import { isSupabaseConfigured, signInWithGoogleSupabase } from '@/lib/supabase';
+
+const Phone3D = dynamic(() => import('@/components/login/Phone3D'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-[300px] sm:w-[320px] h-[640px] rounded-[50px] bg-slate-100/70 border border-slate-200/80 animate-pulse flex flex-col items-center justify-center p-6 shadow-inner">
+      <div className="w-12 h-12 rounded-2xl bg-blue-100/60 flex items-center justify-center text-blue-600 font-bold mb-4">
+        α
+      </div>
+      <div className="h-4 w-32 bg-slate-200/80 rounded-full mb-2" />
+      <div className="h-3 w-20 bg-slate-200/60 rounded-full" />
+    </div>
+  ),
+});
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -235,12 +249,19 @@ function LoginForm() {
         <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-blue-100/40 via-sky-100/20 to-transparent rounded-full blur-3xl pointer-events-none" />
 
         <div className="w-full max-w-[420px] mx-auto relative z-10">
-          {!is2FaStep ? (
-            /* ────────────────────────────────────────────────────────
-               STEP 1: CREDENTIALS (STUDENT, TEACHER, ADMIN)
-            ──────────────────────────────────────────────────────── */
-            <>
-              {/* Header Title with Institutional Badge */}
+          <AnimatePresence mode="wait">
+            {!is2FaStep ? (
+              /* ────────────────────────────────────────────────────────
+                 STEP 1: CREDENTIALS (STUDENT, TEACHER, ADMIN)
+              ──────────────────────────────────────────────────────── */
+              <motion.div
+                key="credentials-step"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+                {/* Header Title with Institutional Badge */}
               <div className="mb-8">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/90 border border-blue-100 text-blue-600 text-[11.5px] font-semibold mb-3.5 shadow-2xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
@@ -464,12 +485,18 @@ function LoginForm() {
                   </div>
                 </div>
               </form>
-            </>
+            </motion.div>
           ) : (
             /* ────────────────────────────────────────────────────────
                STEP 2: 2FA OTP VERIFICATION
             ──────────────────────────────────────────────────────── */
-            <div className="animate-in fade-in slide-in-from-right-4 duration-200">
+            <motion.div
+              key="2fa-step"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
               <div className="flex items-center gap-2 mb-3">
                 <span className="p-1.5 rounded-xl bg-blue-100 text-blue-600">
                   <ShieldCheck className="w-5 h-5" />
@@ -555,9 +582,10 @@ function LoginForm() {
                   <span className="text-slate-400">Code valid for 10 min</span>
                 </div>
               </form>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
+      </div>
       </section>
     </div>
   );
