@@ -126,4 +126,115 @@ aside {
   animation: float-subtle 7s ease-in-out infinite;
 }
 
+/* ─── 3D Phone & Studio Showcase Animations ──────────────────────────────── */
+.login-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.18) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.18) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@keyframes phone-bob-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-phone-float {
+  animation: phone-bob-float 5s ease-in-out infinite;
+}
+
+@keyframes pedestal-shadow-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(0.9);
+    opacity: 0.22;
+  }
+}
+
+.animate-pedestal-shadow {
+  animation: pedestal-shadow-pulse 5s ease-in-out infinite;
+}
+
+@keyframes neon-rim-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px #38bdf8, 0 10px 40px rgba(14, 165, 233, 0.7), inset 0 0 12px #38bdf8;
+  }
+  50% {
+    box-shadow: 0 0 32px #38bdf8, 0 14px 60px rgba(14, 165, 233, 0.9), inset 0 0 18px #38bdf8;
+  }
+}
+
+.animate-neon-glow {
+  animation: neon-rim-glow 3.5s ease-in-out infinite;
+}
+
+@keyframes purple-neon-pulse {
+  0%, 100% {
+    opacity: 0.65;
+    transform: scale(1);
+    filter: blur(20px);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.06);
+    filter: blur(28px);
+  }
+}
+
+.animate-purple-neon {
+  animation: purple-neon-pulse 4s ease-in-out infinite;
+}
+
+@keyframes badge-float-1 {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-1deg);
+  }
+}
+
+.animate-badge-float-1 {
+  animation: badge-float-1 6s ease-in-out infinite;
+}
+
+@keyframes badge-float-2 {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.2deg);
+  }
+}
+
+.animate-badge-float-2 {
+  animation: badge-float-2 7s ease-in-out infinite 1s;
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% {
+    transform: scale(0.8) rotate(0deg);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.15) rotate(12deg);
+    opacity: 0.95;
+  }
+}
+
+.animate-sparkle-1 {
+  animation: sparkle-twinkle 3s ease-in-out infinite;
+}
+
+.animate-sparkle-2 {
+  animation: sparkle-twinkle 3s ease-in-out infinite 1.5s;
+}
+
 

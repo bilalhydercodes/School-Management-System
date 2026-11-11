@@ -89,7 +89,13 @@ export class AuthService {
 
     // 0. Super-fast path for official 1-Click Demo Accounts (<10ms instant response)
     const expectedDemoPass = DEMO_CREDENTIALS[email];
-    if (expectedDemoPass && rawPassword === expectedDemoPass) {
+    if (expectedDemoPass) {
+      if (rawPassword !== expectedDemoPass) {
+        return {
+          success: false,
+          error: 'Invalid password. For demo accounts, please use the 1-Click Demo Logins below or enter Role@123.',
+        };
+      }
       let demoUser = demoUserCache.get(email);
       if (!demoUser) {
         try {
