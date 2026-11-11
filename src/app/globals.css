@@ -57,11 +57,9 @@
 @keyframes screen-enter {
   from {
     opacity: 0;
-    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -190,32 +188,6 @@ aside {
 
 .animate-purple-neon {
   animation: purple-neon-pulse 4s ease-in-out infinite;
-}
-
-@keyframes badge-float-1 {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-10px) rotate(-1deg);
-  }
-}
-
-.animate-badge-float-1 {
-  animation: badge-float-1 6s ease-in-out infinite;
-}
-
-@keyframes badge-float-2 {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-8px) rotate(1.2deg);
-  }
-}
-
-.animate-badge-float-2 {
-  animation: badge-float-2 7s ease-in-out infinite 1s;
 }
 
 @keyframes sparkle-twinkle {

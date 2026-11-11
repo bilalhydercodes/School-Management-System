@@ -76,10 +76,12 @@ export function normalizeError(error: unknown): AppError {
       return handlePrismaError(error);
     }
     
-    return new AppError(ErrorCategory.UNKNOWN, error.message, {
+    const appErr = new AppError(ErrorCategory.UNKNOWN, error.message, {
       cause: error,
-      stack: error.stack,
+      metadata: error.stack ? { stack: error.stack } : undefined,
     });
+    if (error.stack) appErr.stack = error.stack;
+    return appErr;
   }
 
   return new AppError(ErrorCategory.UNKNOWN, 'An unknown error occurred', {

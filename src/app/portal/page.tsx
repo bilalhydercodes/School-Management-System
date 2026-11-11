@@ -48,20 +48,20 @@ export default async function PortalPage({ searchParams }: PageProps) {
   let parentContext: StudentDashboardProps['parentContext'] = undefined;
 
   if (currentUser.parentProfile) {
-    const parentLinks = currentUser.parentProfile.students;
+    const parentLinks: any[] = currentUser.parentProfile.students || [];
     if (parentLinks.length === 0) {
       targetStudent = null;
     } else {
       // Determine active child from query param or default to primary
       const requestedChildId = searchParams?.child;
       const matchedLink = requestedChildId
-        ? parentLinks.find((l) => l.student.id === requestedChildId)
+        ? parentLinks.find((l: any) => l.student?.id === requestedChildId)
         : null;
 
       const activeLink = matchedLink || parentLinks[0];
       targetStudent = activeLink.student;
 
-      const childrenOptions: ChildOption[] = (parentLinks || []).map((link) => ({
+      const childrenOptions: ChildOption[] = parentLinks.map((link: any) => ({
         id: link.student?.id || '',
         name: `${link.student?.user?.firstName || ''} ${link.student?.user?.lastName || ''}`.trim() || 'Student',
         rollNumber: link.student?.rollNumber ?? null,
@@ -226,7 +226,7 @@ export default async function PortalPage({ searchParams }: PageProps) {
       balanceAmount: Number(inv.balanceAmount),
       dueDate: new Date(inv.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
       status: invStatus,
-      items: inv.items.map((it) => ({
+      items: (inv.items || []).map((it: any) => ({
         category: it.feeCategory?.name || it.description || 'Fee Component',
         amount: Number(it.amount),
         paid: Number(inv.paidAmount) > 0 ? Number(it.amount) : 0,

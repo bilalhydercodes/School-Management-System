@@ -36,7 +36,7 @@ async function runE2ETests() {
 
   // Mock global session for server actions in this Node execution context
   process.env.TEST_AUTH_USER_ID = userId;
-  process.env.TEST_AUTH_TENANT_ID = tenantId;
+  process.env.TEST_AUTH_TENANT_ID = tenantId || undefined;
   process.env.TEST_AUTH_ROLE = role;
 
   // 2. Test Faculty Leave Application & History Retrieval

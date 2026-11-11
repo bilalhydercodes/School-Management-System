@@ -15,8 +15,9 @@ export interface ErrorLogPayload {
 export const logger = {
   error: (payload: ErrorLogPayload) => {
     // Determine severity
-    const isAppError = payload.error instanceof AppError;
-    const severity = isAppError ? payload.error.severity : ErrorSeverity.ERROR;
+    const err = payload.error;
+    const isAppError = err instanceof AppError;
+    const severity = err instanceof AppError ? err.severity : ErrorSeverity.ERROR;
     
     // Only log WARNING and above as actual errors
     if (severity === ErrorSeverity.INFO) {

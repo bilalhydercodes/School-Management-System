@@ -37,7 +37,7 @@ export default async function AdminDashboardPage() {
     auditLogs,
     sections,
     pendingAdmissionsCount,
-  ] = await getCachedAdminDashboardData(tenantId);
+  ] = (await getCachedAdminDashboardData(tenantId)) as any;
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -46,12 +46,12 @@ export default async function AdminDashboardPage() {
   const attendanceRecords = todayAttendanceRecords || [];
   const sectionsList = sections || [];
 
-  const submittedSectionIds = new Set(attendanceRecords.map((r) => r.sectionId));
-  const unsubmittedSections = sectionsList.filter((s) => !submittedSectionIds.has(s.id));
+  const submittedSectionIds = new Set(attendanceRecords.map((r: any) => r.sectionId));
+  const unsubmittedSections = sectionsList.filter((s: any) => !submittedSectionIds.has(s.id));
   const totalSectionsCount = sectionsList.length;
   const submittedSectionsCount = totalSectionsCount - unsubmittedSections.length;
 
-  const todayPresentCount = attendanceRecords.filter((r) => r.status === 'PRESENT').length;
+  const todayPresentCount = attendanceRecords.filter((r: any) => r.status === 'PRESENT').length;
   const todayTotalAttendance = attendanceRecords.length;
   // When today has no attendance records yet, default to 100% (no data = full day ahead)
   const todayAttendanceRate =
@@ -69,7 +69,7 @@ export default async function AdminDashboardPage() {
   const totalOverdueAmount = Number(overdueFeeAggregates?._sum?.balanceAmount || 0);
   const overdueCount = Number(overdueFeeAggregates?._count?._all || 0);
 
-  const formattedNotices = (notices || []).map((n) => ({
+  const formattedNotices = (notices || []).map((n: any) => ({
     id: n.id,
     title: n.title,
     content: n.content,
@@ -87,7 +87,7 @@ export default async function AdminDashboardPage() {
   // Filter out routine USER_LOGIN spam from primary audit view (already filtered at DB level)
   const logsToRender = auditLogs?.length > 0 ? auditLogs : [];
 
-  const formattedAuditLogs = logsToRender.map((log) => {
+  const formattedAuditLogs = logsToRender.map((log: any) => {
     let cleanAction = log.action;
     if (log.action === 'USER_LOGIN') cleanAction = 'User signed in';
     else if (log.action === 'CREATE_NOTICE') cleanAction = 'Circular published';
@@ -114,7 +114,7 @@ export default async function AdminDashboardPage() {
     };
   });
 
-  const formattedSections = sectionsList.map((sec) => {
+  const formattedSections = sectionsList.map((sec: any) => {
     const isSubmittedToday = submittedSectionIds.has(sec.id);
 
     return {
@@ -151,7 +151,7 @@ export default async function AdminDashboardPage() {
         activeSubstitutions: activeSubstitutions || 0,
         pendingAdmissionsCount: pendingAdmissionsCount || 0,
       }}
-      unsubmittedSections={unsubmittedSections.map((s) => ({
+      unsubmittedSections={unsubmittedSections.map((s: any) => ({
         id: s.id,
         name: `${s.classGrade?.name || 'Class'}-${s.name || 'A'}`,
       }))}

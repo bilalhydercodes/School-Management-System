@@ -151,7 +151,7 @@ export default function StudentDirectoryClient({
   } | null>(null);
   const [createdParentCredentials, setCreatedParentCredentials] = useState<{
     name: string;
-    phone: string;
+    phone?: string;
     email: string;
     tempPassword: string;
     role: string;

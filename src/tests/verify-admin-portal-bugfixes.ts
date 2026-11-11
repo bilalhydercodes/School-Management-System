@@ -221,6 +221,7 @@ async function runAdminBugfixesAndCrossPortalTests() {
       subject: 'Science Lab',
       code: 'SCI-10',
       max: 100,
+      obtained: null,
       theoryMax: 80,
       theoryObtained: 70,
       practicalMax: 20,

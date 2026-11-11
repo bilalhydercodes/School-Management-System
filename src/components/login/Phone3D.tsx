@@ -2,13 +2,17 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { Sparkles, CheckCircle2, TrendingUp, ShieldCheck } from 'lucide-react';
+import { Sparkles, TrendingUp, Clock, CheckCircle2 } from 'lucide-react';
 
 /**
  * 3D Interactive Phone Showcase
- * Uses the ultra-high-definition 3D render of Alpha Edu Hub Student Dashboard
- * with real-time multi-layer gyroscopic parallax, floating physics, ambient studio
- * spotlighting, neon reflection aura, and stereoscopic foreground depth chips.
+ * Ultra-modern interactive 3D showcase featuring:
+ * - High-definition Alpha Edu Hub Student Dashboard
+ * - Real-time gyroscopic mouse parallax (3D tilt & translation)
+ * - Multi-spectrum studio backlighting (cyan, violet, electric blue)
+ * - Floating stereoscopic glass badges with independent depth axes
+ * - Neon rim ground glow and soft contact shadow
+ * - 4-point diamond sparkle stars
  */
 export default function Phone3D() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -35,16 +39,16 @@ export default function Phone3D() {
   }, []);
 
   // Parallax calculations
-  const rotateY = coords.x * 16; // -8 to +8 deg
-  const rotateX = -coords.y * 12; // -6 to +6 deg
-  const translateX = coords.x * 18; // -9 to +9 px
-  const translateY = coords.y * 14; // -7 to +7 px
+  const rotateY = coords.x * 14; // -7 to +7 deg
+  const rotateX = -coords.y * 10; // -5 to +5 deg
+  const translateX = coords.x * 16;
+  const translateY = coords.y * 12;
 
-  // Foreground chips parallax (higher delta for depth sensation)
-  const chip1X = coords.x * 32;
-  const chip1Y = coords.y * 24;
-  const chip2X = -coords.x * 26;
-  const chip2Y = -coords.y * 20;
+  // Foreground chips parallax (higher delta for stereoscopic depth)
+  const chip1X = coords.x * 28;
+  const chip1Y = coords.y * 20;
+  const chip2X = -coords.x * 24;
+  const chip2Y = -coords.y * 18;
 
   return (
     <div
@@ -52,39 +56,39 @@ export default function Phone3D() {
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full h-full flex flex-col items-center justify-center select-none cursor-pointer py-6 overflow-visible"
-      style={{ perspective: '1100px' }}
+      className="relative w-full h-full flex flex-col items-center justify-center select-none py-4 overflow-visible pointer-events-auto"
+      style={{ perspective: '1200px' }}
     >
-      {/* ─── LAYER 0: Ambient Studio Lighting (Backlight) ─── */}
+      {/* ─── LAYER 0: Ambient Studio Lighting (Multi-Spectrum Backlight) ─── */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[480px] rounded-full pointer-events-none transition-transform duration-500 ease-out opacity-75"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[460px] h-[560px] rounded-full pointer-events-none transition-transform duration-700 ease-out opacity-85"
         style={{
           background:
-            'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.22) 0%, rgba(56, 189, 248, 0.18) 45%, transparent 70%)',
-          filter: 'blur(45px)',
-          transform: `translate(-50%, -50%) translate(${translateX * 0.6}px, ${translateY * 0.6}px)`,
+            'radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.28) 0%, rgba(129, 140, 248, 0.22) 40%, rgba(192, 132, 252, 0.12) 65%, transparent 80%)',
+          filter: 'blur(55px)',
+          transform: `translate(-50%, -50%) translate(${translateX * 0.7}px, ${translateY * 0.7}px)`,
         }}
       />
 
-      {/* ─── LAYER 1: 4-Point Diamond Sparkle Stars (Reference Image 2) ─── */}
+      {/* ─── LAYER 1: 4-Point Diamond Sparkle Stars ─── */}
       <div
-        className="absolute top-[12%] right-[10%] pointer-events-none text-slate-400 animate-sparkle-1 transition-transform duration-300"
+        className="absolute top-[10%] right-[12%] pointer-events-none text-sky-400/80 animate-sparkle-1 transition-transform duration-300"
         style={{
-          transform: `translate(${coords.x * 20}px, ${coords.y * 18}px)`,
+          transform: `translate(${coords.x * 22}px, ${coords.y * 20}px)`,
         }}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.4 9.6L24 12L14.4 14.4L12 24L9.6 14.4L0 12L9.6 9.6L12 0Z" />
         </svg>
       </div>
 
       <div
-        className="absolute bottom-[20%] left-[8%] pointer-events-none text-slate-400 animate-sparkle-2 transition-transform duration-300"
+        className="absolute bottom-[18%] left-[10%] pointer-events-none text-indigo-400/70 animate-sparkle-2 transition-transform duration-300"
         style={{
-          transform: `translate(${coords.x * -18}px, ${coords.y * -16}px)`,
+          transform: `translate(${coords.x * -20}px, ${coords.y * -18}px)`,
         }}
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0L14.4 9.6L24 12L14.4 14.4L12 24L9.6 14.4L0 12L9.6 9.6L12 0Z" />
         </svg>
       </div>
@@ -95,15 +99,18 @@ export default function Phone3D() {
         style={{
           transformStyle: 'preserve-3d',
           transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translate3d(${translateX}px, ${translateY}px, 0) ${
-            isHovered ? 'scale(1.025)' : 'scale(1)'
+            isHovered ? 'scale(1.03)' : 'scale(1)'
           }`,
         }}
       >
         {/* Floating Animation Wrapper */}
-        <div className="relative animate-phone-float flex flex-col items-center" style={{ transformStyle: 'preserve-3d' }}>
-          {/* Main 3D Phone & Pedestal PNG */}
+        <div
+          className="relative animate-phone-float flex flex-col items-center"
+          style={{ transformStyle: 'preserve-3d' }}
+        >
+          {/* Main 3D Phone & Pedestal Render */}
           <div
-            className="relative w-[320px] sm:w-[350px] md:w-[380px] lg:w-[390px] xl:w-[410px] aspect-[1024/1536] drop-shadow-[0_25px_35px_rgba(15,23,42,0.25)] transition-all duration-300"
+            className="relative w-[340px] sm:w-[380px] md:w-[410px] lg:w-[420px] xl:w-[440px] aspect-[1024/1536] drop-shadow-[0_28px_45px_rgba(15,23,42,0.22)] transition-all duration-300"
             style={{
               transform: 'translateZ(40px)',
             }}
@@ -113,66 +120,68 @@ export default function Phone3D() {
               alt="Alpha Edu Hub 3D Student Dashboard"
               fill
               priority
-              sizes="(max-width: 1024px) 350px, 420px"
+              sizes="(max-width: 1024px) 380px, 450px"
               className="object-contain pointer-events-none select-none"
             />
           </div>
 
-          {/* Neon Rim Pulse Glow Aura below the pedestal (Matching the purple/cyan neon rim in the image) */}
+          {/* Neon Rim Pulse Glow Aura below the pedestal */}
           <div
-            className="absolute -bottom-2 w-[240px] sm:w-[280px] h-[34px] rounded-full pointer-events-none animate-purple-neon"
+            className="absolute -bottom-1 w-[260px] sm:w-[300px] h-[36px] rounded-full pointer-events-none animate-purple-neon"
             style={{
               background:
-                'radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.75) 0%, rgba(56, 189, 248, 0.6) 50%, transparent 80%)',
+                'radial-gradient(ellipse at 50% 50%, rgba(147, 51, 234, 0.75) 0%, rgba(56, 189, 248, 0.65) 50%, transparent 80%)',
               transform: 'translateZ(10px)',
             }}
           />
 
           {/* Ground Contact Shadow on the Floor */}
           <div
-            className="w-[280px] sm:w-[330px] h-[28px] mt-2 rounded-[100%] animate-pedestal-shadow pointer-events-none"
+            className="w-[300px] sm:w-[340px] h-[30px] mt-2 rounded-[100%] animate-pedestal-shadow pointer-events-none"
             style={{
               background:
-                'radial-gradient(ellipse, rgba(15, 23, 42, 0.42) 0%, rgba(56, 189, 248, 0.12) 45%, transparent 75%)',
+                'radial-gradient(ellipse, rgba(15, 23, 42, 0.38) 0%, rgba(56, 189, 248, 0.12) 45%, transparent 75%)',
             }}
           />
         </div>
 
         {/* ─── LAYER 3: Stereoscopic Floating Glass Depth Badges ─── */}
-        {/* Chip 1: Top-Right Glass Badge (Attendance Verified) */}
+        {/* Chip 1: Top-Right Glass Badge (Attendance Score) */}
         <div
-          className="absolute -top-3 -right-4 sm:-right-8 z-30 pointer-events-none animate-badge-float-1 transition-transform duration-200 ease-out hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/85 backdrop-blur-md border border-white/80 shadow-[0_12px_28px_rgba(15,23,42,0.12)] text-slate-800"
+          className="absolute -top-1 -right-4 sm:-right-8 z-30 pointer-events-none hidden sm:flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-white/90 backdrop-blur-md border border-white/80 shadow-[0_16px_32px_rgba(15,23,42,0.12)] text-slate-800 transition-transform duration-200 ease-out"
           style={{
             transform: `translate3d(${chip1X}px, ${chip1Y}px, 90px)`,
           }}
         >
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-purple-100" />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-xs">
+            <TrendingUp className="w-4 h-4 text-blue-100" />
           </div>
           <div>
-            <div className="text-[11px] font-extrabold text-slate-900 leading-tight flex items-center gap-1">
-              96.4% Attendance
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <div className="text-[12px] font-extrabold text-slate-900 leading-tight flex items-center gap-1.5">
+              <span>96.4% Attendance</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <div className="text-[9.5px] font-semibold text-purple-600">Top 5% in Class 10-A</div>
+            <div className="text-[10px] font-semibold text-blue-600">Top 5% in Class 10-A</div>
           </div>
         </div>
 
-        {/* Chip 2: Bottom-Left Glass Badge (Live Cloud Sync) */}
+        {/* Chip 2: Bottom-Left Glass Badge (Live Schedule) */}
         <div
-          className="absolute bottom-20 -left-4 sm:-left-8 z-30 pointer-events-none animate-badge-float-2 transition-transform duration-200 ease-out hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-white/85 backdrop-blur-md border border-white/80 shadow-[0_12px_28px_rgba(15,23,42,0.12)] text-slate-800"
+          className="absolute bottom-24 -left-4 sm:-left-8 z-30 pointer-events-none hidden sm:flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-white/90 backdrop-blur-md border border-white/80 shadow-[0_16px_32px_rgba(15,23,42,0.12)] text-slate-800 transition-transform duration-200 ease-out"
           style={{
             transform: `translate3d(${chip2X}px, ${chip2Y}px, 85px)`,
           }}
         >
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center shadow-xs">
-            <TrendingUp className="w-3.5 h-3.5 text-sky-100" />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center shadow-xs">
+            <Clock className="w-4 h-4 text-sky-100" />
           </div>
           <div>
-            <div className="text-[11px] font-extrabold text-slate-900 leading-tight">Physics • Class 10-A</div>
-            <div className="text-[9.5px] font-semibold text-sky-600 flex items-center gap-1">
-              <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping" />
-              10:00 AM in Room 204
+            <div className="text-[12px] font-extrabold text-slate-900 leading-tight">
+              Physics • Class 10-A
+            </div>
+            <div className="text-[10px] font-semibold text-sky-600 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span>10:00 AM • Room 204</span>
             </div>
           </div>
         </div>
