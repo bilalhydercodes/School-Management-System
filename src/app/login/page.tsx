@@ -42,10 +42,21 @@ function LoginForm() {
   const router = useRouter();
   const redirectParam = searchParams?.get('redirect') ?? null;
   const errorParam = searchParams?.get('error') ?? null;
+  const demoParam = searchParams?.get('demo')?.toLowerCase() ?? null;
 
-  // Step 1: Credentials
-  const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
+  // Step 1: Credentials with automatic demo fill if requested via query param
+  const [userId, setUserId] = useState(() => {
+    if (demoParam === 'admin') return 'admin@dps.edu.in';
+    if (demoParam === 'teacher') return 'teacher@dps.edu.in';
+    if (demoParam === 'student') return 'student@dps.edu.in';
+    return '';
+  });
+  const [password, setPassword] = useState(() => {
+    if (demoParam === 'admin') return 'Admin@123';
+    if (demoParam === 'teacher') return 'Teacher@123';
+    if (demoParam === 'student') return 'Student@123';
+    return '';
+  });
   const [showPassword, setShowPassword] = useState(false);
 
   // Step 2: 2FA State (For Admin / Teacher role sessions)

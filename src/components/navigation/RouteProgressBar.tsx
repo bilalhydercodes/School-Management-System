@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 /**
@@ -12,9 +12,14 @@ export default function RouteProgressBar() {
   const searchParams = useSearchParams();
   const [isVisible, setIsVisible] = useState(false);
   const [progress, setProgress] = useState(0);
+  const isFirstRender = useRef(true);
 
   // Complete and hide progress bar when route navigation finishes
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     setProgress(100);
     const timer = setTimeout(() => {
       setIsVisible(false);
@@ -48,6 +53,16 @@ export default function RouteProgressBar() {
         e.altKey
       ) {
         return;
+      }
+
+      // Ignore external origin links (e.g. social links, external doc links)
+      if (href.startsWith('http://') || href.startsWith('https://')) {
+        try {
+          const parsed = new URL(href);
+          if (parsed.origin !== window.location.origin) return;
+        } catch {
+          return;
+        }
       }
 
       // Check if it's the exact same page
