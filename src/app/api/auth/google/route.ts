@@ -14,19 +14,55 @@ export const revalidate = 0;
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const email = (body.email || 'student@dps.edu.in').toLowerCase().trim();
-    const name = body.name || email.split('@')[0] || 'User';
-    const avatarUrl = body.avatarUrl || null;
+    let email = (body.email || '').toLowerCase().trim();
+    let name = body.name || 'User';
+    let avatarUrl = body.avatarUrl || null;
+    const idToken = body.id_token || body.credential;
 
-    let role: RoleType = Role.STUDENT;
-    if (body.role && Object.values(Role).includes(body.role)) {
-      role = body.role;
-    } else if (email.includes('admin') || email.includes('principal') || email.includes('head')) {
-      role = Role.ADMIN;
-    } else if (email.includes('teacher') || email.includes('faculty') || email.includes('prof')) {
-      role = Role.TEACHER;
-    } else if (email.includes('superadmin')) {
-      role = Role.SUPER_ADMIN;
+    // 1. If a Google ID token is provided, verify it with Google's public token verification service
+    if (idToken && typeof idToken === 'string') {
+      try {
+        const tokenRes = await fetch(
+          `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`
+        );
+        if (tokenRes.ok) {
+          const tokenData = await tokenRes.json();
+          email = (tokenData.email || '').toLowerCase().trim();
+          name = tokenData.name || name;
+          avatarUrl = tokenData.picture || avatarUrl;
+        } else {
+          return NextResponse.json(
+            { success: false, error: 'Invalid Google credential token.' },
+            { status: 401 }
+          );
+        }
+      } catch {
+        return NextResponse.json(
+          { success: false, error: 'Failed to verify Google credential token.' },
+          { status: 401 }
+        );
+      }
+    } else {
+      // 2. Mock fallback without verified ID token:
+      // In production, unauthenticated mock sign-ins are strictly forbidden
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json(
+          { success: false, error: 'Direct mock authentication is disabled in production. Please use Google OAuth or institutional credentials.' },
+          { status: 401 }
+        );
+      }
+
+      // In development/test mode, only allow the pre-configured student demo account
+      if (!email || email !== 'student@dps.edu.in') {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unverified Google sign-in is only permitted for the demo student account (student@dps.edu.in).',
+          },
+          { status: 403 }
+        );
+      }
+      name = 'Rohan Sharma';
     }
 
     let dbUser: any = null;
@@ -43,9 +79,24 @@ export async function POST(request: Request) {
       dbUser = null;
     }
 
+    // 3. Role determination:
+    // PRIVILEGED ROLES (ADMIN, TEACHER, SUPER_ADMIN) MUST BE EXPLICITLY STORED IN DATABASE.
+    // Callers cannot elevate their role via unauthenticated JSON payload.
+    let userRole: RoleType = Role.STUDENT;
+    if (dbUser?.role && Object.values(Role).includes(dbUser.role)) {
+      userRole = dbUser.role as RoleType;
+    } else if (process.env.NODE_ENV === 'production' && !dbUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'No active institutional account found for this Google email. Please contact your school administrator.',
+        },
+        { status: 403 }
+      );
+    }
+
     const userId = dbUser?.id || `usr-google-${Date.now()}`;
     const tenantId = dbUser?.tenantId || '3c9a7747-cffd-40e1-be07-374b47817e5f'; // Default DPS Delhi Tenant
-    const userRole = (dbUser?.role as RoleType) || role;
 
     const [firstName, ...lastNames] = name.split(' ');
     const userFirstName = dbUser?.firstName || firstName || 'Google';

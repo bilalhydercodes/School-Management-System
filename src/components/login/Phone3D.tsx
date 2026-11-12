@@ -116,7 +116,7 @@ export default function Phone3D() {
             }}
           >
             <Image
-              src="/images/login/phone-3d-showcase.png"
+              src="/images/login/phone-3d-showcase.webp"
               alt="Alpha Edu Hub 3D Student Dashboard"
               fill
               priority

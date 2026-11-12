@@ -69,8 +69,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/images/dashboard/open_graph_image.png',
-        width: 1730,
-        height: 909,
+        width: 1200,
+        height: 630,
         alt: 'Alpha Edu Hub — School Management System & School ERP',
         type: 'image/png',
       },
@@ -106,10 +106,8 @@ export const metadata: Metadata = {
     apple: [
       { url: '/apple-touch-icon.png?v=2', sizes: '180x180', type: 'image/png' },
     ],
-    other: [
-      { rel: 'manifest', url: '/site.webmanifest?v=2' },
-    ],
   },
+  manifest: '/site.webmanifest?v=2',
   verification: {
     google: 'google5ccf3405d93d58e9',
     other: {
@@ -212,19 +210,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(regs) {
-                  for (var r of regs) { r.unregister(); }
-                });
-              }
-            `,
-          }}
-        />
       </head>
-      <body className={`${plusJakartaSans.variable} font-sans min-h-screen bg-brand-subtle text-brand-dark antialiased`} suppressHydrationWarning>
+      <body className="font-sans min-h-screen bg-brand-subtle text-brand-dark antialiased" suppressHydrationWarning>
         <Suspense fallback={null}>
           <RouteProgressBar />
         </Suspense>

@@ -17,8 +17,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/images/dashboard/open_graph_image.png',
-        width: 1730,
-        height: 909,
+        width: 1200,
+        height: 630,
         alt: 'Alpha Edu Hub — School ERP Login',
         type: 'image/png',
       },
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   robots: {
     index: false,
-    follow: false,
+    follow: true,
   },
 };
 

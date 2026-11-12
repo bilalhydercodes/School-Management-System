@@ -41,6 +41,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const redirectParam = searchParams?.get('redirect') ?? null;
+  const errorParam = searchParams?.get('error') ?? null;
 
   // Step 1: Credentials
   const [userId, setUserId] = useState('');
@@ -57,7 +58,22 @@ function LoginForm() {
   // Google Login State
   const [isGoogleLoggingIn, setIsGoogleLoggingIn] = useState(false);
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Initial error mapped from query param if redirected from auth callbacks
+  const initialError = React.useMemo(() => {
+    if (!errorParam) return null;
+    if (errorParam === 'account_not_found') {
+      return 'No registered institutional account was found for this Google email. Please contact your school administrator or sign up.';
+    }
+    if (errorParam === 'oauth_code_missing' || errorParam === 'oauth_exchange_failed') {
+      return 'Google sign-in could not be completed. Please try signing in again.';
+    }
+    if (errorParam === 'supabase_not_configured') {
+      return 'Google SSO service is not currently configured. Please sign in with your credentials.';
+    }
+    return decodeURIComponent(errorParam);
+  }, [errorParam]);
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(initialError);
   const [isPending, startTransition] = useTransition();
 
   // Navigation handler for Back button
@@ -77,8 +93,9 @@ function LoginForm() {
   );
 
   const navigateTo = useCallback((target: string) => {
-    window.location.replace(target);
-  }, []);
+    router.push(target);
+    router.refresh();
+  }, [router]);
 
   const executeLogin = (emailToUse: string, passwordToUse: string) => {
     setErrorMessage(null);
@@ -295,6 +312,9 @@ function LoginForm() {
               <form onSubmit={handleCredentialsSubmit} className="space-y-4">
                 {/* Field 1: Email Address Input */}
                 <div>
+                  <label htmlFor="email-input" className="sr-only">
+                    Email address or Admission ID
+                  </label>
                   <div className="relative group">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-[18px] text-slate-400 group-focus-within:text-blue-600 transition-colors z-10">
                       <Mail className="w-[18px] h-[18px]" strokeWidth={1.8} />
@@ -302,6 +322,10 @@ function LoginForm() {
                     <input
                       id="email-input"
                       type="text"
+                      inputMode="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       required
                       autoComplete="username"
                       value={userId}
@@ -317,6 +341,9 @@ function LoginForm() {
 
                 {/* Field 2: Password Input */}
                 <div>
+                  <label htmlFor="password-input" className="sr-only">
+                    Password
+                  </label>
                   <div className="relative group">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-[18px] text-slate-400 group-focus-within:text-blue-600 transition-colors z-10">
                       <Lock className="w-[18px] h-[18px]" strokeWidth={1.8} />
@@ -539,6 +566,7 @@ function LoginForm() {
                     id="otp-input"
                     type="text"
                     inputMode="numeric"
+                    autoComplete="one-time-code"
                     maxLength={6}
                     autoFocus
                     required

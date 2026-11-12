@@ -35,21 +35,28 @@ export async function GET(request: Request) {
     const fullName = data.user.user_metadata?.full_name || data.user.user_metadata?.name || '';
     const [firstName, ...lastNames] = fullName.split(' ');
 
+    const normalizedEmail = email.toLowerCase().trim();
+
     let dbUser: any = null;
     try {
       dbUser = await prisma.user.findFirst({
-        where: { email: { equals: email.toLowerCase().trim(), mode: 'insensitive' } },
+        where: {
+          email: { equals: normalizedEmail, mode: 'insensitive' },
+          isActive: true,
+          deletedAt: null,
+        },
       });
     } catch {
       dbUser = null;
     }
 
-    let role: RoleType = (dbUser?.role as RoleType) || Role.STUDENT;
-    if (!dbUser && email.includes('admin')) {
-      role = Role.ADMIN;
-    } else if (!dbUser && email.includes('teacher')) {
-      role = Role.TEACHER;
+    // Security Guard: In production, reject OAuth logins for emails not registered in the system
+    if (!dbUser && process.env.NODE_ENV === 'production') {
+      return NextResponse.redirect(new URL('/login?error=account_not_found', request.url));
     }
+
+    // Role is strictly derived from the verified database record, defaulting to STUDENT in dev
+    const role: RoleType = (dbUser?.role as RoleType) || Role.STUDENT;
 
     const userId = dbUser?.id || data.user.id;
     const tenantId = dbUser?.tenantId || '3c9a7747-cffd-40e1-be07-374b47817e5f';
@@ -59,7 +66,7 @@ export async function GET(request: Request) {
         sub: userId,
         tenantId,
         role,
-        email,
+        email: normalizedEmail,
         firstName: dbUser?.firstName || firstName || 'User',
         lastName: dbUser?.lastName || lastNames.join(' ') || '',
         mustChangePassword: false,

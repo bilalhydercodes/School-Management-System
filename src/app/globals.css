@@ -6,9 +6,9 @@
 
 @layer base {
   :root {
-    --brand-primary: #c2410c;
-    --brand-primary-hover: #9a3412;
-    --brand-primary-light: #ffedd5;
+    --brand-primary: #008CFF;
+    --brand-primary-hover: #0070cc;
+    --brand-primary-light: #eff6ff;
     --brand-primary-text: #ffffff;
     --brand-canvas: #ffffff;
     --brand-subtle: #f8fafc;

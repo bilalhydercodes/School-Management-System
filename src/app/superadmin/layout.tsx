@@ -15,8 +15,8 @@ export const metadata = {
     images: [
       {
         url: '/images/dashboard/open_graph_image.png',
-        width: 1730,
-        height: 909,
+        width: 1200,
+        height: 630,
         alt: 'Alpha Edu Hub — Super Admin Dashboard',
         type: 'image/png',
       },
