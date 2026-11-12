@@ -196,7 +196,9 @@ const hasClerkKey = Boolean(
   clerkKey && clerkKey.startsWith('pk_') && !clerkKey.includes('placeholder')
 );
 
+import { Suspense } from 'react';
 import OfflineProvider from '@/components/offline/OfflineProvider';
+import RouteProgressBar from '@/components/navigation/RouteProgressBar';
 
 export default function RootLayout({
   children,
@@ -210,8 +212,22 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                  for (var r of regs) { r.unregister(); }
+                });
+              }
+            `,
+          }}
+        />
       </head>
       <body className={`${plusJakartaSans.variable} font-sans min-h-screen bg-brand-subtle text-brand-dark antialiased`} suppressHydrationWarning>
+        <Suspense fallback={null}>
+          <RouteProgressBar />
+        </Suspense>
         <OfflineProvider>
           {children}
         </OfflineProvider>

@@ -113,7 +113,7 @@ export async function getAdminStudentGrievancesAction(filters?: {
         status: (meta.status as 'Pending' | 'In Progress' | 'Resolved' | 'Closed') || 'In Progress',
         adminNote: meta.adminNote || '',
         submittedAt: dateFormatted,
-        updatedAt: n.updatedAt.toISOString(),
+        updatedAt: (meta.updatedAt ? new Date(meta.updatedAt) : n.createdAt).toISOString(),
       };
 
       ticketMap.set(ticketNumber, item);

@@ -61,12 +61,25 @@ export async function POST(request: Request) {
 
     return response;
   } catch (err: unknown) {
-    const errMsg = (err as any)?.message || String(err) || 'An unexpected authentication error occurred.';
-    console.error('[LOGIN API ERROR]', errMsg, err);
+    const rawMsg = (err as any)?.message || String(err) || '';
+    console.error('[LOGIN API ERROR]', rawMsg, err);
+
+    let userFacingError = 'An unexpected authentication error occurred. Please try again.';
+    if (
+      rawMsg.includes("Can't reach database") ||
+      rawMsg.includes('Prisma') ||
+      rawMsg.includes('ECONNREFUSED')
+    ) {
+      userFacingError =
+        'Database connection is unavailable. Please click one of the 1-Click Demo Logins below to explore the portal.';
+    } else if (rawMsg) {
+      userFacingError = rawMsg;
+    }
+
     return NextResponse.json(
       {
         success: false,
-        error: errMsg,
+        error: userFacingError,
       },
       { status: 500 }
     );

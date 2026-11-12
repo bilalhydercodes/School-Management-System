@@ -255,9 +255,10 @@ export default function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeach
         }
       }
     } else if (currentStep === 6) {
-      if (!formData.loginEmail.trim() || !formData.loginEmail.includes('@')) {
+      const loginEmail = formData.loginEmail?.trim() || '';
+      if (!loginEmail || !loginEmail.includes('@')) {
         // Fallback to contact email or phone handle
-        if (formData.email.trim() && formData.email.includes('@')) {
+        if (formData.email?.trim() && formData.email.includes('@')) {
           setFormData((prev) => ({ ...prev, loginEmail: prev.email.trim() }));
         } else {
           setErrorMessage('Valid Contact/Login Email is required');

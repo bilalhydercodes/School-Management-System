@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { performInstantLogout } from '@/lib/auth-client';
 
 // Always-loaded shell & primary landing screen (instant 0ms first render)
@@ -10,8 +11,9 @@ import PortalSidebar from './PortalSidebar';
 import PortalHeader from './PortalHeader';
 import ScreenSkeleton from './ScreenSkeleton';
 import DashboardScreen from './screens/DashboardScreen';
-import AIChat from '@/components/ai/AIChat';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext';
+
+const AIChat = dynamic(() => import('@/components/ai/AIChat'), { ssr: false });
 
 // ─── Lazy-loaded secondary screen chunks ──────────────────────────────────────
 // Secondary tabs are code-split and fetched on demand when clicked.
@@ -271,13 +273,21 @@ export default function StudentParentDashboardClient({
           {/* Screen renderer — Suspense boundary catches any async within screens */}
           <main className="flex-1 min-w-0">
             <Suspense fallback={<ScreenSkeleton />}>
-              {activeNav === 'dashboard' && (
-                <DashboardScreen
-                  student={student}
-                  onSelectNav={handleSelectNav}
-                  onRequestLeave={() => setLeaveModalOpen(true)}
-                />
-              )}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeNav}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                >
+                  {activeNav === 'dashboard' && (
+                    <DashboardScreen
+                      student={student}
+                      onSelectNav={handleSelectNav}
+                      onRequestLeave={() => setLeaveModalOpen(true)}
+                    />
+                  )}
 
               {activeNav === 'student-id-card' && (
                 <StudentIdCardScreen student={student} onBackToDashboard={backToDashboard} />
@@ -430,8 +440,10 @@ export default function StudentParentDashboardClient({
               {activeNav === 'help-support' && (
                 <HelpSupportScreen onBackToDashboard={backToDashboard} />
               )}
-            </Suspense>
-          </main>
+            </motion.div>
+          </AnimatePresence>
+        </Suspense>
+      </main>
         </div>
       </div>
 

@@ -215,6 +215,7 @@ export default async function AdminExamsPage() {
           subject: 'Science (Theory & Lab)',
           code: 'SCI-10',
           max: 100,
+          obtained: isPracticalPending ? null : sciTheory + 18,
           theoryMax: 80,
           theoryObtained: sciTheory,
           practicalMax: 20,

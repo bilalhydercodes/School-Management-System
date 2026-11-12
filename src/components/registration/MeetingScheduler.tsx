@@ -45,8 +45,19 @@ const TIME_SLOTS_24H = [
   '20:00',
 ];
 
+function getOrdinalSuffix(n: number): string {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
 export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps) {
-  const [selectedDay, setSelectedDay] = useState<number>(11);
+  const [viewDate, setViewDate] = useState(() => new Date());
+  const [selectedDay, setSelectedDay] = useState<number>(() => {
+    const d = new Date();
+    // Default to tomorrow or today if early
+    return d.getDate() < 28 ? d.getDate() + 1 : d.getDate();
+  });
   const [selectedSlot, setSelectedSlot] = useState<string>('02:00 PM');
   const [timeFormat, setTimeFormat] = useState<'12h' | '24h'>('12h');
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -61,6 +72,32 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
 
   const [isPending, startTransition] = useTransition();
   const [bookingError, setBookingError] = useState<string | null>(null);
+
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const monthName = viewDate.toLocaleDateString('en-US', { month: 'long' });
+  const monthShort = viewDate.toLocaleDateString('en-US', { month: 'short' });
+  const firstDayWeekday = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const today = new Date();
+  const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+  const todayDate = today.getDate();
+
+  // Safely clamp selected day if changing to a month with fewer days
+  const activeSelectedDay = Math.min(selectedDay, daysInMonth);
+  const selectedDateObj = new Date(year, month, activeSelectedDay);
+  const selectedWeekday = selectedDateObj.toLocaleDateString('en-US', { weekday: 'short' });
+
+  const handlePrevMonth = () => {
+    setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    setShowBookingForm(false);
+  };
+
+  const handleNextMonth = () => {
+    setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    setShowBookingForm(false);
+  };
 
   const slots = timeFormat === '12h' ? TIME_SLOTS_12H : TIME_SLOTS_24H;
 
@@ -80,7 +117,7 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
         name: bookingData.name,
         institutionName: bookingData.institutionName,
         email: bookingData.email,
-        dateStr: `Nov ${selectedDay}, 2026`,
+        dateStr: `${monthShort} ${activeSelectedDay}, ${year}`,
         timeSlot: selectedSlot,
       });
 
@@ -114,7 +151,11 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
             </h3>
             <p className="mt-3 text-slate-600 text-sm leading-relaxed">
               A 30-minute Google Meet invitation with our education specialist has been sent to{' '}
-              <strong>{bookingData.email}</strong> for <strong>Nov {selectedDay}, 2026 at {selectedSlot} (IST)</strong>.
+              <strong>{bookingData.email}</strong> for{' '}
+              <strong>
+                {monthShort} {activeSelectedDay}, {year} at {selectedSlot} (IST)
+              </strong>
+              .
             </p>
 
             <div className="mt-8 p-5 bg-slate-50 border border-slate-200 rounded-2xl text-left space-y-2 text-xs">
@@ -216,11 +257,12 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h4 className="font-bold text-base text-slate-900">
-                    November <span className="text-slate-400 font-normal">2026</span>
+                    {monthName} <span className="text-slate-400 font-normal">{year}</span>
                   </h4>
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
+                      onClick={handlePrevMonth}
                       className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors"
                       aria-label="Previous month"
                     >
@@ -228,6 +270,7 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
                     </button>
                     <button
                       type="button"
+                      onClick={handleNextMonth}
                       className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors"
                       aria-label="Next month"
                     >
@@ -247,17 +290,17 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
 
                 {/* Days Grid */}
                 <div className="grid grid-cols-7 gap-1 text-center">
-                  {/* Empty offsets for day 1 */}
-                  {[...Array(0)].map((_, i) => (
+                  {/* Empty offsets for day 1 of month */}
+                  {[...Array(firstDayWeekday)].map((_, i) => (
                     <div key={`empty-${i}`} className="h-10" />
                   ))}
 
-                  {/* 1st to 30th */}
-                  {[...Array(30)].map((_, i) => {
+                  {/* Days of current month */}
+                  {[...Array(daysInMonth)].map((_, i) => {
                     const day = i + 1;
-                    const isPast = day < 10;
-                    const isSelected = selectedDay === day;
-                    const isToday = day === 10;
+                    const isPast = isCurrentMonth && day < todayDate;
+                    const isSelected = activeSelectedDay === day;
+                    const isToday = isCurrentMonth && day === todayDate;
 
                     return (
                       <button
@@ -287,7 +330,7 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
               </div>
 
               <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-                <span>Selected: Nov {selectedDay}, 2026</span>
+                <span>Selected: {monthShort} {activeSelectedDay}, {year}</span>
                 <span className="text-emerald-600 font-bold">● Available Slots</span>
               </div>
             </div>
@@ -298,7 +341,7 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
                 {/* Header with Format Switcher */}
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-bold text-sm text-slate-900">
-                    Wed {selectedDay}th
+                    {selectedWeekday} {getOrdinalSuffix(activeSelectedDay)}
                   </h4>
                   <div className="flex items-center border border-slate-200 rounded-lg p-0.5 text-[10px] font-bold">
                     <button
@@ -347,7 +390,7 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
                   /* Quick Booking Form when slot is clicked */
                   <form onSubmit={handleConfirmBooking} className="space-y-3">
                     <div className="p-2.5 bg-indigo-50 border border-indigo-100 rounded-xl text-xs text-indigo-900 font-semibold mb-2">
-                      Selected Slot: <strong>Nov {selectedDay} at {selectedSlot}</strong>
+                      Selected Slot: <strong>{monthShort} {activeSelectedDay} at {selectedSlot}</strong>
                     </div>
 
                     <div>
@@ -427,10 +470,10 @@ export default function MeetingScheduler({ onFormSwitch }: MeetingSchedulerProps
                 )}
               </div>
 
-              {/* Bottom footer credit matching reference image */}
+              {/* Bottom footer credit */}
               <div className="pt-4 mt-4 border-t border-slate-100 text-center">
-                <span className="text-[11px] font-extrabold tracking-tight text-slate-400">
-                  Cal.com
+                <span className="text-[11px] font-bold tracking-tight text-slate-400">
+                  Alpha Edu Hub • Advisory Consultation
                 </span>
               </div>
             </div>

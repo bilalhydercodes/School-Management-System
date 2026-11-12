@@ -34,9 +34,12 @@ const memoryOtpStore = new Map<string, { hash: string; expiresAt: number; attemp
 const memoryCooldownStore = new Map<string, number>();
 // Pre-cached demo credentials and memory cache for 0ms demo logins
 const DEMO_CREDENTIALS: Record<string, string> = {
+  'superadmin@schoolerp.in': 'SuperAdmin@123',
   'admin@dps.edu.in': 'Admin@123',
   'teacher@dps.edu.in': 'Teacher@123',
+  'accountant@dps.edu.in': 'Accountant@123',
   'student@dps.edu.in': 'Student@123',
+  'parent@dps.edu.in': 'Parent@123',
 };
 const demoUserCache = new Map<string, any>();
 
@@ -89,7 +92,13 @@ export class AuthService {
 
     // 0. Super-fast path for official 1-Click Demo Accounts (<10ms instant response)
     const expectedDemoPass = DEMO_CREDENTIALS[email];
-    if (expectedDemoPass && rawPassword === expectedDemoPass) {
+    if (expectedDemoPass) {
+      if (rawPassword !== expectedDemoPass) {
+        return {
+          success: false,
+          error: 'Invalid password. For demo accounts, please use the 1-Click Demo Logins below or enter Role@123.',
+        };
+      }
       let demoUser = demoUserCache.get(email);
       if (!demoUser) {
         try {
@@ -111,6 +120,16 @@ export class AuthService {
       // Fallback synthetic demo user for unseeded/fresh environments
       if (!demoUser) {
         const fallbackUsers: Record<string, any> = {
+          'superadmin@schoolerp.in': {
+            id: 'a0000000-0000-0000-0000-000000000000',
+            tenantId: '3c9a7747-cffd-40e1-be07-374b47817e5f',
+            role: 'SUPER_ADMIN',
+            email: 'superadmin@schoolerp.in',
+            firstName: 'Super',
+            lastName: 'Admin',
+            avatarUrl: null,
+            mustChangePassword: false,
+          },
           'admin@dps.edu.in': {
             id: 'a0000000-0000-0000-0000-000000000001',
             tenantId: '3c9a7747-cffd-40e1-be07-374b47817e5f',
@@ -131,12 +150,32 @@ export class AuthService {
             avatarUrl: null,
             mustChangePassword: false,
           },
+          'accountant@dps.edu.in': {
+            id: 'a0000000-0000-0000-0000-000000000004',
+            tenantId: '3c9a7747-cffd-40e1-be07-374b47817e5f',
+            role: 'ACCOUNTANT',
+            email: 'accountant@dps.edu.in',
+            firstName: 'Rajesh',
+            lastName: 'Gupta',
+            avatarUrl: null,
+            mustChangePassword: false,
+          },
           'student@dps.edu.in': {
             id: 'a0000000-0000-0000-0000-000000000003',
             tenantId: '3c9a7747-cffd-40e1-be07-374b47817e5f',
             role: 'STUDENT',
             email: 'student@dps.edu.in',
             firstName: 'Rohan',
+            lastName: 'Sharma',
+            avatarUrl: null,
+            mustChangePassword: false,
+          },
+          'parent@dps.edu.in': {
+            id: 'a0000000-0000-0000-0000-000000000005',
+            tenantId: '3c9a7747-cffd-40e1-be07-374b47817e5f',
+            role: 'PARENT',
+            email: 'parent@dps.edu.in',
+            firstName: 'Sunil',
             lastName: 'Sharma',
             avatarUrl: null,
             mustChangePassword: false,
@@ -162,15 +201,17 @@ export class AuthService {
           '7d'
         );
 
-        // Non-blocking fire-and-forget stats update
-        try {
-          prisma.user
-            .update({
-              where: { id: demoUser.id },
-              data: { failedLoginAttempts: 0, lockedUntil: null, lastLoginAt: new Date() },
-            })
-            .catch(() => {});
-        } catch {}
+        // Non-blocking fire-and-forget stats update (skip synthetic fallback IDs)
+        if (demoUser.id && !demoUser.id.startsWith('a0000000-')) {
+          try {
+            prisma.user
+              .update({
+                where: { id: demoUser.id },
+                data: { failedLoginAttempts: 0, lockedUntil: null, lastLoginAt: new Date() },
+              })
+              .catch(() => {});
+          } catch {}
+        }
 
         const sessionUser: UserSession = {
           userId: demoUser.id,

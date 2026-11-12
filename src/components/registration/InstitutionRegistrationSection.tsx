@@ -1,10 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, CalendarDays } from 'lucide-react';
 import ModernInstitutionRegistrationFlow from './ModernInstitutionRegistrationFlow';
-import MeetingScheduler from './MeetingScheduler';
+
+const MeetingScheduler = dynamic(() => import('./MeetingScheduler'), {
+  loading: () => (
+    <div className="w-full max-w-6xl mx-auto h-[520px] bg-white rounded-3xl shadow-xl border border-slate-200/90 animate-pulse flex items-center justify-center p-8">
+      <div className="text-center">
+        <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold mx-auto mb-3">
+          α
+        </div>
+        <p className="text-sm font-semibold text-slate-500">Loading consultation calendar...</p>
+      </div>
+    </div>
+  ),
+});
 
 export default function InstitutionRegistrationSection() {
   // The user explicitly requested: the default MUST be the registration form,

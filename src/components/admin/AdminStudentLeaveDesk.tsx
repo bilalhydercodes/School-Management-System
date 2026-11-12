@@ -396,7 +396,7 @@ export default function AdminStudentLeaveDesk({
                 </AdminButton>
 
                 <AdminButton
-                  variant="danger"
+                  variant="destructive"
                   className="w-full py-2.5"
                   disabled={isSubmitting}
                   onClick={() => handleDecision('Rejected')}

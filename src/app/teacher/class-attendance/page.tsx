@@ -107,7 +107,7 @@ export default function ClassAttendancePage() {
         const mapped: StudentItem[] = res.data.students.map((s, idx) => ({
           id: s.id,
           roll: s.rollNumber ? String(s.rollNumber).padStart(2, '0') : String(idx + 1).padStart(2, '0'),
-          name: s.name,
+          name: `${s.firstName} ${s.lastName}`.trim() || 'Student',
           status: (s.status as any) || 'PRESENT',
         }));
         setStudents(mapped);

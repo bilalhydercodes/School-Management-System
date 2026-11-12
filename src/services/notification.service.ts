@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db';
-import { NotificationType, Prisma } from '@prisma/client';
+import { NotificationType, Prisma, Role } from '@prisma/client';
 import { enqueueJob, NOTIFICATIONS_HIGH_QUEUE } from '@/lib/queue';
 
 export interface SendNotificationPayload {
@@ -215,6 +215,36 @@ export class NotificationService {
       body,
       type,
       actionUrl,
+    });
+  }
+
+  /**
+   * Broadcasts a notification to specific user roles within a tenant (e.g. all Admins).
+   */
+  static async sendRoleNotification(payload: {
+    tenantId: string;
+    targetRoles: Role[];
+    type: NotificationType;
+    title: string;
+    message: string;
+    metadata?: Record<string, any>;
+  }) {
+    const users = await prisma.user.findMany({
+      where: {
+        tenantId: payload.tenantId,
+        role: { in: payload.targetRoles },
+        isActive: true,
+      },
+      select: { id: true },
+    });
+    if (users.length === 0) return { count: 0 };
+    return this.sendBulk({
+      tenantId: payload.tenantId,
+      recipientIds: users.map((u) => u.id),
+      type: payload.type,
+      title: payload.title,
+      body: payload.message,
+      metadata: payload.metadata,
     });
   }
 

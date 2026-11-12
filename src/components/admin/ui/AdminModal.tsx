@@ -8,6 +8,7 @@ interface AdminModalProps {
   onClose: () => void;
   title: string;
   description?: string;
+  subtitle?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl';
@@ -18,6 +19,7 @@ export default function AdminModal({
   onClose,
   title,
   description,
+  subtitle,
   children,
   footer,
   maxWidth = 'lg',
@@ -64,8 +66,8 @@ export default function AdminModal({
         <div className="flex items-start justify-between p-6 pb-4 border-b border-slate-100">
           <div>
             <h3 className="text-base font-bold text-slate-900">{title}</h3>
-            {description && (
-              <p className="text-xs text-slate-500 mt-0.5">{description}</p>
+            {(description || subtitle) && (
+              <p className="text-xs text-slate-500 mt-0.5">{description || subtitle}</p>
             )}
           </div>
           <button

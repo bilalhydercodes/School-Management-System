@@ -1,14 +1,24 @@
 import React from 'react';
+import dynamic from 'next/dynamic';
 import Navbar from './Navbar';
 import HeroSection from './HeroSection';
-import FeaturesGrid from './FeaturesGrid';
-import RoleSection from './RoleSection';
-import CommunitySection, { CommunityStatsProps } from './CommunitySection';
-import PricingSection, { PricingPlan } from './PricingSection';
-import TestimonialsSection from './TestimonialsSection';
-import FaqSection from './FaqSection';
-import FinalCtaSection from './FinalCtaSection';
-import Footer from './Footer';
+import type { CommunityStatsProps } from './CommunitySection';
+import type { PricingPlan } from './PricingSection';
+
+const SectionLoader = () => (
+  <div className="w-full py-16 flex items-center justify-center bg-white/40">
+    <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-indigo-600 animate-spin" />
+  </div>
+);
+
+const FeaturesGrid = dynamic(() => import('./FeaturesGrid'), { loading: SectionLoader });
+const RoleSection = dynamic(() => import('./RoleSection'), { loading: SectionLoader });
+const CommunitySection = dynamic(() => import('./CommunitySection'), { loading: SectionLoader });
+const PricingSection = dynamic(() => import('./PricingSection'), { loading: SectionLoader });
+const TestimonialsSection = dynamic(() => import('./TestimonialsSection'), { loading: SectionLoader });
+const FaqSection = dynamic(() => import('./FaqSection'), { loading: SectionLoader });
+const FinalCtaSection = dynamic(() => import('./FinalCtaSection'), { loading: SectionLoader });
+const Footer = dynamic(() => import('./Footer'), { loading: SectionLoader });
 
 export interface LandingPageProps {
   stats?: CommunityStatsProps;
