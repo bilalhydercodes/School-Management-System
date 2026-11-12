@@ -179,7 +179,7 @@ export default function ForgotPasswordPage() {
                   className="w-full bg-white text-center tracking-widest text-lg font-bold py-2.5 px-3 rounded-lg border border-brand-border focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all"
                 />
                 <div className="flex items-center justify-between text-xs text-slate-500 mt-2 px-1">
-                  <span>Didn't receive the email code?</span>
+                  <span>Didn&apos;t receive the email code?</span>
                   {cooldown > 0 ? (
                     <span className="text-slate-400 font-medium bg-slate-100 px-2 py-0.5 rounded-md">
                       Resend in {cooldown}s

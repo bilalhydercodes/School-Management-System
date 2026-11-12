@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   ClipboardList,
@@ -16,38 +16,38 @@ import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { StatCard, StatusBadge, TeacherCard } from '@/components/teacher/TeacherComponents';
 import { getTeacherLeaveHistoryAction, type TeacherLeaveItem } from '@/actions/teacher-portal';
 
+const DEFAULT_HISTORY: TeacherLeaveItem[] = [
+  { id: 'def-1', referenceNo: 'FAC-LEV-2025-881', type: 'Sick Leave', from: '22 Dec 2025', to: '23 Dec 2025', days: 2, appliedOn: '21 Dec 2025', status: 'APPROVED', reason: 'Viral fever recovery', adminRemarks: 'Approved by Principal' },
+  { id: 'def-2', referenceNo: 'FAC-LEV-2025-742', type: 'Earned Leave', from: '10 Nov 2025', to: '14 Nov 2025', days: 5, appliedOn: '01 Nov 2025', status: 'APPROVED', reason: 'Annual travel', adminRemarks: 'Approved' },
+  { id: 'def-3', referenceNo: 'FAC-LEV-2025-619', type: 'Casual Leave', from: '15 Oct 2025', to: '15 Oct 2025', days: 1, appliedOn: '14 Oct 2025', status: 'REJECTED', reason: 'Personal work', adminRemarks: 'Exam invigilation duty clash' },
+];
+
 export default function LeaveStatusPage() {
   const [requests, setRequests] = useState<TeacherLeaveItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const defaultHistory: TeacherLeaveItem[] = [
-    { id: 'def-1', referenceNo: 'FAC-LEV-2025-881', type: 'Sick Leave', from: '22 Dec 2025', to: '23 Dec 2025', days: 2, appliedOn: '21 Dec 2025', status: 'APPROVED', reason: 'Viral fever recovery', adminRemarks: 'Approved by Principal' },
-    { id: 'def-2', referenceNo: 'FAC-LEV-2025-742', type: 'Earned Leave', from: '10 Nov 2025', to: '14 Nov 2025', days: 5, appliedOn: '01 Nov 2025', status: 'APPROVED', reason: 'Annual travel', adminRemarks: 'Approved' },
-    { id: 'def-3', referenceNo: 'FAC-LEV-2025-619', type: 'Casual Leave', from: '15 Oct 2025', to: '15 Oct 2025', days: 1, appliedOn: '14 Oct 2025', status: 'REJECTED', reason: 'Personal work', adminRemarks: 'Exam invigilation duty clash' },
-  ];
-
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await getTeacherLeaveHistoryAction();
       if (res.success && res.requests && res.requests.length > 0) {
         // Merge real DB records with default historical records for a comprehensive view
         const dbRefs = new Set(res.requests.map((r) => r.referenceNo));
-        const merged = [...res.requests, ...defaultHistory.filter((d) => !dbRefs.has(d.referenceNo))];
+        const merged = [...res.requests, ...DEFAULT_HISTORY.filter((d) => !dbRefs.has(d.referenceNo))];
         setRequests(merged);
       } else {
-        setRequests(defaultHistory);
+        setRequests(DEFAULT_HISTORY);
       }
     } catch {
-      setRequests(defaultHistory);
+      setRequests(DEFAULT_HISTORY);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchHistory();
-  }, []);
+  }, [fetchHistory]);
 
   const pendingCount = requests.filter((r) => r.status === 'PENDING').length;
   const approvedDays = requests

@@ -30,26 +30,26 @@ interface StudentRosterItem {
   phone: string;
 }
 
+const DEFAULT_ROSTER: StudentRosterItem[] = [
+  { id: '1', roll: '01', name: 'Aarav Sharma', class: 'Grade 8', section: 'A', attendance: 96, gpa: 'A+', parent: 'Rajesh Sharma', phone: '+91 98110 23451' },
+  { id: '2', roll: '02', name: 'Ananya Verma', class: 'Grade 8', section: 'A', attendance: 98, gpa: 'A+', parent: 'Sunita Verma', phone: '+91 98110 23452' },
+  { id: '3', roll: '03', name: 'Dev Patel', class: 'Grade 8', section: 'A', attendance: 92, gpa: 'A', parent: 'Kiran Patel', phone: '+91 98110 23453' },
+  { id: '4', roll: '04', name: 'Ishaan Gupta', class: 'Grade 8', section: 'A', attendance: 88, gpa: 'B+', parent: 'Manish Gupta', phone: '+91 98110 23454' },
+  { id: '5', roll: '05', name: 'Kavya Singh', class: 'Grade 8', section: 'A', attendance: 100, gpa: 'A+', parent: 'Deepak Singh', phone: '+91 98110 23455' },
+  { id: '6', roll: '01', name: 'Manav Joshi', class: 'Grade 9', section: 'B', attendance: 94, gpa: 'A', parent: 'Vikram Joshi', phone: '+91 98110 23456' },
+  { id: '7', roll: '02', name: 'Meera Rao', class: 'Grade 9', section: 'B', attendance: 97, gpa: 'A+', parent: 'Sanjay Rao', phone: '+91 98110 23457' },
+  { id: '8', roll: '03', name: 'Rohan Sharma', class: 'Grade 9', section: 'B', attendance: 95, gpa: 'A', parent: 'Alok Sharma', phone: '+91 98110 23458' },
+  { id: '9', roll: '01', name: 'Sanya Malhotra', class: 'Grade 10', section: 'A', attendance: 91, gpa: 'B+', parent: 'Arun Malhotra', phone: '+91 98110 23459' },
+  { id: '10', roll: '02', name: 'Vihaan Kumar', class: 'Grade 10', section: 'A', attendance: 99, gpa: 'A+', parent: 'Rakesh Kumar', phone: '+91 98110 23460' },
+];
+
 export default function StudentRosterPage() {
   const [selectedSection, setSelectedSection] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<StudentRosterItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const defaultRoster: StudentRosterItem[] = [
-    { id: '1', roll: '01', name: 'Aarav Sharma', class: 'Grade 8', section: 'A', attendance: 96, gpa: 'A+', parent: 'Rajesh Sharma', phone: '+91 98110 23451' },
-    { id: '2', roll: '02', name: 'Ananya Verma', class: 'Grade 8', section: 'A', attendance: 98, gpa: 'A+', parent: 'Sunita Verma', phone: '+91 98110 23452' },
-    { id: '3', roll: '03', name: 'Dev Patel', class: 'Grade 8', section: 'A', attendance: 92, gpa: 'A', parent: 'Kiran Patel', phone: '+91 98110 23453' },
-    { id: '4', roll: '04', name: 'Ishaan Gupta', class: 'Grade 8', section: 'A', attendance: 88, gpa: 'B+', parent: 'Manish Gupta', phone: '+91 98110 23454' },
-    { id: '5', roll: '05', name: 'Kavya Singh', class: 'Grade 8', section: 'A', attendance: 100, gpa: 'A+', parent: 'Deepak Singh', phone: '+91 98110 23455' },
-    { id: '6', roll: '01', name: 'Manav Joshi', class: 'Grade 9', section: 'B', attendance: 94, gpa: 'A', parent: 'Vikram Joshi', phone: '+91 98110 23456' },
-    { id: '7', roll: '02', name: 'Meera Rao', class: 'Grade 9', section: 'B', attendance: 97, gpa: 'A+', parent: 'Sanjay Rao', phone: '+91 98110 23457' },
-    { id: '8', roll: '03', name: 'Rohan Sharma', class: 'Grade 9', section: 'B', attendance: 95, gpa: 'A', parent: 'Alok Sharma', phone: '+91 98110 23458' },
-    { id: '9', roll: '01', name: 'Sanya Malhotra', class: 'Grade 10', section: 'A', attendance: 91, gpa: 'B+', parent: 'Arun Malhotra', phone: '+91 98110 23459' },
-    { id: '10', roll: '02', name: 'Vihaan Kumar', class: 'Grade 10', section: 'A', attendance: 99, gpa: 'A+', parent: 'Rakesh Kumar', phone: '+91 98110 23460' },
-  ];
-
-  const [roster, setRoster] = useState<StudentRosterItem[]>(defaultRoster);
+  const [roster, setRoster] = useState<StudentRosterItem[]>(DEFAULT_ROSTER);
 
   useEffect(() => {
     async function fetchStudents() {
@@ -59,10 +59,10 @@ export default function StudentRosterPage() {
         if (res.success && res.students && res.students.length > 0) {
           setRoster(res.students);
         } else {
-          setRoster(defaultRoster);
+          setRoster(DEFAULT_ROSTER);
         }
       } catch {
-        setRoster(defaultRoster);
+        setRoster(DEFAULT_ROSTER);
       } finally {
         setIsLoading(false);
       }

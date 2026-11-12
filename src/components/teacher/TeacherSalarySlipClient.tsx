@@ -451,7 +451,7 @@ export default function TeacherSalarySlipClient({
 
             <div className="space-y-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="text-slate-600 font-medium">Employees' Provident Fund (EPF)</span>
+                <span className="text-slate-600 font-medium">Employees&apos; Provident Fund (EPF)</span>
                 <span className="font-mono font-bold text-slate-800">₹{currentPay.epf.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex items-center justify-between">

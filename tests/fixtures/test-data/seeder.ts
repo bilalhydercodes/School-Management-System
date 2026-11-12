@@ -41,7 +41,7 @@ export async function seedSyntheticInstitution(data: SyntheticInstitutionData) {
       data: {
         name: 'Enterprise Test Plan',
         priceMonthly: 0,
-        priceYearly: 0,
+        priceAnnual: 0,
         maxStudents: 5000,
         maxStaff: 500,
         features: ['all'],
